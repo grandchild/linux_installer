@@ -1,0 +1,4 @@
+Hallo ich bin eine Textdatei!
+
+Jaha!
+Und habe 4 Zeilen...
