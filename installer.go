@@ -1,17 +1,27 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	// "github.com/go-playground/statics/static"
 	"github.com/GeertJohan/go.rice"
 	"github.com/skratchdot/open-golang/open"
 )
 
+var pBox *rice.Box
+
 func Handler(response http.ResponseWriter, request *http.Request) {
-	fmt.Printf("got a request")
-	fmt.Fprintf(response, "Hey!")
+	fmt.Fprintf(response, request.URL.Path)
+	fmt.Fprintf(response, "\n")
+	str, err := getResource(pBox, request.URL.Path)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Fprintf(response, str)
 }
 
 func LaunchServer() int {
@@ -19,28 +29,33 @@ func LaunchServer() int {
 }
 
 func LaunchInterface(port int) {
-	open.Run(fmt.Sprintf("http://localhost:%d/", port))
+	open.Run(fmt.Sprintf("http://localhost:%d/hey.txt", port))
 }
 
-func getPayload() string {
-	fileBox, err := rice.FindBox("payload")
-	if err != nil {
-		fmt.Print(err)
-		return "Error"
+func getResource(box *rice.Box, name string) (string, error) {
+	if box == nil {
+		return "", errors.New(fmt.Sprintf("payload '%s' doesn't exist.", box))
 	}
-	text, err := fileBox.String("text.txt")
+	text, err := box.String(name)
 	if err != nil {
-		fmt.Print(err)
-		return "Error"
+		return "", errors.New(fmt.Sprintf("resource '%s' not found.", name))
 	}
-	return text
+	return text, err
 }
 
 func main() {
-	fmt.Print(getPayload())
+	pBox, err := rice.FindBox("payload")
+
+	str, err := getResource(pBox, "text.txt")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(str)
 	http.HandleFunc("/", Handler)
 	port := LaunchServer()
 	LaunchInterface(port)
 	for {
+		time.Sleep(1 * time.Second)
 	}
 }
