@@ -44,7 +44,8 @@ func getResource(box *rice.Box, name string) (string, error) {
 }
 
 func main() {
-	pBox, err := rice.FindBox("payload")
+	var err error
+	pBox, err = rice.FindBox("payload")
 
 	str, err := getResource(pBox, "text.txt")
 	if err != nil {
