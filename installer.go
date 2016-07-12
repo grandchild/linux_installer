@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	// "github.com/go-playground/statics/static"
@@ -14,14 +15,16 @@ import (
 var pBox *rice.Box
 
 func Handler(response http.ResponseWriter, request *http.Request) {
-	fmt.Fprintf(response, request.URL.Path)
-	fmt.Fprintf(response, "\n")
 	str, err := getResource(pBox, request.URL.Path)
 	if err != nil {
 		fmt.Println(err)
+		response.WriteHeader(http.StatusNotFound)
 		return
 	}
-	fmt.Fprintf(response, str)
+	if strings.HasSuffix(request.URL.Path, ".css") {
+		response.Header().Set("Content-Type", "text/css")
+	}
+	fmt.Fprint(response, str)
 }
 
 func LaunchServer() int {
@@ -29,7 +32,7 @@ func LaunchServer() int {
 }
 
 func LaunchInterface(port int) {
-	open.Run(fmt.Sprintf("http://localhost:%d/hey.txt", port))
+	open.Run(fmt.Sprintf("http://localhost:%d/cover", port))
 }
 
 func getResource(box *rice.Box, name string) (string, error) {
@@ -46,15 +49,13 @@ func getResource(box *rice.Box, name string) (string, error) {
 func main() {
 	var err error
 	pBox, err = rice.FindBox("payload")
-
-	str, err := getResource(pBox, "text.txt")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(str)
 	http.HandleFunc("/", Handler)
 	port := LaunchServer()
+	fmt.Printf("Port: %d", port)
 	LaunchInterface(port)
 	for {
 		time.Sleep(1 * time.Second)
