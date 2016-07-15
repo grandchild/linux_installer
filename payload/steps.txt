@@ -1,0 +1,30 @@
+
+* Language Select
+* Welcome
+* Licence
+* Install Type
+* Folder
+* Start Menu
+* Installation Progress
+* Success
+* Failure
+
+
+Variables:
+
+$PRODUCT
+	Product name
+
+$VERSION
+	Full version number/name of the product
+
+$APPLAUNCHER
+	OS-specific name of the application launcher.
+	Set the strings
+	"_windows_app_launcher",
+	"_linux_app_launcher" and
+	"_mac_app_launcher"
+	and the correct one will be inserted depending on the
+	operating system the installer is run on.
+	This should be the equivalent of "Start Menu" on Windows,
+	"Application Menu" on Linux and "Dock" on Mac.
