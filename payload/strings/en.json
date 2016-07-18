@@ -1,5 +1,7 @@
 {
-	"header": "$PRODUCT Installation",
+	"title": "$PRODUCT Installation",
+	
+	"header": "Install $PRODUCT",
 	"choose_language": "Choose your language",
 	
 	"welcome_header": "Welcome to the $PRODUCT Installer",
@@ -25,8 +27,8 @@
 	"dir_space_avail": "Space available",
 	
 	"shortcut_header": "Shortcut",
-	"shortcut_menu": "Add a $PRODUCT shortcut to your $APPLAUNCHER?",
-	"shortcut_desktop": "Add a $PRODUCT shortcut to your Desktop?",
+	"shortcut_menu": "Add a shortcut for $PRODUCT to your $APPLAUNCHER?",
+	"shortcut_desktop": "Add a shortcut for $PRODUCT to your Desktop?",
 	
 	"progress_header": "Installing...",
 	"progress_text": "$PRODUCT is being installed. Please wait.",
@@ -50,5 +52,7 @@
 	
 	"_windows_app_launcher": "Start Menu",
 	"_linux_app_launcher": "Application Menu",
-	"_mac_app_launcher": "Dock",
+	"_darwin_app_launcher": "Dock",
+	
+	"_": ""
 }
