@@ -6,6 +6,8 @@
 	
 	"welcome_header": "Welcome to the $PRODUCT Installer",
 	"welcome_text": "This installer will guide you through the installation of $PRODUCT version $VERSION.<br/><br/>Use the buttons below to navigate.",
+	"welcome_why_website_link": "Is this a website?",
+	"welcome_why_website_text": "This installer uses your browser solely to provide its interface. This is done in order to present a unified installation experience across all possible platforms. All data is loaded from the installer file on your hard drive. <em>At no point is any data received from or sent to the internet</em> during this installation!",
 	
 	"license_header": "License Agreement",
 	"license_text_above": "Review and accept the following license agreement before installing $PRODUCT.",
