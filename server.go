@@ -55,9 +55,9 @@ func handler(response http.ResponseWriter, request *http.Request) {
 	if isCommand {
 		return
 	}
-	str, err := getResource(request.URL.Path)
+	str, err := getInstallerResource(request.URL.Path)
 	if err != nil && !regexp.MustCompile(`\.[^/]+$`).MatchString(request.URL.Path) {
-		str, err = getResource(request.URL.Path + ".html")
+		str, err = getInstallerResource(request.URL.Path + ".html")
 	}
 	if err != nil {
 		fmt.Println(err)

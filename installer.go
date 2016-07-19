@@ -51,7 +51,7 @@ func LaunchPush(response http.ResponseWriter) {
 }
 
 func main() {
-	openResource("payload")
+	openBoxes()
 	pushChan = make(chan string, 1)
 	http.HandleFunc("/", handler)
 	port := LaunchServer()

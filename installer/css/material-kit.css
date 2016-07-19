@@ -2724,6 +2724,8 @@ input[type="file"] > input[type="button"]::-moz-focus-inner {
 
 .section {
   padding: 70px 0;
+  border: 1px solid black;
+  margin: 20px;
 }
 
 .section-navbars {

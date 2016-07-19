@@ -9,7 +9,7 @@ import (
 )
 
 func getLocaleMatch() string {
-	stringsFiles, _ := getResourceFiltered("strings", regexp.MustCompile(`\.json$`))
+	stringsFiles, _ := getInstallerResourceFiltered("strings", regexp.MustCompile(`\.json$`))
 	langCodes := strings.Split(regexp.MustCompile(`.*/([^/]+)\.json`).ReplaceAllString(stringsFiles, "$1"), "\n")
 	langTags := []language.Tag{language.Raw.Make("en")}
 	for _, lang := range langCodes {
@@ -23,13 +23,13 @@ func getLocaleMatch() string {
 }
 
 func getAllLanguages() string {
-	stringsFiles, _ := getResourceFiltered("strings", regexp.MustCompile(`\.json$`))
+	stringsFiles, _ := getInstallerResourceFiltered("strings", regexp.MustCompile(`\.json$`))
 	langFiles := strings.Split(stringsFiles, "\n")
 	langCodes := strings.Split(regexp.MustCompile(`.*/([^/]+)\.json`).ReplaceAllString(stringsFiles, "$1"), "\n")
 	langs := []string{}
 	for i, lang := range langCodes {
 		if lang != "" {
-			langStrings, _ := getResource(langFiles[i])
+			langStrings, _ := getInstallerResource(langFiles[i])
 			langs = append(langs, "\""+lang+"\": "+langStrings)
 		}
 	}
