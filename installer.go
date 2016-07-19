@@ -1,75 +1,16 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
-	"net/url"
 	"os"
 	"os/signal"
-	"path/filepath"
-	"regexp"
-	"runtime"
-	"strings"
 	"time"
 
-	"github.com/GeertJohan/go.rice"
-	"github.com/cloudfoundry/jibber_jabber"
 	"github.com/skratchdot/open-golang/open"
-	"golang.org/x/text/language"
 )
 
-var pBox *rice.Box
 var pushChan chan string
-
-func handler(response http.ResponseWriter, request *http.Request) {
-	isCommand := handleCommands(response, request.URL.Path, request.URL.Query())
-	if isCommand {
-		return
-	}
-	str, err := getResource(request.URL.Path)
-	if err != nil && !regexp.MustCompile(`\.[^/]+$`).MatchString(request.URL.Path) {
-		str, err = getResource(request.URL.Path + ".html")
-	}
-	if err != nil {
-		fmt.Println(err)
-		response.WriteHeader(http.StatusNotFound)
-		return
-	}
-	if strings.HasSuffix(request.URL.Path, ".css") {
-		response.Header().Set("Content-Type", "text/css;\ncharset=UTF-8")
-	}
-	if regexp.MustCompile(`.*\.(json|conf(ig)?)$`).MatchString(request.URL.Path) {
-		response.Header().Set("Content-Type", "application/json;\ncharset=UTF-8")
-	}
-	fmt.Fprint(response, str)
-}
-
-func emptyOK(response http.ResponseWriter) {
-	fmt.Fprint(response)
-}
-
-func handleCommands(response http.ResponseWriter, path string, params url.Values) bool {
-	switch path {
-	case "/quit":
-		os.Exit(0)
-	case "/os":
-		fmt.Fprint(response, runtime.GOOS)
-	case "/locale":
-		fmt.Fprint(response, getLocaleMatch())
-	case "/copy":
-		fmt.Println("src: " + params.Get("src") + " ---> dst: " + params.Get("dst"))
-	case "/push":
-		// fmt.Println("Push channel opened.")
-		LaunchPush(response)
-	case "/strings":
-		response.Header().Set("Content-Type", "application/json;\ncharset=UTF-8")
-		fmt.Fprint(response, getAllLanguages())
-	default:
-		return false
-	}
-	return true
-}
 
 func LaunchServer() int {
 	return listenAndServe(0)
@@ -109,72 +50,8 @@ func LaunchPush(response http.ResponseWriter) {
 	}
 }
 
-func getResource(name string) (string, error) {
-	return getResourceFiltered(name, regexp.MustCompile(`.*`))
-}
-func getResourceFiltered(name string, dirFilter *regexp.Regexp) (string, error) {
-	if pBox == nil {
-		return "", errors.New(fmt.Sprintf("payload '%s' doesn't exist.", pBox))
-	}
-	text, err := pBox.String(name)
-	if err != nil {
-		contents := []string{}
-		err = pBox.Walk(name, func(path string, info os.FileInfo, err error) error {
-			if path != name {
-				if dirFilter.FindStringIndex(path) != nil {
-					contents = append(contents, path)
-				}
-				if info.IsDir() {
-					return filepath.SkipDir
-				}
-			}
-			return nil
-		})
-		if err == nil {
-			text = strings.Join(contents, "\n")
-		}
-	}
-	if err != nil {
-		return "", errors.New(fmt.Sprint(name, " not found."))
-	}
-	return text, err
-}
-
-func getLocaleMatch() string {
-	stringsFiles, _ := getResourceFiltered("strings", regexp.MustCompile(`\.json$`))
-	langCodes := strings.Split(regexp.MustCompile(`.*/([^/]+)\.json`).ReplaceAllString(stringsFiles, "$1"), "\n")
-	langTags := []language.Tag{language.Raw.Make("en")}
-	for _, lang := range langCodes {
-		if lang != "en" && lang != "" {
-			langTags = append(langTags, language.Raw.Make(lang))
-		}
-	}
-	locale, _ := jibber_jabber.DetectIETF()
-	match, _, _ := language.NewMatcher(langTags).Match(language.Make(locale))
-	return match.String()
-}
-
-func getAllLanguages() string {
-	stringsFiles, _ := getResourceFiltered("strings", regexp.MustCompile(`\.json$`))
-	langFiles := strings.Split(stringsFiles, "\n")
-	langCodes := strings.Split(regexp.MustCompile(`.*/([^/]+)\.json`).ReplaceAllString(stringsFiles, "$1"), "\n")
-	langs := []string{}
-	for i, lang := range langCodes {
-		if lang != "" {
-			langStrings, _ := getResource(langFiles[i])
-			langs = append(langs, "\""+lang+"\": "+langStrings)
-		}
-	}
-	return "{\n" + strings.Join(langs, ",\n") + "\n}"
-}
-
 func main() {
-	var err error
-	pBox, err = rice.FindBox("payload")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	openResource("payload")
 	pushChan = make(chan string, 1)
 	http.HandleFunc("/", handler)
 	port := LaunchServer()

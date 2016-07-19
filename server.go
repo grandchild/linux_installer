@@ -4,7 +4,12 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"net/url"
+	"os"
+	"regexp"
+	"runtime"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -43,4 +48,49 @@ func listenAndServe(port int) int {
 	}
 	go srv.Serve(tcpKeepAliveListener{ln.(*net.TCPListener)})
 	return gotPortI
+}
+
+func handler(response http.ResponseWriter, request *http.Request) {
+	isCommand := handleCommands(response, request.URL.Path, request.URL.Query())
+	if isCommand {
+		return
+	}
+	str, err := getResource(request.URL.Path)
+	if err != nil && !regexp.MustCompile(`\.[^/]+$`).MatchString(request.URL.Path) {
+		str, err = getResource(request.URL.Path + ".html")
+	}
+	if err != nil {
+		fmt.Println(err)
+		response.WriteHeader(http.StatusNotFound)
+		return
+	}
+	if strings.HasSuffix(request.URL.Path, ".css") {
+		response.Header().Set("Content-Type", "text/css;\ncharset=UTF-8")
+	}
+	if regexp.MustCompile(`.*\.(json|conf(ig)?)$`).MatchString(request.URL.Path) {
+		response.Header().Set("Content-Type", "application/json;\ncharset=UTF-8")
+	}
+	fmt.Fprint(response, str)
+}
+
+func handleCommands(response http.ResponseWriter, path string, params url.Values) bool {
+	switch path {
+	case "/quit":
+		os.Exit(0)
+	case "/os":
+		fmt.Fprint(response, runtime.GOOS)
+	case "/locale":
+		fmt.Fprint(response, getLocaleMatch())
+	case "/copy":
+		fmt.Println("src: " + params.Get("src") + " ---> dst: " + params.Get("dst"))
+	case "/push":
+		// fmt.Println("Push channel opened.")
+		LaunchPush(response)
+	case "/strings":
+		response.Header().Set("Content-Type", "application/json;\ncharset=UTF-8")
+		fmt.Fprint(response, getAllLanguages())
+	default:
+		return false
+	}
+	return true
 }
