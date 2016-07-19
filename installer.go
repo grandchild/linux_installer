@@ -37,7 +37,10 @@ func handler(response http.ResponseWriter, request *http.Request) {
 		return
 	}
 	if strings.HasSuffix(request.URL.Path, ".css") {
-		response.Header().Set("Content-Type", "text/css")
+		response.Header().Set("Content-Type", "text/css;\ncharset=UTF-8")
+	}
+	if regexp.MustCompile(`.*\.(json|conf(ig)?)$`).MatchString(request.URL.Path) {
+		response.Header().Set("Content-Type", "application/json;\ncharset=UTF-8")
 	}
 	fmt.Fprint(response, str)
 }
@@ -60,6 +63,7 @@ func handleCommands(response http.ResponseWriter, path string, params url.Values
 		// fmt.Println("Push channel opened.")
 		LaunchPush(response)
 	case "/strings":
+		response.Header().Set("Content-Type", "application/json;\ncharset=UTF-8")
 		fmt.Fprint(response, getAllLanguages())
 	default:
 		return false
