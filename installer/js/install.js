@@ -40,8 +40,8 @@ function loadLanguage(lang) {
 }
 
 function expandStringVariables(string, data) {
-	string = string.replace(/\$PRODUCT/, config['$PRODUCT']);
-	string = string.replace(/\$VERSION/, config['$VERSION']);
+	string = string.replace(/\$PRODUCT/, config['strings-variables']['$PRODUCT']);
+	string = string.replace(/\$VERSION/, config['strings-variables']['$VERSION']);
 	string = string.replace(/\$APPLAUNCHER/, data['_'+os+'_app_launcher']);
 	return string;
 }
