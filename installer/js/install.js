@@ -28,9 +28,11 @@ function loadLanguage(lang) {
 	for(var key in strings[lang]) {
 		if(strings[lang].hasOwnProperty(key)) {
 			var string = expandStringVariables(strings[lang][key], strings[lang]);
-			if (key==='title') {
+			switch(key) {
+			case 'title':
 				document.title = string;
-			} else {
+				break;
+			default:
 				$('.ui-string.'+key).html(string);
 			}
 		}
@@ -63,3 +65,7 @@ function pushHandler() {
 window.onbeforeunload = function(e) {
 	// $.get('/quit');
 };
+
+function htmlEncode(value) {
+	return $('<div/>').text(value).html();
+}
