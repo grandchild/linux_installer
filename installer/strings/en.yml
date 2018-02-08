@@ -1,0 +1,67 @@
+
+title: $PRODUCT Installation
+
+header: Install $PRODUCT
+choose_language: Choose your language
+
+welcome_header: Welcome to the $PRODUCT Installer
+welcome_text: >
+  This installer will guide you through the installation of $PRODUCT version $VERSION.<br/><br/>
+  Use the buttons below to navigate.
+welcome_why_website_title: Is this a website?
+welcome_why_website_text: >
+  This installer uses your browser solely to provide its interface.
+  This is done in order to present a unified installation experience across all possible platforms.
+  All data is loaded from the installer file on your hard drive.<br/>
+  <b>At no point is any data received from or sent to the internet</b> during this installation!
+
+license_header: License Agreement
+license_text_above: Review and accept the following license agreement before installing $PRODUCT.
+license_text_below: Click <em>Agree</em> to continue.
+license_button_agree: Agree
+
+type_header: Installation Type
+type_text: Select the type of installation you wish to perform.
+type_normal: Normal
+type_normal_text: A full installation of $PRODUCT.
+type_update: Update
+type_update_text: Update an existing installation of $PRODUCT to the latest version $VERSION.
+type_server: Server
+type_server_text: Install a legacy $PRODUCT Blue Dongle License Manager on a dedicated license server.
+
+dir_header: Install Location
+dir_text: Install $PRODUCT to the following location or select a custom location on your computer.
+dir_space_req: Space required
+dir_space_avail: Space available
+
+shortcut_header: Shortcut
+shortcut_menu: Add a shortcut for $PRODUCT to your $APPLAUNCHER?
+shortcut_desktop: Add a shortcut for $PRODUCT to your Desktop?
+
+progress_header: Installing...
+progress_text: $PRODUCT is being installed. Please wait.
+
+success_header: Success
+success_text: The installation is complete!
+success_start: Start $PRODUCT now?
+
+failure_header: Failed
+failure_text: Errors occurred during the installation.
+failure_try_again: You may go back and try again.
+
+
+_yes: "Yes"
+_no: "No"
+_ok: OK
+_cancel: Cancel
+
+_button_prev: Back
+_button_next: Next
+_button_install: Install
+_button_quit: Quit
+
+_windows_app_launcher: Start Menu
+_linux_app_launcher: Application Menu
+_darwin_app_launcher: Dock
+
+_: ""
