@@ -1,0 +1,85 @@
+---
+### Language selection
+_language_display: Deutsch
+_language_pick_text: Wählen Sie die Installionssprache aus.
+
+
+### Main UI strings
+title: "{{product}} Installer"
+
+header: "{{product}} {{version}} installieren"
+
+welcome_header: Willkommen zum {{product}}-Installer
+welcome_text: |
+  Dieser Installer wird Sie durch die Installtion von {{product}} {{version}} führen.
+  
+  Navigieren Sie mit den Buttons unten.
+
+license_header: Lizenzvereinbarung
+license_text_above: Lesen und akzeptieren Sie folgende Lizenzvereinbarung bevor sie {{product}} installieren.
+license_text_below: Klicken Sie auf <em>Akzeptieren</em> um fortzufahren.
+license_button_accept: Akzeptieren
+
+type_header: Installationstyp
+type_text: Wählen Sie die Art der Installation, die Sie durchführen möchten.
+type_normal: Normal
+type_normal_text: Eine komplette Installation von {{product}}.
+type_update: Update
+type_update_text: Updaten Sie eine vorhandene {{product}}-Installation auf die neueste Version {{version}}.
+type_server: Server
+type_server_text: Richten Sie einen {{product}}-Netzwerk-Lizenzserver auf diesem Computer ein.
+
+path_header: Installationspfad
+path_text: Installiere {{product}} in diesen Pfad oder wählen Sie einen eigenen Pfad auf Ihrem Computer aus.
+path_browse_title: Installationspfad auswählen
+path_space_req: Speicherplatz benötigt
+path_space_avail: Speicherplatz verfügbar
+
+shortcut_header: Verknüpfungen
+shortcut_menu: Eine Verknüpfung für {{product}} zu Ihrem {{applauncher}} hinzufügen?
+shortcut_desktop: Eine Verknüpfung für {{product}} auf Ihrem Desktop anlegen?
+
+progress_header: Installieren...
+progress_text: "{{product}} wird installiert. Bitte warten."
+
+success_header: Erfolg
+success_text: Die Installation ist fertig!
+success_start: "{{product}} jetzt starten?"
+
+failure_header: Fehlgeschlagen
+failure_text: Während der Installation sind Fehler aufgetreten.
+failure_try_again: Sie können zurückgehen und es nochmal versuchen.
+
+
+### CLI help and messages
+cli_help_nogui: Installation via Kommandozeile statt der GUI
+cli_help_target: Installationsverzeichnis -- Wenn Sie außerdem per '-accept-licence' der Lizenzvereinbarung zustimmen wird eine stille Installation ohne weitere Fragen ausgeführt
+cli_help_showlicence: Show the licence agreement and quit
+cli_help_acceptlicence: Accept the licence agreement -- this flag is mandatory for silent installs
+cli_help_lang: 'Wählen Sie die Sprache aus, als 2-Buchstaben-Code. Möglichkeiten:'
+
+silent_installing: Installieren...
+silent_done: Fertig.
+
+
+### Buttons etc.
+"yes": Ja  # raw 'yes' and 'no' have meaning in yaml, so we have to mark them as strings explicitly
+"no": Nein
+ok: OK
+cancel: Abbrechen
+
+button_prev: Zurück
+button_next: Weiter
+button_install: Installieren
+button_abort: Abbrechen
+button_quit: Beenden
+button_exit: 
+
+windows_app_launcher: Startmenü
+linux_app_launcher: Anwendungsmenü
+osx_app_launcher: Dock
+
+
+### Errors
+err_couldnt_open_install_path_dialog: Konnte den Pfad-Dialog nicht öffnen
+cli_err_mustacceptlicence: Sie müssen die Lizenzvereinbarung mit dem '-accept-licence'-Flag akzeptieren um eine stille Installation durchführen zu können.

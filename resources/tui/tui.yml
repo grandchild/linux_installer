@@ -1,0 +1,76 @@
+---
+- id: frame
+  type: Padder
+  x: 2
+  y: 1
+  children:
+    - id: main_layout
+      type: VBox
+      border: yes
+      children:
+        - id: content
+          type: VBox
+        - id: spacer
+          type: Spacer
+        - id: footer
+          type: Label
+
+- id: language
+  type: VBox
+  children:
+    - id: language_text
+      type: Label
+      text: choose language
+
+- id: welcome
+  type: VBox
+  children:
+    - id: welcome_text
+      type: Label
+      text: welcome
+
+- id: license
+  type: VBox
+  children:
+    - id: license_text
+      type: Label
+    - id: licence_scroll
+      type: ScrollArea
+      children:
+        - id: license_content
+          type: Label
+    - id: licence_accept
+      type: Label
+
+- id: path
+  type: VBox
+  children:
+    - id: path_text
+      type: Label
+    - id: path_entry
+      type: Entry
+
+- id: shortcut
+  type: VBox
+  children:
+    - id: shortcut_text
+      type: Label
+    - id: shortcut_decision
+      type: Label
+
+- id: progress
+  type: VBox
+  children:
+    - id: progress_text
+      type: Label
+    - id: progress_file
+      type: Label
+    - id: progress_progress
+      type: Progress
+      max: 100
+
+- id: final
+  type: VBox
+  children:
+    - id: final_text
+      type: Label

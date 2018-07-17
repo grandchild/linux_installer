@@ -1,0 +1,85 @@
+---
+### Language selection
+_language_display: English
+_language_pick_text: Choose the installation language.
+
+
+### Main UI strings
+title: "{{product}} Installer"
+
+header: Install {{product}} {{version}}
+
+welcome_header: Welcome to the {{product}} Installer
+welcome_text: |
+  This installer will guide you through the installation of {{product}} version {{version}}.
+  
+  Use the buttons below to navigate.
+
+license_header: License Agreement
+license_text_above: Review and accept the following license agreement before installing {{product}}.
+license_text_below: Click <b>Agree</b> to continue.
+license_button_accept: Accept
+
+type_header: Installation Type
+type_text: Select the type of installation you wish to perform.
+type_normal: Normal
+type_normal_text: A full installation of {{product}}.
+type_update: Update
+type_update_text: Update an existing installation of {{product}} to the latest version {{version}}.
+type_server: Server
+type_server_text: Configure a {{product}} network license server on this computer.
+
+path_header: Install Location
+path_text: Install {{product}} to the following location or select a custom location on your computer.
+path_browse_title: Select install location
+path_space_req: Space required
+path_space_avail: Space available
+
+shortcut_header: Shortcuts
+shortcut_menu: Add a shortcut for {{product}} to your {{applauncher}}?
+shortcut_desktop: Add a shortcut for {{product}} to your Desktop?
+
+progress_header: Installing...
+progress_text: "{{product}} is being installed. Please wait."
+
+success_header: Success
+success_text: The installation is complete!
+success_start: Start {{product}} now?
+
+failure_header: Failed
+failure_text: Errors occurred during the installation.
+failure_try_again: You may go back and try again.
+
+
+### CLI help and messages
+cli_help_nogui: Install via command line instead of the GUI
+cli_help_target: Install directory -- if you agree to the licence as well this will trigger a silent install without further questions
+cli_help_showlicence: Show the licence agreement and quit
+cli_help_acceptlicence: Accept the licence agreement -- this flag is mandatory for silent installs
+cli_help_lang: 'Choose the language, with a two-letter code. Choices are:'
+
+silent_installing: Installing...
+silent_done: Done.
+
+
+### Buttons etc.
+"yes": "Yes"  # raw 'yes' and 'no' have meaning in yaml, so we have to mark them as strings explicitly
+"no": "No"
+ok: OK
+cancel: Cancel
+
+button_prev: Back
+button_next: Next
+button_install: Install
+button_abort: Abort
+button_quit: Quit
+button_exit: Exit
+
+windows_app_launcher: Start Menu
+linux_app_launcher: Application Menu
+osx_app_launcher: Dock
+
+
+### Errors
+err_couldnt_open_install_path_dialog: Couldn't open path dialog window
+cli_err_mustacceptlicence: You must accept the licence with the '-accept-licence' flag in order to perform a silent installation.
