@@ -123,14 +123,14 @@ func (t *Translator) GetAllVersions(key string) StringMap {
 }
 
 func (t *Translator) GetLanguageOptions() (displayStrings []string) {
-	for language := range t.langStrings {
-		displayStrings = append(displayStrings, t.langStrings[language][displayKey])
+	for lang := range t.langStrings {
+		displayStrings = append(displayStrings, t.langStrings[lang][displayKey])
 	}
 	return displayStrings
 }
 func (t *Translator) GetLanguageOptionKeys() (languageKeys []string) {
-	for language := range t.langStrings {
-		languageKeys = append(languageKeys, language)
+	for lang := range t.langStrings {
+		languageKeys = append(languageKeys, lang)
 	}
 	return languageKeys
 }
