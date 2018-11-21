@@ -1,8 +1,16 @@
 
 # Executable
 go-installer
+linux_installer
 
+# goland project files
+.idea/
 
+# any test data
+data/*
+
+# test log
+/installer.log
 
 
 # The rest created by https://www.gitignore.io/api/go,linux,windows
