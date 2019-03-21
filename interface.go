@@ -62,9 +62,11 @@ func Interface() {
 		return
 	}
 
+	installerTempPath := filepath.Join(os.TempDir(), "linux_installer")
+	fmt.Println(installerTempPath)
 	if len(*target) > 0 {
 		if *acceptLicence {
-			installer := InstallerToNew(*target)
+			installer := InstallerToNew(*target, installerTempPath)
 			c := make(chan os.Signal, 1)
 			signal.Notify(c, os.Interrupt)
 			installer.SetProgressFunction(func(status InstallStatus) {
@@ -86,13 +88,12 @@ func Interface() {
 			fmt.Println(clearLineVT100 + installer.SizeString())
 			fmt.Println(translator.Get("silent_done"))
 		} else {
-			fmt.Println(translator.Get("cli_err_mustacceptlicence"))
+			fmt.Println(translator.Get("err_cli_mustacceptlicence"))
 		}
 		return
 	}
 
 	var guiError error
-	installerTempPath := filepath.Join(os.TempDir(), "linux_installer")
 	defer os.RemoveAll(installerTempPath)
 	// if !*cli {
 	UnpackResourceDir("gui", filepath.Join(installerTempPath, "gui"))

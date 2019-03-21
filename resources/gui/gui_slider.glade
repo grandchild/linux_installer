@@ -21,6 +21,7 @@
     <property name="width_request">502</property>
     <property name="height_request">388</property>
     <property name="can_focus">False</property>
+    <property name="resizable">False</property>
     <property name="window_position">center</property>
     <property name="icon">icon.gif</property>
     <property name="type_hint">dialog</property>
@@ -55,10 +56,10 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="header_title">
+              <object class="GtkLabel" id="header-text">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">$sdversion$ installation</property>
+                <property name="label" translatable="yes">$header_text$</property>
                 <property name="ellipsize">middle</property>
               </object>
               <packing>
@@ -105,7 +106,7 @@
                     <property name="margin_bottom">4</property>
                     <property name="orientation">vertical</property>
                     <child>
-                      <object class="GtkLabel" id="language_text">
+                      <object class="GtkLabel" id="language-text">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="halign">start</property>
@@ -186,11 +187,10 @@
                     <property name="margin_bottom">4</property>
                     <property name="orientation">vertical</property>
                     <child>
-                      <object class="GtkLabel" id="h1">
+                      <object class="GtkLabel" id="welcome-header">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="ypad">1</property>
-                        <property name="label" translatable="yes">$title_welcome$</property>
+                        <property name="label" translatable="yes">$welcome_header$</property>
                         <property name="xalign">0</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
@@ -203,13 +203,13 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkLabel" id="body1">
+                      <object class="GtkLabel" id="welcome-text">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="valign">center</property>
                         <property name="margin_top">10</property>
                         <property name="margin_bottom">25</property>
-                        <property name="label" translatable="yes">$text_welcome$</property>
+                        <property name="label" translatable="yes">$welcome_text$</property>
                         <property name="wrap">True</property>
                         <property name="xalign">0</property>
                         <property name="yalign">0</property>
@@ -260,10 +260,10 @@
                     <property name="margin_bottom">20</property>
                     <property name="orientation">vertical</property>
                     <child>
-                      <object class="GtkLabel" id="license_before">
+                      <object class="GtkLabel" id="license-text-above">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">$license_before$</property>
+                        <property name="label" translatable="yes">$license_text_above$</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -289,10 +289,10 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkLabel" id="license_after">
+                      <object class="GtkLabel" id="license-text-below">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">$license_after$</property>
+                        <property name="label" translatable="yes">$license_text_below$</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -340,10 +340,10 @@
                     <property name="margin_bottom">20</property>
                     <property name="orientation">vertical</property>
                     <child>
-                      <object class="GtkLabel" id="path-before">
+                      <object class="GtkLabel" id="path-text">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">$path_before$</property>
+                        <property name="label" translatable="yes">$path_text$</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -395,15 +395,64 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkLabel" id="path-after">
+                      <object class="GtkGrid" id="path-space-table">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">$path_after$</property>
+                        <property name="row_spacing">3</property>
+                        <property name="column_spacing">20</property>
+                        <property name="row_homogeneous">True</property>
+                        <child>
+                          <object class="GtkLabel" id="path-space-required-text">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">$path_space_required$</property>
+                            <property name="xalign">0</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="path-space-available-text">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">$path_space_available$</property>
+                            <property name="xalign">0</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="path-space-required">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">?</property>
+                            <property name="xalign">0</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="top_attach">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="path-space-available">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">?</property>
+                            <property name="xalign">0</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="top_attach">1</property>
+                          </packing>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">True</property>
-                        <property name="padding">3</property>
                         <property name="position">2</property>
                       </packing>
                     </child>
@@ -450,11 +499,11 @@
                     <property name="orientation">vertical</property>
                     <property name="spacing">5</property>
                     <child>
-                      <object class="GtkLabel" id="progress_text">
+                      <object class="GtkLabel" id="progress-text">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="halign">start</property>
-                        <property name="label" translatable="yes">$installing$ ...</property>
+                        <property name="label" translatable="yes">$progress_text$</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -658,7 +707,7 @@ $drivers$</property>
       <placeholder/>
     </child>
     <child internal-child="vbox">
-      <object class="GtkBox">
+      <object class="GtkBox" id="quit-dialog-box">
         <property name="can_focus">True</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>

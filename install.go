@@ -1,12 +1,15 @@
 package linux_installer
 
 import (
+	"archive/zip"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -18,8 +21,7 @@ type (
 	// target path as well as a flag indicating wether the file has been
 	// copied to the target or not.
 	InstallFile struct {
-		os.FileInfo
-		Path      string
+		*zip.File
 		Target    string
 		installed bool
 	}
@@ -39,6 +41,7 @@ type (
 	Installer struct {
 		Target              string
 		Done                bool
+		tempPath            string
 		totalSize           int64
 		installedSize       int64
 		files               []*InstallFile
@@ -66,13 +69,14 @@ type (
 // 	installer.StartInstall()
 // 	/* some watch loop with 'installer.Status()' */
 //
-func InstallerNew() Installer { return InstallerToNew("") }
+func InstallerNew(tempPath string) Installer { return InstallerToNew("", tempPath) }
 
 // InstallerToNew creates a new installer with a target path.
-func InstallerToNew(target string) Installer {
+func InstallerToNew(target string, tempPath string) Installer {
 	return Installer{
 		Target:              target,
-		totalSize:           DataSize(),
+		tempPath:            tempPath,
+		totalSize:           DataSize(), // FIXME report size of zip contents
 		statusChannel:       make(chan InstallStatus, 1),
 		abortChannel:        make(chan bool, 1),
 		abortConfirmChannel: make(chan bool, 1),
@@ -85,7 +89,7 @@ func InstallerToNew(target string) Installer {
 func (i *Installer) StartInstall() { go i.install() }
 
 // StartInstallFromSubdir is the same as StartInstall but only installs a
-// subset of the source box.
+// subset of the source data.
 func (i *Installer) StartInstallFromSubdir(subdir string) { go i.installFromSubdir(subdir) }
 
 // install runs the installation.
@@ -94,18 +98,35 @@ func (i *Installer) install() error { return i.installFromSubdir("") }
 // installFromSubdir runs the installation.
 func (i *Installer) installFromSubdir(subdir string) error {
 	i.Done = false
-	boxFiles, err := ListDataDir(subdir)
+	i.actionLock.Lock()
+	defer i.actionLock.Unlock()
+
+	log.Printf("Unpacking temp data.zip")
+	reader, err := i.unpackDataZip()
 	if err != nil {
 		return err
 	}
-	i.actionLock.Lock()
-	defer i.actionLock.Unlock()
-	i.files = make([]*InstallFile, 0, len(boxFiles))
-	for _, file := range boxFiles {
-		relPath, _ := filepath.Rel(subdir, file.path)
+
+	i.files = make([]*InstallFile, 0, len(reader.File))
+	for _, file := range reader.File {
+		if !strings.HasPrefix(file.Name, subdir) {
+			continue
+		}
+		relPath, err := filepath.Rel(subdir, file.Name)
+		if err != nil {
+			continue
+		}
+		// Check for ZipSlip vulnerability and ignore any files with invalid
+		// paths. See: http://bit.ly/2MsjAWE
+		if !strings.HasPrefix(
+			filepath.Join(i.Target, relPath),
+			filepath.Clean(i.Target)+string(os.PathSeparator),
+		) {
+			continue
+		}
 		i.files = append(
 			i.files,
-			&InstallFile{file.info, file.path, filepath.Join(i.Target, relPath), false},
+			&InstallFile{file, filepath.Join(i.Target, relPath), false},
 		)
 	}
 	for _, file := range i.files {
@@ -119,14 +140,15 @@ func (i *Installer) installFromSubdir(subdir string) error {
 			status := InstallStatus{File: file}
 			i.setStatus(status)
 			i.progressFunction(status)
-			if file.IsDir() {
-				os.Mkdir(file.Target, 0755)
+			if file.FileInfo().IsDir() {
+				os.MkdirAll(file.Target, 0755)
 			} else {
-				err = UnpackDataFile(file.Path, file.Target)
+				os.MkdirAll(filepath.Dir(file.Target), 0755)
+				err = installFile(file)
 				if err != nil {
 					return err
 				}
-				i.installedSize += file.Size()
+				i.installedSize += int64(file.UncompressedSize64)
 			}
 			file.installed = true
 			i.setStatus(InstallStatus{File: file})
@@ -137,11 +159,46 @@ func (i *Installer) installFromSubdir(subdir string) error {
 	return err
 }
 
+// UnpackDataZip extracts the appended data zipfile to the temporary directory
+// given by tempPath.
+func (i *Installer) unpackDataZip() (*zip.ReadCloser, error) {
+	dataTempFilepath := filepath.Join(i.tempPath, "data", "data.zip")
+	i.setStatus(InstallStatus{File: &InstallFile{Target: dataTempFilepath}})
+	err := UnpackDataFile("data.zip", dataTempFilepath)
+	if err != nil {
+		return nil, err
+	}
+	return zip.OpenReader(dataTempFilepath)
+}
+
+func installFile(file *InstallFile) error {
+	targetFile, err := os.OpenFile(
+		file.Target,
+		os.O_WRONLY|os.O_CREATE|os.O_TRUNC,
+		file.Mode()|0600, // use file's permissions, but make sure that user has at least rw (=0600)
+	)
+	if err != nil {
+		return err
+	}
+	fileReader, err := file.Open()
+	if err != nil {
+		return err
+	}
+	_, err = io.Copy(targetFile, fileReader)
+	targetFile.Close()
+	fileReader.Close()
+	if err != nil {
+		return err
+	}
+	err = os.Chtimes(file.Target, time.Now(), file.Modified)
+	return err
+}
+
 // Abort can be called to stop the installer. The installer will usually not
 // stop immediately, but finish copying the current file.
 //
-// Use Undo() instead of Abort() if you want all files and directories rolled
-// back and deleted as well.
+// Use Rollback() instead of Abort() if you also want all files and directories
+// rolled back and deleted.
 func (i *Installer) Abort() {
 	i.abortChannel <- true
 	<-i.abortConfirmChannel
@@ -167,12 +224,13 @@ func (i *Installer) Rollback() {
 				log.Printf("Error deleting %s", i.files[p].Target)
 			}
 			i.files[p].installed = false
-			if !i.files[p].IsDir() {
-				i.installedSize -= i.files[p].Size()
+			if !i.files[p].FileInfo().IsDir() {
+				i.installedSize -= int64(i.files[p].UncompressedSize64)
 			}
 			i.setStatus(InstallStatus{File: i.files[p]})
 		}
 	}
+	os.RemoveAll(filepath.Join(i.tempPath, "data"))
 	i.Done = true
 	i.setStatus(InstallStatus{Aborted: true})
 }
@@ -261,7 +319,7 @@ func (i *Installer) SizeString() string {
 }
 
 // WaitForDone returns only after the installer has finished installing (or
-// undoing).
+// rolling back).
 func (i *Installer) WaitForDone() {
 	for {
 		if status := <-i.statusChannel; status.Done {

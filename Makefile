@@ -8,6 +8,10 @@ RES = \
 
 BIN = linux_installer
 DIST_DIR = win
+DATA_SRC_DIR = data
+DATA_DIST_DIR = data_compressed
+
+ZIP = zip
 
 XCC_GOFLAGS = \
 	CGO_LDFLAGS_ALLOW="-Wl,-luuid"\
@@ -65,14 +69,17 @@ windows: windows_build
 
 dist: linux_dist
 
-
-linux_dist: linux_clean linux_build
-	$(GOPATH)/bin/rice append --exec $(BIN)
-
 linux_build: $(SRC)
 	go build -o $(BIN) $(PKG)/main
 
-run: linux_build
+$(DATA_DIST_DIR)/data.zip: $(DATA_SRC_DIR)
+	mkdir -p $(DATA_DIST_DIR)
+	cd $(DATA_SRC_DIR) ; $(ZIP) -r ../$(DATA_DIST_DIR)/data.zip .
+
+linux_dist: linux_build $(DATA_DIST_DIR)/data.zip
+	$(GOPATH)/bin/rice append --exec $(BIN)
+
+run: linux_dist
 	./$(BIN)
 
 
@@ -89,8 +96,11 @@ run_win: windows_dist
 
 clean: windows_clean linux_clean
 
-windows_clean:
+windows_clean: clean_data
 	rm -rf $(DIST_DIR)
 
-linux_clean:
+linux_clean: clean_data
 	rm -f $(BIN)
+
+clean_data:
+	rm -rf $(DATA_DIST_DIR)

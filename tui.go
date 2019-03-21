@@ -81,7 +81,7 @@ func tuiSteps() []tuiStep {
 	}
 }
 
-func TuiNew(resourcesPath string, translator Translator) (Tui, error) {
+func TuiNew(installerTempPath string, translator Translator) (Tui, error) {
 	builder, errs := TuiBuilderNew(MustGetResource("tui/tui.yml"))
 	if len(errs) > 0 {
 		for _, err := range errs {
@@ -98,7 +98,7 @@ func TuiNew(resourcesPath string, translator Translator) (Tui, error) {
 
 	tui := Tui{
 		builder:         builder,
-		installer:       InstallerNew(),
+		installer:       InstallerNew(installerTempPath),
 		Steps:           tuiSteps(),
 		curStep:         0,
 		translator:      translator,

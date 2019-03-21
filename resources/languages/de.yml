@@ -7,7 +7,7 @@ _language_pick_text: Wählen Sie die Installionssprache aus.
 ### Main UI strings
 title: "{{product}} Installer"
 
-header: "{{product}} {{version}} installieren"
+header_text: "{{product}} {{version}} installieren"
 
 welcome_header: Willkommen zum {{product}}-Installer
 welcome_text: |
@@ -32,8 +32,8 @@ type_server_text: Richten Sie einen {{product}}-Netzwerk-Lizenzserver auf diesem
 path_header: Installationspfad
 path_text: Installiere {{product}} in diesen Pfad oder wählen Sie einen eigenen Pfad auf Ihrem Computer aus.
 path_browse_title: Installationspfad auswählen
-path_space_req: Speicherplatz benötigt
-path_space_avail: Speicherplatz verfügbar
+path_space_required: Speicherplatz benötigt
+path_space_available: Speicherplatz verfügbar
 
 shortcut_header: Verknüpfungen
 shortcut_menu: Eine Verknüpfung für {{product}} zu Ihrem {{applauncher}} hinzufügen?
@@ -56,7 +56,7 @@ cli_help_nogui: Installation via Kommandozeile statt der GUI
 cli_help_target: Installationsverzeichnis -- Wenn Sie außerdem per '-accept-licence' der Lizenzvereinbarung zustimmen wird eine stille Installation ohne weitere Fragen ausgeführt
 cli_help_showlicence: Show the licence agreement and quit
 cli_help_acceptlicence: Accept the licence agreement -- this flag is mandatory for silent installs
-cli_help_lang: 'Wählen Sie die Sprache aus, als 2-Buchstaben-Code. Möglichkeiten:'
+cli_help_lang: "Wählen Sie die Sprache aus, als 2-Buchstaben-Code. Möglichkeiten:"
 
 silent_installing: Installieren...
 silent_done: Fertig.
@@ -82,4 +82,4 @@ osx_app_launcher: Dock
 
 ### Errors
 err_couldnt_open_install_path_dialog: Konnte den Pfad-Dialog nicht öffnen
-cli_err_mustacceptlicence: Sie müssen die Lizenzvereinbarung mit dem '-accept-licence'-Flag akzeptieren um eine stille Installation durchführen zu können.
+err_cli_mustacceptlicence: Sie müssen die Lizenzvereinbarung mit dem '-accept-licence'-Flag akzeptieren um eine stille Installation durchführen zu können.

@@ -7,7 +7,7 @@ _language_pick_text: Choose the installation language.
 ### Main UI strings
 title: "{{product}} Installer"
 
-header: Install {{product}} {{version}}
+header_text: Install {{product}} {{version}}
 
 welcome_header: Welcome to the {{product}} Installer
 welcome_text: |
@@ -32,8 +32,8 @@ type_server_text: Configure a {{product}} network license server on this compute
 path_header: Install Location
 path_text: Install {{product}} to the following location or select a custom location on your computer.
 path_browse_title: Select install location
-path_space_req: Space required
-path_space_avail: Space available
+path_space_required: Space required
+path_space_available: Space available
 
 shortcut_header: Shortcuts
 shortcut_menu: Add a shortcut for {{product}} to your {{applauncher}}?
@@ -56,7 +56,7 @@ cli_help_nogui: Install via command line instead of the GUI
 cli_help_target: Install directory -- if you agree to the licence as well this will trigger a silent install without further questions
 cli_help_showlicence: Show the licence agreement and quit
 cli_help_acceptlicence: Accept the licence agreement -- this flag is mandatory for silent installs
-cli_help_lang: 'Choose the language, with a two-letter code. Choices are:'
+cli_help_lang: "Choose the language, with a two-letter code. Choices are:"
 
 silent_installing: Installing...
 silent_done: Done.
@@ -82,4 +82,4 @@ osx_app_launcher: Dock
 
 ### Errors
 err_couldnt_open_install_path_dialog: Couldn't open path dialog window
-cli_err_mustacceptlicence: You must accept the licence with the '-accept-licence' flag in order to perform a silent installation.
+err_cli_mustacceptlicence: You must accept the licence with the '-accept-licence' flag in order to perform a silent installation.

@@ -6,12 +6,13 @@ import (
 	"io"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
 	"regexp"
 	// "strings"
 
 	"github.com/GeertJohan/go.rice"
-	// "github.com/grandchild/go.rice"
+	//"github.com/grandchild/go.rice"
 )
 
 type BoxFile struct {
@@ -39,7 +40,7 @@ func openBoxes() {
 	if err != nil {
 		panic(err)
 	}
-	dataBox, err = rice.FindBox("data")
+	dataBox, err = rice.FindBox("data_compressed")
 	if err != nil {
 		panic(err)
 	}
@@ -119,6 +120,11 @@ func unpackFile(box *rice.Box, fromPath string, toPath string) error {
 		return err
 	}
 	defer from.Close()
+	err = os.MkdirAll(path.Dir(toPath), 0755)
+	if err != nil {
+		log.Println(fmt.Sprintf("%s %s", err, toPath))
+		return err
+	}
 	to, err := os.OpenFile(toPath, os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		return err

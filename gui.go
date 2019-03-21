@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"log"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
+	"unsafe"
 
 	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
@@ -72,7 +74,7 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 			name: "language",
 			before: func() {
 				g.backButton.SetSensitive(false)
-				g.setLabel("language_text", strings.Join(g.translator.GetAllVersionsList("_language_pick_text"), "\n"))
+				g.setLabel("language-text", strings.Join(g.translator.GetAllVersionsList("_language_pick_text"), "\n"))
 				g.setLanguageOptions("language_choose", g.translator.GetLanguage())
 			},
 			after: func() {
@@ -84,13 +86,14 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 		{
 			name: "welcome",
 			before: func() {
-				g.setLabel("h1", g.t("welcome_header"))
-				g.setLabel("body1", g.t("welcome_text"))
+				// g.setLabel("h1", g.t("welcome_header"))
+				// g.setLabel("body1", g.t("welcome_text"))
 			},
 		},
 		{
 			name: "license",
 			before: func() {
+				// g.setLabel("licence_before", g.t("licence_before"))
 				g.nextButton.SetLabel(g.t("license_button_accept"))
 			},
 		},
@@ -142,19 +145,19 @@ func (g *Gui) setScreenElementDefaults() {
 	g.quitButton.SetLabel(g.t("button_quit"))
 }
 
-func GuiNew(resourcesPath string, translator Translator) (Gui, error) {
-	// glib.InitI18n("installer", filepath.Join(resourcesPath, "strings"))
+func GuiNew(installerTempPath string, translator Translator) (Gui, error) {
+	// glib.InitI18n("installer", filepath.Join(installerTempPath, "strings"))
 	// gtk.Init(nil)
 	err := gtk.InitCheck(nil)
 	if err != nil {
 		return Gui{}, err
 	}
-	builder, err := gtk.BuilderNewFromFile(filepath.Join(resourcesPath, "gui", "gui_slider.glade"))
+	builder, err := gtk.BuilderNewFromFile(filepath.Join(installerTempPath, "gui", "gui_slider.glade"))
 	if err != nil {
 		return Gui{}, err
 	}
 	gui := Gui{
-		installer:   InstallerNew(),
+		installer:   InstallerNew(installerTempPath),
 		builder:     builder,
 		win:         getWindow(builder, "installer_frame"),
 		content:     getStack(builder, "content"),
@@ -175,7 +178,7 @@ func GuiNew(resourcesPath string, translator Translator) (Gui, error) {
 	}
 
 	gui.win.SetTitle(gui.translator.Get("title"))
-	gui.setLabel("header_title", gui.translator.Get("header"))
+	gui.setLabel("header-text", gui.translator.Get("header_text"))
 
 	// css, err := gtk.CssProviderNew()
 	// if err == nil {
@@ -299,8 +302,41 @@ func (g *Gui) setLanguage(chooserId string) error {
 	if comboBox == nil {
 		return errors.New(fmt.Sprintf("No Dropdown '%s'", chooserId))
 	}
-	g.translator.SetLanguage(comboBox.GetActiveID())
+	err := g.translator.SetLanguage(comboBox.GetActiveID())
+	if err != nil {
+		return err
+	}
+	g.translateLabel(getLabel(g.builder, "header-text"))
+	for _, screen := range g.screens {
+		screen.widget.GetChildren().Foreach(g.translateAllLabels)
+	}
+	g.translateAllLabels(getBox(g.builder, "quit-dialog-box"))
 	return nil
+}
+
+func (g *Gui) translateAllLabels(item interface{}) {
+	switch widget := item.(type) {
+	case *gtk.Widget:
+		switch name, _ := widget.GetName(); name {
+		case "GtkGrid":
+			fallthrough
+		case "GtkBox":
+			box := (*gtk.Box)(unsafe.Pointer(widget))
+			box.GetChildren().Foreach(g.translateAllLabels)
+		case "GtkLabel":
+			label := (*gtk.Label)(unsafe.Pointer(widget))
+			g.translateLabel(label)
+		}
+	default:
+		log.Println("got something else")
+	}
+}
+
+func (g *Gui) translateLabel(label *gtk.Label) {
+	variable := regexp.MustCompile(`\$[a-zA-Z0-9_]+\$`).FindString(label.GetLabel())
+	if len(variable) > 2 {
+		label.SetLabel(g.t(variable[1 : len(variable)-1]))
+	}
 }
 
 func (g *Gui) installationProgress() (repeat bool) {
