@@ -17,7 +17,7 @@ welcome_text: |-
 
 license_header: Lizenzvereinbarung
 license_text_above: Lesen und akzeptieren Sie folgende Lizenzvereinbarung bevor sie {{.product}} installieren.
-license_text_below: Klicken Sie auf <em>Akzeptieren</em> um fortzufahren.
+license_text_below: Klicken Sie auf <b>Akzeptieren</b> um fortzufahren.
 license_button_accept: Akzeptieren
 
 type_header: Installationstyp
@@ -34,6 +34,9 @@ path_text: Installiere {{.product}} in diesen Pfad oder wählen Sie einen eigene
 path_browse_title: Installationspfad auswählen
 path_space_required: Speicherplatz benötigt
 path_space_available: Speicherplatz verfügbar
+path_err_not_dir: Der gegebene Pfad, oder einer der übergeordneten Pfade, ist kein Verzeichnis!
+path_err_not_writable: Das übergeordnete Verzeichnis hat keine Schreibberechtigung!
+path_err_other: Beim Suchen des Installationspfads ist ein unbekannter Fehler aufgetreten!
 
 shortcut_header: Verknüpfungen
 shortcut_menu: Eine Verknüpfung für {{.product}} zu Ihrem {{.applauncher}} hinzufügen?

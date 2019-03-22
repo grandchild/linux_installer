@@ -482,6 +482,22 @@
                         <property name="position">2</property>
                       </packing>
                     </child>
+                    <child>
+                      <object class="GtkLabel" id="path-error-text">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="wrap">True</property>
+                        <attributes>
+                          <attribute name="foreground" value="#cccc00000000"/>
+                        </attributes>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="padding">10</property>
+                        <property name="position">3</property>
+                      </packing>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">True</property>

@@ -63,7 +63,6 @@ func Interface() {
 	}
 
 	installerTempPath := filepath.Join(os.TempDir(), "linux_installer")
-	fmt.Println(installerTempPath)
 	if len(*target) > 0 {
 		if *acceptLicense {
 			installer := InstallerToNew(*target, installerTempPath)

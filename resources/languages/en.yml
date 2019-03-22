@@ -34,6 +34,9 @@ path_text: Install {{.product}} to the following location or select a custom loc
 path_browse_title: Select install location
 path_space_required: Space required
 path_space_available: Space available
+path_err_not_dir: The given path, or one of its parents, is not a directory!
+path_err_not_writable: The paths parent is not writable!
+path_err_other: An unknown error occurred while looking for the installation location!
 
 shortcut_header: Shortcuts
 shortcut_menu: Add a shortcut for {{.product}} to your {{.applauncher}}?

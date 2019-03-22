@@ -307,13 +307,18 @@ func (i *Installer) CheckInstallDir(dirName string) error {
 			break
 		}
 	}
+	i.existingTargetParent = parent
 	parentInfo, err := os.Stat(parent)
 	if err != nil || !parentInfo.IsDir() {
-		return errors.New(fmt.Sprintf("Install parent is not dir: '%s'", parent))
+		return errors.New("path_err_not_dir")
+		// fmt.Sprintf("Install parent is not dir: '%s'", parent)
 	} else if unix.Access(parent, unix.W_OK) != nil {
-		return errors.New(fmt.Sprintf("Install location is not writeable: '%s' -> '%s'", parent, parentInfo.Mode().Perm()))
+		return errors.New("path_err_not_writable")
+		// fmt.Sprintf("Install location is not writeable: '%s' -> '%s'", parent, parentInfo.Mode().Perm())
 	}
-	i.existingTargetParent = parent
+	if err != nil {
+		return errors.New("path_err_other")
+	}
 	i.Target = path.Clean(dirName)
 	return nil
 }

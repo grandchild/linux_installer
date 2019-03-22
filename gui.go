@@ -252,13 +252,15 @@ func (g *Gui) checkInstallDir() {
 	dirName, _ := g.dirPathEdit.GetText()
 	err := g.installer.CheckInstallDir(dirName)
 	if err != nil {
-		// TODO: set something to red
-		log.Println(err)
+		g.setLabel("path-error-text", g.t(err.Error()))
+		g.nextButton.SetSensitive(false)
+	} else {
+		g.nextButton.SetSensitive(true)
+		g.setLabel("path-error-text", "")
 	}
 	g.installer.PrepareDataFiles()
 	g.setLabel("path-space-required", g.installer.SizeString())
 	g.setLabel("path-space-available", g.installer.SpaceString())
-	g.nextButton.SetSensitive(true)
 }
 
 // t returns a localized string for the key, and expands any template
