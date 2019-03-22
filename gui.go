@@ -174,15 +174,17 @@ func GuiNew(installerTempPath string, translator Translator) (Gui, error) {
 
 	gui.win.SetTitle(gui.t("title"))
 	gui.setLabel("header-text", gui.t("header_text"))
+	gui.translateAllLabels(getBox(gui.builder, "quit-dialog-box"))
 
-	// css, err := gtk.CssProviderNew()
-	// if err == nil {
-	// 	gtkScreen, err := gui.win.GetScreen()
-	// 	if err == nil {
-	// 		css.LoadFromData(".main-window { background: #fff; }")
-	// 		gtk.AddProviderForScreen(gtkScreen, css, gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-	// 	}
-	// }
+	css, err := gtk.CssProviderNew()
+	if err == nil {
+		gtkScreen, err := gui.win.GetScreen()
+		if err == nil {
+			// css.LoadFromData(".main-window { background: #fff; }")
+			css.LoadFromData(".license-text { font-size: .7em; }")
+			gtk.AddProviderForScreen(gtkScreen, css, gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+		}
+	}
 
 	for _, handler := range screenHandlers(&gui) {
 		gui.screens = append(gui.screens,

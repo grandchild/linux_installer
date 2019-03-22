@@ -53,9 +53,14 @@ failure_try_again: Sie können zurückgehen und es nochmal versuchen.
 
 ### CLI help and messages
 cli_help_nogui: Installation via Kommandozeile statt der GUI
-cli_help_target: Installationsverzeichnis -- Wenn Sie außerdem per '-accept-license' der Lizenzvereinbarung zustimmen wird eine stille Installation ohne weitere Fragen ausgeführt
+cli_help_target: >
+  Installationsverzeichnis -- Wenn Sie außerdem per '-accept-license' der
+  Lizenzvereinbarung zustimmen wird eine stille Installation ohne weitere Fragen
+  ausgeführt
 cli_help_showlicense: Die Lizenzvereinbarung anzeigen und beenden
-cli_help_acceptlicense: Die Lizenzvereinbarung annehmen -- dieser Parameter ist zwingend für eine stille Installation
+cli_help_acceptlicense: >
+  Die Lizenzvereinbarung annehmen -- dieser Parameter ist zwingend für eine stille
+  Installation
 cli_help_lang: "Wählen Sie die Sprache aus, als 2-Buchstaben-Code. Möglichkeiten:"
 
 silent_installing: Installieren...
@@ -85,4 +90,6 @@ osx_app_launcher: Dock
 
 ### Errors
 err_couldnt_open_install_path_dialog: Konnte den Pfad-Dialog nicht öffnen
-err_cli_mustacceptlicense: Sie müssen die Lizenzvereinbarung mit dem '-accept-license'-Flag akzeptieren um eine stille Installation durchführen zu können.
+err_cli_mustacceptlicense: >
+  Sie müssen die Lizenzvereinbarung mit dem '-accept-license'-Flag akzeptieren um eine
+  stille Installation durchführen zu können.
