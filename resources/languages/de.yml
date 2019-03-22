@@ -11,7 +11,7 @@ header_text: "{{.product}} {{.version}} installieren"
 
 welcome_header: Willkommen zum {{.product}}-Installer
 welcome_text: |-
-  Dieser Installer wird Sie durch die Installtion von {{.product}} {{.version}} führen.
+  Dieser Installer wird Sie durch die Installation von {{.product}} {{.version}} führen.
   
   Navigieren Sie mit den Buttons unten.
 
