@@ -138,3 +138,12 @@ func getStack(builder *gtk.Builder, name string) *gtk.Stack {
 		return nil
 	}
 }
+
+func getTextBuffer(builder *gtk.Builder, name string) *gtk.TextBuffer {
+	obj := getObject(builder, name)
+	if w, ok := obj.(*gtk.TextBuffer); ok {
+		return w
+	} else {
+		return nil
+	}
+}

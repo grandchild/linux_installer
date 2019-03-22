@@ -38,6 +38,7 @@ type (
 		dirPathEdit      *gtk.Entry
 		progressBar      *gtk.Entry
 		quitDialog       *gtk.Dialog
+		licenseBuf       *gtk.TextBuffer
 		curScreen        int
 		screenNames      []string
 		screens          []Screen
@@ -75,25 +76,18 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 			before: func() {
 				g.backButton.SetSensitive(false)
 				g.setLabel("language-text", strings.Join(g.translator.GetAllVersionsList("_language_pick_text"), "\n"))
-				g.setLanguageOptions("language_choose", g.translator.GetLanguage())
+				g.setLanguageOptions("language-choose", g.translator.GetLanguage())
 			},
 			after: func() {
-				g.setLanguage("language_choose")
-				log.Println("GUI Language:", g.translator.language)
-				g.t("string")
+				g.setLanguage("language-choose")
 			},
 		},
 		{
 			name: "welcome",
-			before: func() {
-				// g.setLabel("h1", g.t("welcome_header"))
-				// g.setLabel("body1", g.t("welcome_text"))
-			},
 		},
 		{
 			name: "license",
 			before: func() {
-				// g.setLabel("licence_before", g.t("licence_before"))
 				g.nextButton.SetLabel(g.t("license_button_accept"))
 			},
 		},
@@ -159,14 +153,15 @@ func GuiNew(installerTempPath string, translator Translator) (Gui, error) {
 	gui := Gui{
 		installer:   InstallerNew(installerTempPath),
 		builder:     builder,
-		win:         getWindow(builder, "installer_frame"),
+		win:         getWindow(builder, "installer-frame"),
 		content:     getStack(builder, "content"),
-		backButton:  getButton(builder, "button_back"),
-		nextButton:  getButton(builder, "button_next"),
-		quitButton:  getButton(builder, "button_quit"),
-		dirPathEdit: getEntry(builder, "path_entry"),
-		progressBar: getEntry(builder, "progress_bar"),
-		quitDialog:  getDialog(builder, "quit_dialog"),
+		backButton:  getButton(builder, "button-back"),
+		nextButton:  getButton(builder, "button-next"),
+		quitButton:  getButton(builder, "button-quit"),
+		dirPathEdit: getEntry(builder, "path-entry"),
+		progressBar: getEntry(builder, "progress-bar"),
+		quitDialog:  getDialog(builder, "quit-dialog"),
+		licenseBuf:  getTextBuffer(builder, "license-buf"),
 		screens:     make([]Screen, 0, len(screenHandlers(nil))),
 		curScreen:   0,
 		translator:  translator,
@@ -177,14 +172,14 @@ func GuiNew(installerTempPath string, translator Translator) (Gui, error) {
 		gui.win.Connect(signal, handler)
 	}
 
-	gui.win.SetTitle(gui.translator.Get("title"))
-	gui.setLabel("header-text", gui.translator.Get("header_text"))
+	gui.win.SetTitle(gui.t("title"))
+	gui.setLabel("header-text", gui.t("header_text"))
 
 	// css, err := gtk.CssProviderNew()
 	// if err == nil {
 	// 	gtkScreen, err := gui.win.GetScreen()
 	// 	if err == nil {
-	// 		css.LoadFromData(".main_window { background: #fff; }")
+	// 		css.LoadFromData(".main-window { background: #fff; }")
 	// 		gtk.AddProviderForScreen(gtkScreen, css, gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 	// 	}
 	// }
@@ -222,10 +217,8 @@ func (g *Gui) showScreen(num int) {
 				return
 			}
 		}
-		// g.content.Remove(g.screens[g.curScreen].widget)
 		g.curScreen = num
 		g.content.SetVisibleChild(g.screens[g.curScreen].widget)
-		// g.content.Add(g.screens[g.curScreen].widget)
 		g.setScreenElementDefaults()
 		if g.screens[g.curScreen].handler.before != nil {
 			g.screens[g.curScreen].handler.before()
@@ -311,11 +304,22 @@ func (g *Gui) setLanguage(chooserId string) error {
 		screen.widget.GetChildren().Foreach(g.translateAllLabels)
 	}
 	g.translateAllLabels(getBox(g.builder, "quit-dialog-box"))
+
+	licenseFile := fmt.Sprintf("licenses/license_%s.txt", g.translator.GetLanguage())
+	licenseText, err := GetResource(licenseFile)
+	if err != nil {
+		log.Println(fmt.Sprintf("License file not found: %s", licenseFile))
+		return err
+	}
+	g.licenseBuf.SetText(licenseText)
 	return nil
 }
 
 func (g *Gui) translateAllLabels(item interface{}) {
 	switch widget := item.(type) {
+	case *gtk.Box:
+		log.Println("got box in translateAllLabels")
+		g.translateAllLabels((*gtk.Widget)(unsafe.Pointer(widget)))
 	case *gtk.Widget:
 		switch name, _ := widget.GetName(); name {
 		case "GtkGrid":
@@ -327,8 +331,6 @@ func (g *Gui) translateAllLabels(item interface{}) {
 			label := (*gtk.Label)(unsafe.Pointer(widget))
 			g.translateLabel(label)
 		}
-	default:
-		log.Println("got something else")
 	}
 }
 

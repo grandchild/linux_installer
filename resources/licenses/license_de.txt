@@ -1,0 +1,6 @@
+Diese Beispiellizenz verpflichtet die Unterzeichnerin zu der Aussage, dass die
+Unterzeichnerin ACME Inc rein gar nichts schuldet. Keine anderen Beispiele
+außer diesem sind von dieser Lizenz betroffen.
+
+Sollte irgendein Teil dieser Lizenz wirkunglos werden, so behalten alle anderen
+Vereinbarungen ihre Anwendung.

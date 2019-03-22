@@ -5,46 +5,46 @@ _language_pick_text: Wählen Sie die Installionssprache aus.
 
 
 ### Main UI strings
-title: "{{product}} Installer"
+title: "{{.product}} Installer"
 
-header_text: "{{product}} {{version}} installieren"
+header_text: "{{.product}} {{.version}} installieren"
 
-welcome_header: Willkommen zum {{product}}-Installer
-welcome_text: |
-  Dieser Installer wird Sie durch die Installtion von {{product}} {{version}} führen.
+welcome_header: Willkommen zum {{.product}}-Installer
+welcome_text: |-
+  Dieser Installer wird Sie durch die Installtion von {{.product}} {{.version}} führen.
   
   Navigieren Sie mit den Buttons unten.
 
 license_header: Lizenzvereinbarung
-license_text_above: Lesen und akzeptieren Sie folgende Lizenzvereinbarung bevor sie {{product}} installieren.
+license_text_above: Lesen und akzeptieren Sie folgende Lizenzvereinbarung bevor sie {{.product}} installieren.
 license_text_below: Klicken Sie auf <em>Akzeptieren</em> um fortzufahren.
 license_button_accept: Akzeptieren
 
 type_header: Installationstyp
 type_text: Wählen Sie die Art der Installation, die Sie durchführen möchten.
 type_normal: Normal
-type_normal_text: Eine komplette Installation von {{product}}.
+type_normal_text: Eine komplette Installation von {{.product}}.
 type_update: Update
-type_update_text: Updaten Sie eine vorhandene {{product}}-Installation auf die neueste Version {{version}}.
+type_update_text: Updaten Sie eine vorhandene {{.product}}-Installation auf die neueste Version {{.version}}.
 type_server: Server
-type_server_text: Richten Sie einen {{product}}-Netzwerk-Lizenzserver auf diesem Computer ein.
+type_server_text: Richten Sie einen {{.product}}-Netzwerk-Lizenzserver auf diesem Computer ein.
 
 path_header: Installationspfad
-path_text: Installiere {{product}} in diesen Pfad oder wählen Sie einen eigenen Pfad auf Ihrem Computer aus.
+path_text: Installiere {{.product}} in diesen Pfad oder wählen Sie einen eigenen Pfad auf Ihrem Computer aus.
 path_browse_title: Installationspfad auswählen
 path_space_required: Speicherplatz benötigt
 path_space_available: Speicherplatz verfügbar
 
 shortcut_header: Verknüpfungen
-shortcut_menu: Eine Verknüpfung für {{product}} zu Ihrem {{applauncher}} hinzufügen?
-shortcut_desktop: Eine Verknüpfung für {{product}} auf Ihrem Desktop anlegen?
+shortcut_menu: Eine Verknüpfung für {{.product}} zu Ihrem {{.applauncher}} hinzufügen?
+shortcut_desktop: Eine Verknüpfung für {{.product}} auf Ihrem Desktop anlegen?
 
 progress_header: Installieren...
-progress_text: "{{product}} wird installiert. Bitte warten."
+progress_text: "{{.product}} wird installiert. Bitte warten."
 
 success_header: Erfolg
 success_text: Die Installation ist fertig!
-success_start: "{{product}} jetzt starten?"
+success_start: "{{.product}} jetzt starten?"
 
 failure_header: Fehlgeschlagen
 failure_text: Während der Installation sind Fehler aufgetreten.
@@ -62,7 +62,7 @@ silent_installing: Installieren...
 silent_done: Fertig.
 
 
-### Buttons etc.
+### Buttons, Dialogs etc.
 "yes": Ja  # raw 'yes' and 'no' have meaning in yaml, so we have to mark them as strings explicitly
 "no": Nein
 ok: OK
@@ -73,7 +73,10 @@ button_next: Weiter
 button_install: Installieren
 button_abort: Abbrechen
 button_quit: Beenden
-button_exit: 
+button_exit: Verlassen
+
+really_quit_text: Möchten Sie die Installation wirklich abbrechen?
+
 
 windows_app_launcher: Startmenü
 linux_app_launcher: Anwendungsmenü

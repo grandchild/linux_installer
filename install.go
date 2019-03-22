@@ -76,7 +76,6 @@ func InstallerToNew(target string, tempPath string) Installer {
 	return Installer{
 		Target:              target,
 		tempPath:            tempPath,
-		totalSize:           DataSize(), // FIXME report size of zip contents
 		statusChannel:       make(chan InstallStatus, 1),
 		abortChannel:        make(chan bool, 1),
 		abortConfirmChannel: make(chan bool, 1),
@@ -101,12 +100,12 @@ func (i *Installer) installFromSubdir(subdir string) error {
 	i.actionLock.Lock()
 	defer i.actionLock.Unlock()
 
-	log.Printf("Unpacking temp data.zip")
 	reader, err := i.unpackDataZip()
 	if err != nil {
 		return err
 	}
 
+	i.totalSize = 0
 	i.files = make([]*InstallFile, 0, len(reader.File))
 	for _, file := range reader.File {
 		if !strings.HasPrefix(file.Name, subdir) {
@@ -128,6 +127,7 @@ func (i *Installer) installFromSubdir(subdir string) error {
 			i.files,
 			&InstallFile{file, filepath.Join(i.Target, relPath), false},
 		)
+		i.totalSize += int64(file.UncompressedSize64)
 	}
 	for _, file := range i.files {
 		select {
@@ -259,7 +259,6 @@ func (i *Installer) Status() InstallStatus {
 func (i *Installer) CheckInstallDir(dirName string) error {
 	parent := path.Dir(dirName)
 	parentInfo, err := os.Stat(parent)
-	// log.Println(fmt.Sprintf("Checking install location: '%s'", dirName))
 	if err != nil || !parentInfo.IsDir() {
 		return errors.New(fmt.Sprintf("Install parent is not dir: '%s'", parent))
 	} else if unix.Access(parent, unix.W_OK) != nil {
@@ -287,6 +286,9 @@ func (i *Installer) SetProgressFunction(function func(InstallStatus)) {
 // Progress returns the size ratio between already installed files and all
 // files. The result is a float between 0.0 and 1.0, inclusive.
 func (i *Installer) Progress() float64 {
+	if i.totalSize == 0 {
+		return 0.0
+	}
 	return float64(i.installedSize) / float64(i.totalSize)
 }
 

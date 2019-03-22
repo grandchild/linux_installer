@@ -156,34 +156,16 @@ func (t *Translator) getLocale() string {
 	return match.String()
 }
 
-// expandVariables takes a string with template variables like {{ var }} and
-// expands them with the given map.
-//
-// Go templates are a bit different from Jinja templates, so this function
-// wraps Go templates and allows one to write in a more Jinja-like
-// {{var}} style instead of {{.var}} as the text/template package would
-// demand.
+// expandVariables takes a string with template variables like {{.var}} and expands them
+// with the given map.
 func (t *Translator) expandVariables(str string, variables StringMap) (expanded string) {
-	templ := template.New("")
-	// Go template variables would have to be {{.var}}, but we want to use
-	// {{var}}, so we simply define them as template function names returning
-	// their string value.
-	// That makes it slightly hacky here, but simplifies the translation
-	// string files by not having to explain the leading dot on every
-	// variable.
-	funcMap := make(map[string]interface{})
-	for key, value := range variables {
-		// copy 'value', so it's is not the same string ref in all template functions
-		boundValue := value[:]
-		funcMap[key] = func() string { return boundValue }
-	}
-	templ, err := templ.Funcs(funcMap).Parse(str)
+	templ, err := template.New("").Parse(str)
 	if err != nil {
 		log.Println(fmt.Sprintf("Invalid string template: '%s'", err))
 		return str
 	}
 	var buf bytes.Buffer
-	err = templ.Execute(&buf, nil)
+	err = templ.Execute(&buf, variables)
 	if err != nil {
 		log.Println(fmt.Sprintf("Error executing template: '%s'", err))
 		return str

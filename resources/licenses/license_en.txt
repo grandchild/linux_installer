@@ -1,0 +1,6 @@
+This example license commits the signee to the statement that the signee owes
+AMCE Inc absolutely nothing. No examples other than this one shall be affected
+by this license.
+
+Should any part of this license be rendered ineffective then no other part
+loses its applicability.

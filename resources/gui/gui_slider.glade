@@ -17,11 +17,11 @@
     <property name="can_focus">False</property>
     <property name="stock">gtk-cancel</property>
   </object>
-  <object class="GtkWindow" id="installer_frame">
+  <object class="GtkTextBuffer" id="license-buf"/>
+  <object class="GtkWindow" id="installer-frame">
     <property name="width_request">502</property>
     <property name="height_request">388</property>
     <property name="can_focus">False</property>
-    <property name="resizable">False</property>
     <property name="window_position">center</property>
     <property name="icon">icon.gif</property>
     <property name="type_hint">dialog</property>
@@ -61,6 +61,7 @@
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">$header_text$</property>
                 <property name="ellipsize">middle</property>
+                <property name="single_line_mode">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -81,6 +82,7 @@
           <object class="GtkStack" id="content">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="transition_type">crossfade</property>
             <child>
               <object class="GtkBox" id="language">
                 <property name="visible">True</property>
@@ -98,7 +100,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkBox" id="language_content">
+                  <object class="GtkBox" id="language-content">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="valign">center</property>
@@ -125,7 +127,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkComboBoxText" id="language_choose">
+                      <object class="GtkComboBoxText" id="language-choose">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="has_focus">True</property>
@@ -178,7 +180,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkBox" id="welcome_content">
+                  <object class="GtkBox" id="welcome-content">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="margin_left">4</property>
@@ -191,6 +193,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">$welcome_header$</property>
+                        <property name="wrap">True</property>
                         <property name="xalign">0</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
@@ -204,6 +207,7 @@
                     </child>
                     <child>
                       <object class="GtkLabel" id="welcome-text">
+                        <property name="width_request">70</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="valign">center</property>
@@ -253,17 +257,19 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkBox" id="license_content">
+                  <object class="GtkBox" id="license-content">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="margin_top">20</property>
                     <property name="margin_bottom">20</property>
                     <property name="orientation">vertical</property>
+                    <property name="spacing">2</property>
                     <child>
                       <object class="GtkLabel" id="license-text-above">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">$license_text_above$</property>
+                        <property name="wrap">True</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -273,18 +279,30 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkTextView" id="license_text">
+                      <object class="GtkScrolledWindow">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="has_focus">True</property>
-                        <property name="margin_top">10</property>
-                        <property name="margin_bottom">10</property>
-                        <property name="editable">False</property>
+                        <property name="hscrollbar_policy">never</property>
+                        <property name="vscrollbar_policy">always</property>
+                        <child>
+                          <object class="GtkTextView" id="license-text">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="has_focus">True</property>
+                            <property name="margin_top">10</property>
+                            <property name="margin_bottom">10</property>
+                            <property name="hscroll_policy">natural</property>
+                            <property name="editable">False</property>
+                            <property name="wrap_mode">word</property>
+                            <property name="cursor_visible">False</property>
+                            <property name="buffer">license-buf</property>
+                            <property name="accepts_tab">False</property>
+                          </object>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">True</property>
                         <property name="fill">True</property>
-                        <property name="padding">2</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
@@ -293,6 +311,8 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">$license_text_below$</property>
+                        <property name="use_markup">True</property>
+                        <property name="wrap">True</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -333,7 +353,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkBox" id="path_content">
+                  <object class="GtkBox" id="path-content">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="margin_top">20</property>
@@ -344,6 +364,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">$path_text$</property>
+                        <property name="wrap">True</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -357,7 +378,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <child>
-                          <object class="GtkEntry" id="path_entry">
+                          <object class="GtkEntry" id="path-entry">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="caps_lock_warning">False</property>
@@ -372,7 +393,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButton" id="path_browse_button">
+                          <object class="GtkButton" id="path-browse-button">
                             <property name="label">gtk-open</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
@@ -406,6 +427,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="label" translatable="yes">$path_space_required$</property>
+                            <property name="single_line_mode">True</property>
                             <property name="xalign">0</property>
                           </object>
                           <packing>
@@ -418,6 +440,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="label" translatable="yes">$path_space_available$</property>
+                            <property name="single_line_mode">True</property>
                             <property name="xalign">0</property>
                           </object>
                           <packing>
@@ -430,6 +453,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="label" translatable="yes">?</property>
+                            <property name="single_line_mode">True</property>
                             <property name="xalign">0</property>
                           </object>
                           <packing>
@@ -442,6 +466,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="label" translatable="yes">?</property>
+                            <property name="single_line_mode">True</property>
                             <property name="xalign">0</property>
                           </object>
                           <packing>
@@ -488,7 +513,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkBox" id="progress_content">
+                  <object class="GtkBox" id="progress-content">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="valign">center</property>
@@ -504,6 +529,7 @@
                         <property name="can_focus">False</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">$progress_text$</property>
+                        <property name="wrap">True</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -512,7 +538,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkEntry" id="progress_bar">
+                      <object class="GtkEntry" id="progress-bar">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="editable">False</property>
@@ -556,17 +582,18 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkBox" id="final_content">
+                  <object class="GtkBox" id="final-content">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="margin_top">4</property>
                     <property name="margin_bottom">4</property>
                     <property name="orientation">vertical</property>
                     <child>
-                      <object class="GtkLabel" id="final_title">
+                      <object class="GtkLabel" id="final-header">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">$finished$</property>
+                        <property name="label" translatable="yes">$final_header$</property>
+                        <property name="wrap">True</property>
                         <property name="xalign">0</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
@@ -579,16 +606,14 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkLabel" id="final_body">
+                      <object class="GtkLabel" id="final-text">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="valign">center</property>
                         <property name="margin_top">10</property>
                         <property name="margin_bottom">25</property>
-                        <property name="label" translatable="yes">$install-finished$
-$drivers$</property>
+                        <property name="label" translatable="yes">$install_finished$</property>
                         <property name="wrap">True</property>
-                        <property name="wrap_mode">word-char</property>
                         <property name="ellipsize">end</property>
                         <property name="xalign">0</property>
                         <property name="yalign">0</property>
@@ -616,7 +641,7 @@ $drivers$</property>
             </child>
           </object>
           <packing>
-            <property name="expand">False</property>
+            <property name="expand">True</property>
             <property name="fill">True</property>
             <property name="position">1</property>
           </packing>
@@ -631,7 +656,7 @@ $drivers$</property>
             <property name="margin_bottom">10</property>
             <property name="spacing">15</property>
             <child>
-              <object class="GtkButton" id="button_quit">
+              <object class="GtkButton" id="button-quit">
                 <property name="label">Quit</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -648,7 +673,7 @@ $drivers$</property>
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="button_back">
+              <object class="GtkButton" id="button-back">
                 <property name="label">Back</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -664,7 +689,7 @@ $drivers$</property>
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="button_next">
+              <object class="GtkButton" id="button-next">
                 <property name="label">Next</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -689,10 +714,10 @@ $drivers$</property>
       </object>
     </child>
     <style>
-      <class name="main_window"/>
+      <class name="main-window"/>
     </style>
   </object>
-  <object class="GtkDialog" id="quit_dialog">
+  <object class="GtkDialog" id="quit-dialog">
     <property name="can_focus">True</property>
     <property name="type">popup</property>
     <property name="resizable">False</property>
@@ -700,9 +725,8 @@ $drivers$</property>
     <property name="type_hint">dialog</property>
     <property name="skip_taskbar_hint">True</property>
     <property name="urgency_hint">True</property>
-    <property name="focus_on_map">False</property>
     <property name="gravity">center</property>
-    <property name="transient_for">installer_frame</property>
+    <property name="transient_for">installer-frame</property>
     <child>
       <placeholder/>
     </child>
@@ -716,7 +740,7 @@ $drivers$</property>
             <property name="can_focus">True</property>
             <property name="layout_style">end</property>
             <child>
-              <object class="GtkButton" id="quit_no">
+              <object class="GtkButton" id="quit-no">
                 <property name="label">gtk-no</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -731,7 +755,7 @@ $drivers$</property>
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="quit_yes">
+              <object class="GtkButton" id="quit-yes">
                 <property name="label">gtk-yes</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -753,10 +777,10 @@ $drivers$</property>
           </packing>
         </child>
         <child>
-          <object class="GtkLabel" id="really_quit_message">
+          <object class="GtkLabel" id="really-quit-text">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="label" translatable="yes">$really_quit$</property>
+            <property name="label" translatable="yes">$really_quit_text$</property>
             <property name="wrap">True</property>
           </object>
           <packing>
@@ -769,5 +793,4 @@ $drivers$</property>
       </object>
     </child>
   </object>
-  <object class="GtkTextBuffer" id="license_buf"/>
 </interface>

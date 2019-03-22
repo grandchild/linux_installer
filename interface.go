@@ -11,13 +11,7 @@ import (
 	"strings"
 )
 
-var (
-	// TODO find a better home for these... A config file or so.
-	stringVariables = map[string]string{
-		"product":     "Example App",
-		"version":     "8.18.0.0",
-		"applauncher": "{{linux_app_launcher}}",
-	}
+const (
 	// Linux terminal command string to clear the current line and reset the cursor
 	clearLineVT100 = "\033[2K\r"
 )
@@ -37,7 +31,11 @@ func Interface() {
 	defer logfile.Close()
 
 	openBoxes()
-	translator := TranslatorVarNew(stringVariables)
+	config, err := ConfigNew()
+	if err != nil {
+		return
+	}
+	translator := TranslatorVarNew(config)
 
 	// cli := flag.Bool("cli", false, translator.Get("cli_help_nogui"))
 	target := flag.String("target", "", translator.Get("cli_help_target"))

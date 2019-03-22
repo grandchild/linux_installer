@@ -102,7 +102,7 @@ func TuiNew(installerTempPath string, translator Translator) (Tui, error) {
 		Steps:           tuiSteps(),
 		curStep:         0,
 		translator:      translator,
-		stringVariables: stringVariables,
+		stringVariables: translator.variables,
 		ui:              ui,
 		curProgress:     30,
 	}

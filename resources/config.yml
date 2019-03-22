@@ -1,0 +1,4 @@
+---
+product: Example App
+version: 8.18.0.0
+applauncher: "{{.linux_app_launcher}}"
