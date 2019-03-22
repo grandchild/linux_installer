@@ -629,7 +629,7 @@
                         <property name="valign">center</property>
                         <property name="margin_top">10</property>
                         <property name="margin_bottom">25</property>
-                        <property name="label" translatable="yes">$install_finished$</property>
+                        <property name="label" translatable="yes">$final_text$</property>
                         <property name="wrap">True</property>
                         <property name="ellipsize">end</property>
                         <property name="xalign">0</property>
