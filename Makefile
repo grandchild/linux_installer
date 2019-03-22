@@ -62,9 +62,9 @@ default: linux
 
 all: linux windows dist
 
-linux: linux_build
+linux: linux_build $(DATA_DIST_DIR)/data.zip
 
-windows: windows_build
+windows: windows_build $(DATA_DIST_DIR)/data.zip
 
 
 dist: linux_dist
