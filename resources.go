@@ -20,14 +20,6 @@ type BoxFile struct {
 	info os.FileInfo
 }
 
-const (
-	B  int64 = 1
-	KB       = 1024 * B
-	MB       = 1024 * KB
-	GB       = 1024 * MB
-	TB       = 1024 * GB
-)
-
 var resourcesBox *rice.Box
 var dataBox *rice.Box
 

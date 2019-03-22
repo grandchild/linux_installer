@@ -16,40 +16,50 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+const (
+	B  int64 = 1
+	KB       = 1024 * B
+	MB       = 1024 * KB
+	GB       = 1024 * MB
+	TB       = 1024 * GB
+)
+
 type (
-	// InstallFile is an augmented os.FileInfo struct with both source and
-	// target path as well as a flag indicating wether the file has been
-	// copied to the target or not.
+	// InstallFile is an augmented zip.FileInfo struct with both source and target path as
+	// well as a flag indicating wether the file has been copied to the target or not.
+	// Source and target path will be the same if the installation doesn't run from a
+	// subdir of the source data.
 	InstallFile struct {
 		*zip.File
 		Target    string
 		installed bool
 	}
-	// InstallStatus is a message struct that gets passed around at various
-	// times in the installation process. All fields are optional and contain
-	// the current file, wether the installer as a whole is finished or not,
-	// or wether it's been aborted and rolled back.
+	// InstallStatus is a message struct that gets passed around at various times in the
+	// installation process. All fields are optional and contain the current file, wether
+	// the installer as a whole is finished or not, or wether it's been aborted and rolled
+	// back.
 	InstallStatus struct {
 		File    *InstallFile
 		Done    bool
 		Aborted bool
 	}
-	// Installer represents a set of files and a target to be copied into. It
-	// contains information about the files, size, and status (done or not),
-	// as well as 3 different message channels, for each abort and its
-	// confirmation as well as status channel.
+	// Installer represents a set of files and a target to be copied into. It contains
+	// information about the files, size, and status (done or not), as well as 3 different
+	// message channels, for each abort and its confirmation as well as status channel.
 	Installer struct {
-		Target              string
-		Done                bool
-		tempPath            string
-		totalSize           int64
-		installedSize       int64
-		files               []*InstallFile
-		statusChannel       chan InstallStatus
-		abortChannel        chan bool
-		abortConfirmChannel chan bool
-		actionLock          sync.Mutex
-		progressFunction    func(InstallStatus)
+		Target               string
+		Done                 bool
+		tempPath             string
+		dataPrepared         bool
+		existingTargetParent string
+		totalSize            int64
+		installedSize        int64
+		files                []*InstallFile
+		statusChannel        chan InstallStatus
+		abortChannel         chan bool
+		abortConfirmChannel  chan bool
+		actionLock           sync.Mutex
+		progressFunction     func(InstallStatus)
 	}
 )
 
@@ -85,26 +95,33 @@ func InstallerToNew(target string, tempPath string) Installer {
 
 // StartInstall runs the installer in a separate goroutine and returns
 // immediately. Use Status() to get updates about the progress.
-func (i *Installer) StartInstall() { go i.install() }
+func (i *Installer) StartInstall() {
+	go i.install("")
+}
 
 // StartInstallFromSubdir is the same as StartInstall but only installs a
 // subset of the source data.
-func (i *Installer) StartInstallFromSubdir(subdir string) { go i.installFromSubdir(subdir) }
+func (i *Installer) StartInstallFromSubdir(subdir string) {
+	go i.install(subdir)
+}
 
-// install runs the installation.
-func (i *Installer) install() error { return i.installFromSubdir("") }
+// PrepareDataFiles unpacks data.zip into the temp directory and scans the contents.
+func (i *Installer) PrepareDataFiles() error {
+	return i.PrepareDataFilesFromSubdir("")
+}
 
-// installFromSubdir runs the installation.
-func (i *Installer) installFromSubdir(subdir string) error {
-	i.Done = false
-	i.actionLock.Lock()
-	defer i.actionLock.Unlock()
-
+// PrepareDataFilesFromSubdir unpacks data.zip into the temp directory and scans the
+// contents, but only a subdirectory within data.zip.
+func (i *Installer) PrepareDataFilesFromSubdir(subdir string) error {
+	if i.dataPrepared {
+		return nil
+	}
 	reader, err := i.unpackDataZip()
 	if err != nil {
 		return err
 	}
 
+	i.dataPrepared = false
 	i.totalSize = 0
 	i.files = make([]*InstallFile, 0, len(reader.File))
 	for _, file := range reader.File {
@@ -117,18 +134,38 @@ func (i *Installer) installFromSubdir(subdir string) error {
 		}
 		// Check for ZipSlip vulnerability and ignore any files with invalid
 		// paths. See: http://bit.ly/2MsjAWE
+		dummyTarget := "/some/dir/"
 		if !strings.HasPrefix(
-			filepath.Join(i.Target, relPath),
-			filepath.Clean(i.Target)+string(os.PathSeparator),
+			filepath.Join(dummyTarget, relPath),
+			filepath.Clean(dummyTarget)+string(os.PathSeparator),
 		) {
 			continue
 		}
 		i.files = append(
 			i.files,
-			&InstallFile{file, filepath.Join(i.Target, relPath), false},
+			&InstallFile{file, relPath, false},
 		)
 		i.totalSize += int64(file.UncompressedSize64)
 	}
+	i.dataPrepared = true
+	return err
+}
+
+// install runs the installation.
+func (i *Installer) install(subdir string) error {
+	i.Done = false
+	i.actionLock.Lock()
+	defer i.actionLock.Unlock()
+
+	var err error
+	if !i.dataPrepared {
+		err = i.PrepareDataFilesFromSubdir(subdir)
+		if err != nil {
+			return err
+		}
+	}
+
+	os.MkdirAll(i.Target, 0755)
 	for _, file := range i.files {
 		select {
 		case <-i.abortChannel:
@@ -136,15 +173,15 @@ func (i *Installer) installFromSubdir(subdir string) error {
 			i.abortConfirmChannel <- true
 			return err
 		default:
-			// log.Printf("Installing file/dir %s", file.Target)
+			// log.Printf("Installing file/dir %s", i.fileTarget(file))
 			status := InstallStatus{File: file}
 			i.setStatus(status)
 			i.progressFunction(status)
 			if file.FileInfo().IsDir() {
-				os.MkdirAll(file.Target, 0755)
+				os.MkdirAll(i.fileTarget(file), 0755)
 			} else {
-				os.MkdirAll(filepath.Dir(file.Target), 0755)
-				err = installFile(file)
+				os.MkdirAll(filepath.Dir(i.fileTarget(file)), 0755)
+				err = i.installFile(file)
 				if err != nil {
 					return err
 				}
@@ -171,9 +208,9 @@ func (i *Installer) unpackDataZip() (*zip.ReadCloser, error) {
 	return zip.OpenReader(dataTempFilepath)
 }
 
-func installFile(file *InstallFile) error {
+func (i *Installer) installFile(file *InstallFile) error {
 	targetFile, err := os.OpenFile(
-		file.Target,
+		i.fileTarget(file),
 		os.O_WRONLY|os.O_CREATE|os.O_TRUNC,
 		file.Mode()|0600, // use file's permissions, but make sure that user has at least rw (=0600)
 	)
@@ -190,8 +227,12 @@ func installFile(file *InstallFile) error {
 	if err != nil {
 		return err
 	}
-	err = os.Chtimes(file.Target, time.Now(), file.Modified)
+	err = os.Chtimes(i.fileTarget(file), time.Now(), file.Modified)
 	return err
+}
+
+func (i *Installer) fileTarget(file *InstallFile) string {
+	return filepath.Join(i.Target, file.Target)
 }
 
 // Abort can be called to stop the installer. The installer will usually not
@@ -257,14 +298,23 @@ func (i *Installer) Status() InstallStatus {
 // CheckInstallDir checks if the given directory is a valid path, creating it
 // if it doesn't exist.
 func (i *Installer) CheckInstallDir(dirName string) error {
-	parent := path.Dir(dirName)
+	parent := path.Dir(path.Clean(dirName))
+	for parent != string(os.PathSeparator) || parent != "." {
+		parentInfo, err := os.Stat(parent)
+		if err != nil || !parentInfo.IsDir() {
+			parent = path.Dir(parent)
+		} else {
+			break
+		}
+	}
 	parentInfo, err := os.Stat(parent)
 	if err != nil || !parentInfo.IsDir() {
 		return errors.New(fmt.Sprintf("Install parent is not dir: '%s'", parent))
 	} else if unix.Access(parent, unix.W_OK) != nil {
 		return errors.New(fmt.Sprintf("Install location is not writeable: '%s' -> '%s'", parent, parentInfo.Mode().Perm()))
 	}
-	i.Target = dirName
+	i.existingTargetParent = parent
+	i.Target = path.Clean(dirName)
 	return nil
 }
 
@@ -292,31 +342,32 @@ func (i *Installer) Progress() float64 {
 	return float64(i.installedSize) / float64(i.totalSize)
 }
 
-// Size returns the bytes that have been copied so far or should be copied in
-// total.
-func (i *Installer) Size() int64 {
-	if i.Done {
-		return i.totalSize
-	} else {
-		return i.installedSize
+func (i *Installer) diskSpace() int64 {
+	fs := unix.Statfs_t{}
+	if err := unix.Statfs(i.existingTargetParent, &fs); err != nil {
+		log.Println(err, i.Target, i.existingTargetParent)
+		return -1
 	}
+	// log.Printf("blocksize: %d, total: %d, avail: %d, free: %d\n", fs.Bsize, fs.Blocks, fs.Bavail, fs.Bfree)
+	return int64(int64(fs.Bavail) * fs.Bsize)
 }
 
 // SizeString returns a human-readable version of Size(), appending a size
 // suffix, as needed.
-func (i *Installer) SizeString() string {
-	size := i.Size()
+func (i *Installer) SizeString() string  { return i.sizeString(i.totalSize) }
+func (i *Installer) SpaceString() string { return i.sizeString(i.diskSpace()) }
+func (i *Installer) sizeString(bytes int64) string {
 	switch {
-	case size < KB:
-		return fmt.Sprintf("%dB", size)
-	case size < MB:
-		return fmt.Sprintf("%.2fKB", float64(size)/float64(KB))
-	case size < GB:
-		return fmt.Sprintf("%.2fMB", float64(size)/float64(MB))
-	case size < TB:
-		return fmt.Sprintf("%.2fGB", float64(size)/float64(GB))
+	case bytes < KB:
+		return fmt.Sprintf("%d B", bytes)
+	case bytes < MB:
+		return fmt.Sprintf("%.2f KB", float64(bytes)/float64(KB))
+	case bytes < GB:
+		return fmt.Sprintf("%.2f MB", float64(bytes)/float64(MB))
+	case bytes < TB:
+		return fmt.Sprintf("%.2f GB", float64(bytes)/float64(GB))
 	default:
-		return fmt.Sprintf("%.2fTB", float64(size)/float64(TB))
+		return fmt.Sprintf("%.2f TB", float64(bytes)/float64(TB))
 	}
 }
 

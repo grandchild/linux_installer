@@ -253,6 +253,9 @@ func (g *Gui) checkInstallDir() {
 		// TODO: set something to red
 		log.Println(err)
 	}
+	g.installer.PrepareDataFiles()
+	g.setLabel("path-space-required", g.installer.SizeString())
+	g.setLabel("path-space-available", g.installer.SpaceString())
 	g.nextButton.SetSensitive(true)
 }
 
@@ -318,7 +321,6 @@ func (g *Gui) setLanguage(chooserId string) error {
 func (g *Gui) translateAllLabels(item interface{}) {
 	switch widget := item.(type) {
 	case *gtk.Box:
-		log.Println("got box in translateAllLabels")
 		g.translateAllLabels((*gtk.Widget)(unsafe.Pointer(widget)))
 	case *gtk.Widget:
 		switch name, _ := widget.GetName(); name {
