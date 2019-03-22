@@ -39,8 +39,8 @@ func Interface() {
 
 	// cli := flag.Bool("cli", false, translator.Get("cli_help_nogui"))
 	target := flag.String("target", "", translator.Get("cli_help_target"))
-	showLicence := flag.Bool("show-licence", false, translator.Get("cli_help_showlicence"))
-	acceptLicence := flag.Bool("accept-licence", false, translator.Get("cli_help_acceptlicence"))
+	showLicense := flag.Bool("show-license", false, translator.Get("cli_help_showlicense"))
+	acceptLicense := flag.Bool("accept-license", false, translator.Get("cli_help_acceptlicense"))
 	lang := flag.String("lang", "", translator.Get("cli_help_lang")+" "+strings.Join(translator.GetLanguageOptionKeys(), ", "))
 	flag.Parse()
 
@@ -50,12 +50,14 @@ func Interface() {
 			fmt.Printf("Language '%s' not available", *lang)
 		}
 	}
-	if *showLicence {
-		licenceFile, err := GetResource(fmt.Sprintf("%s_licence.txt", translator.language))
+	if *showLicense {
+		licenseFile, err := GetResource(
+			fmt.Sprintf("licenses/license_%s.txt", translator.language),
+		)
 		if err != nil {
 			fmt.Println(err)
 		} else {
-			fmt.Print(licenceFile)
+			fmt.Print(licenseFile)
 		}
 		return
 	}
@@ -63,7 +65,7 @@ func Interface() {
 	installerTempPath := filepath.Join(os.TempDir(), "linux_installer")
 	fmt.Println(installerTempPath)
 	if len(*target) > 0 {
-		if *acceptLicence {
+		if *acceptLicense {
 			installer := InstallerToNew(*target, installerTempPath)
 			c := make(chan os.Signal, 1)
 			signal.Notify(c, os.Interrupt)
@@ -86,7 +88,7 @@ func Interface() {
 			fmt.Println(clearLineVT100 + installer.SizeString())
 			fmt.Println(translator.Get("silent_done"))
 		} else {
-			fmt.Println(translator.Get("err_cli_mustacceptlicence"))
+			fmt.Println(translator.Get("err_cli_mustacceptlicense"))
 		}
 		return
 	}
