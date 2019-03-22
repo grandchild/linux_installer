@@ -56,8 +56,12 @@ func guiEventHandler(g *Gui) (handler EventHandler) {
 		"on_quit_yes_clicked":    func() { gtk.MainQuit() },
 		"on_path_browse_clicked": func() { g.browseInstallDir() },
 		"on_path_entry_changed":  func() { g.checkInstallDir() },
-		"on_main_close":          func() bool { g.quitDialog.ShowAll(); return true },
 		"on_main_destroy":        func() { gtk.MainQuit() },
+		"on_main_close": func() bool {
+			g.translateAllLabels(getBox(g.builder, "quit-dialog-box"))
+			g.quitDialog.ShowAll()
+			return true
+		},
 	}
 }
 
@@ -174,7 +178,6 @@ func GuiNew(installerTempPath string, translator Translator) (Gui, error) {
 
 	gui.win.SetTitle(gui.t("title"))
 	gui.setLabel("header-text", gui.t("header_text"))
-	gui.translateAllLabels(getBox(gui.builder, "quit-dialog-box"))
 
 	css, err := gtk.CssProviderNew()
 	if err == nil {
@@ -241,7 +244,7 @@ func (g *Gui) browseInstallDir() {
 		log.Println(g.t("err_couldnt_open_install_path_dialog"))
 	}
 	// set some default folder here?
-	// chooser.SetCurrentFolder("~")
+	chooser.SetCurrentFolder(glib.GetHomeDir())
 	if gtk.ResponseType(chooser.Run()) == gtk.RESPONSE_ACCEPT {
 		g.dirPathEdit.SetText(chooser.GetFilename())
 	}
@@ -263,10 +266,10 @@ func (g *Gui) checkInstallDir() {
 	g.setLabel("path-space-available", g.installer.SpaceString())
 }
 
-// t returns a localized string for the key, and expands any template
-// variables therein. Variables are surrounded by double braces like this:
+// t returns a localized string for the key, and expands any template variables therein.
+// Variables are surrounded by double braces and preceded by a dot like this:
 //
-// 	{{var}}
+// 	{{.var}}
 func (g *Gui) t(key string) (localized string) {
 	return g.translator.Get(key)
 }
