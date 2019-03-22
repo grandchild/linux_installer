@@ -1,13 +1,15 @@
 
 # Executable
-go-installer
 linux_installer
+go-installer
+installer
 
 # goland project files
 .idea/
 
 # any test data
 data/*
+data_compressed/*
 
 # test log
 /installer.log
