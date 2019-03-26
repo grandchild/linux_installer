@@ -36,6 +36,7 @@ path_space_required: Speicherplatz benötigt
 path_space_available: Speicherplatz verfügbar
 path_err_not_dir: Der gegebene Pfad, oder einer der übergeordneten Pfade, ist kein Verzeichnis!
 path_err_not_writable: Das übergeordnete Verzeichnis hat keine Schreibberechtigung!
+path_err_not_enough_space: Nicht genügend Platz auf der Festplatte für die Installation!
 path_err_other: Beim Suchen des Installationspfads ist ein unbekannter Fehler aufgetreten!
 
 shortcut_header: Verknüpfungen

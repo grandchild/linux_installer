@@ -36,6 +36,7 @@ path_space_required: Space required
 path_space_available: Space available
 path_err_not_dir: The given path, or one of its parents, is not a directory!
 path_err_not_writable: The paths parent is not writable!
+path_err_not_enough_space: Not enough space on the disk for the installation!
 path_err_other: An unknown error occurred while looking for the installation location!
 
 shortcut_header: Shortcuts

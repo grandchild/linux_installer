@@ -15,11 +15,12 @@ import (
 )
 
 const (
-	B  int64 = 1
-	KB       = 1024 * B
-	MB       = 1024 * KB
-	GB       = 1024 * MB
-	TB       = 1024 * GB
+	B   int64 = 1
+	KiB       = 1024 * B
+	MiB       = 1024 * KiB
+	GiB       = 1024 * MiB
+	TiB       = 1024 * GiB
+	PiB       = 1024 * TiB
 )
 
 type (
@@ -351,22 +352,28 @@ func (i *Installer) diskSpace() int64 {
 	return osDiskSpace(i.existingTargetParent)
 }
 
-// SizeString returns a human-readable version of Size(), appending a size
-// suffix, as needed.
+func (i *Installer) DiskSpaceSufficient() bool {
+	return i.totalSize < i.diskSpace()
+}
+
+// SizeString returns a human-readable version of Size(), appending a size suffix as
+// needed.
 func (i *Installer) SizeString() string  { return i.sizeString(i.totalSize) }
 func (i *Installer) SpaceString() string { return i.sizeString(i.diskSpace()) }
 func (i *Installer) sizeString(bytes int64) string {
 	switch {
-	case bytes < KB:
+	case bytes < KiB:
 		return fmt.Sprintf("%d B", bytes)
-	case bytes < MB:
-		return fmt.Sprintf("%.2f KB", float64(bytes)/float64(KB))
-	case bytes < GB:
-		return fmt.Sprintf("%.2f MB", float64(bytes)/float64(MB))
-	case bytes < TB:
-		return fmt.Sprintf("%.2f GB", float64(bytes)/float64(GB))
+	case bytes < MiB:
+		return fmt.Sprintf("%.2f KiB", float64(bytes)/float64(KiB))
+	case bytes < GiB:
+		return fmt.Sprintf("%.2f MiB", float64(bytes)/float64(MiB))
+	case bytes < TiB:
+		return fmt.Sprintf("%.2f GiB", float64(bytes)/float64(GiB))
+	case bytes < PiB:
+		return fmt.Sprintf("%.2f TiB", float64(bytes)/float64(TiB))
 	default:
-		return fmt.Sprintf("%.2f TB", float64(bytes)/float64(TB))
+		return fmt.Sprintf("%.2f PiB", float64(bytes)/float64(PiB))
 	}
 }
 
