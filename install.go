@@ -58,6 +58,7 @@ type (
 		abortConfirmChannel  chan bool
 		actionLock           sync.Mutex
 		progressFunction     func(InstallStatus)
+		err                  error
 	}
 )
 
@@ -150,7 +151,7 @@ func (i *Installer) PrepareDataFilesFromSubdir(subdir string) error {
 }
 
 // install runs the installation.
-func (i *Installer) install(subdir string) error {
+func (i *Installer) install(subdir string) {
 	i.Done = false
 	i.actionLock.Lock()
 	defer i.actionLock.Unlock()
@@ -159,7 +160,7 @@ func (i *Installer) install(subdir string) error {
 	if !i.dataPrepared {
 		err = i.PrepareDataFilesFromSubdir(subdir)
 		if err != nil {
-			return err
+			i.err = err
 		}
 	}
 
@@ -169,7 +170,7 @@ func (i *Installer) install(subdir string) error {
 		case <-i.abortChannel:
 			i.Done = false
 			i.abortConfirmChannel <- true
-			return err
+			i.err = err
 		default:
 			// log.Printf("Installing file/dir %s", i.fileTarget(file))
 			status := InstallStatus{File: file}
@@ -181,7 +182,7 @@ func (i *Installer) install(subdir string) error {
 				os.MkdirAll(filepath.Dir(i.fileTarget(file)), 0755)
 				err = i.installFile(file)
 				if err != nil {
-					return err
+					i.err = err
 				}
 				i.installedSize += int64(file.UncompressedSize64)
 			}
@@ -191,7 +192,7 @@ func (i *Installer) install(subdir string) error {
 	}
 	i.Done = true
 	i.setStatus(InstallStatus{Done: true})
-	return err
+	i.err = err
 }
 
 // UnpackDataZip extracts the appended data zipfile to the temporary directory

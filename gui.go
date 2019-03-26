@@ -67,7 +67,7 @@ func guiEventHandler(g *Gui) (handler EventHandler) {
 
 func internalEventHandler(g *Gui) (handler EventHandler) {
 	return EventHandler{
-		"on_installation_finished": g.nextScreen,
+		"on_installation_finished": g.showResultScreen,
 		"on_undo_finished":         g.prevScreen,
 		"update_progressbar":       g.updateProgressbar,
 	}
@@ -121,7 +121,18 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 			},
 		},
 		{
-			name: "final",
+			name: "success",
+			before: func() {
+				g.quitButton.SetSensitive(false)
+				g.backButton.SetSensitive(false)
+				g.nextButton.SetLabel(g.t("button_exit"))
+			},
+			after: func() {
+				gtk.MainQuit()
+			},
+		},
+		{
+			name: "failure",
 			before: func() {
 				g.quitButton.SetSensitive(false)
 				g.backButton.SetSensitive(false)
@@ -211,6 +222,18 @@ func (g *Gui) setScreenElementDefaults() {
 
 func (g *Gui) prevScreen() { g.showScreen(g.curScreen - 1) }
 func (g *Gui) nextScreen() { g.showScreen(g.curScreen + 1) }
+func (g *Gui) showNamedScreen(name string) {
+	screenNum := int(-1)
+	for i, s := range g.screens {
+		if s.name == name {
+			screenNum = i
+			break
+		}
+	}
+	if screenNum >= 0 {
+		g.showScreen(screenNum)
+	}
+}
 func (g *Gui) showScreen(num int) {
 	if num >= 0 && num < len(g.screens) {
 		g.screenChangeLock.Lock()
@@ -372,4 +395,13 @@ func (g *Gui) updateProgressbar() {
 		g.progressBar.SetText(installingFile.Target)
 	}
 	g.progressBar.SetProgressFraction(g.installer.Progress())
+}
+
+func (g *Gui) showResultScreen() {
+	if g.installer.err != nil {
+		log.Println(g.installer.err.Error())
+		g.showNamedScreen("failure")
+	} else {
+		g.showNamedScreen("success")
+	}
 }
