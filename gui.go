@@ -134,16 +134,9 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 	}
 }
 
-func (g *Gui) setScreenElementDefaults() {
-	g.backButton.SetSensitive(true)
-	g.nextButton.SetSensitive(true)
-	g.quitButton.SetSensitive(true)
-	g.backButton.SetLabel(g.t("button_prev"))
-	g.nextButton.SetLabel(g.t("button_next"))
-	g.quitButton.SetLabel(g.t("button_quit"))
-}
-
-func GuiNew(installerTempPath string, translator Translator) (Gui, error) {
+// NewGui returns a new installer GUI, given a path to a directory for temporary files
+// and a translator for translating message strings.
+func NewGui(installerTempPath string, translator Translator) (Gui, error) {
 	// glib.InitI18n("installer", filepath.Join(installerTempPath, "strings"))
 	// gtk.Init(nil)
 	err := gtk.InitCheck(nil)
@@ -155,7 +148,7 @@ func GuiNew(installerTempPath string, translator Translator) (Gui, error) {
 		return Gui{}, err
 	}
 	gui := Gui{
-		installer:   InstallerNew(installerTempPath),
+		installer:   NewInstaller(installerTempPath),
 		builder:     builder,
 		win:         getWindow(builder, "installer-frame"),
 		content:     getStack(builder, "content"),
@@ -202,9 +195,18 @@ func GuiNew(installerTempPath string, translator Translator) (Gui, error) {
 	return gui, nil
 }
 
-func (g *Gui) run() {
+func (g *Gui) Run() {
 	g.win.ShowAll()
 	gtk.Main()
+}
+
+func (g *Gui) setScreenElementDefaults() {
+	g.backButton.SetSensitive(true)
+	g.nextButton.SetSensitive(true)
+	g.quitButton.SetSensitive(true)
+	g.backButton.SetLabel(g.t("button_prev"))
+	g.nextButton.SetLabel(g.t("button_next"))
+	g.quitButton.SetLabel(g.t("button_quit"))
 }
 
 func (g *Gui) prevScreen() { g.showScreen(g.curScreen - 1) }

@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	installer.Interface()
+	linux_installer.Run()
 }

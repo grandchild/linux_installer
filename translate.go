@@ -29,10 +29,13 @@ type (
 	}
 )
 
-func TranslatorNew() Translator {
-	return TranslatorVarNew(StringMap{})
+// NewTranslator returns a Translator without any variable lookup.
+func NewTranslator() Translator {
+	return NewTranslatorVar(StringMap{})
 }
-func TranslatorVarNew(variables StringMap) Translator {
+
+// NewTranslatorVar returns a Translator with a variable lookup.
+func NewTranslatorVar(variables StringMap) Translator {
 	languageFiles := MustGetResourceFiltered("languages", regexp.MustCompile(`\.ya?ml$`))
 	languages := make(map[string]StringMap)
 	for filename, content := range languageFiles {

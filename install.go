@@ -63,10 +63,10 @@ type (
 	}
 )
 
-// InstallerNew creates a new Installer. You will still need to set the target
+// NewInstaller creates a new Installer. You will still need to set the target
 // path after initialization:
 //
-// 	installer := InstallerNew()
+// 	installer := NewInstaller()
 // 	/* ... some other stuff happens ... */
 // 	installer.Target = "/some/output/path"
 // 	/* and go: */
@@ -79,7 +79,7 @@ type (
 // 	installer.StartInstall()
 // 	/* some watch loop with 'installer.Status()' */
 //
-func InstallerNew(tempPath string) Installer { return InstallerToNew("", tempPath) }
+func NewInstaller(tempPath string) Installer { return InstallerToNew("", tempPath) }
 
 // InstallerToNew creates a new installer with a target path.
 func InstallerToNew(target string, tempPath string) Installer {

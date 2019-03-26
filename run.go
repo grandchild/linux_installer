@@ -26,7 +26,7 @@ func startLogging(logFilename string) *os.File {
 	return logfile
 }
 
-func Interface() {
+func Run() {
 	logfile := startLogging("installer.log")
 	defer logfile.Close()
 
@@ -35,7 +35,7 @@ func Interface() {
 	if err != nil {
 		return
 	}
-	translator := TranslatorVarNew(config)
+	translator := NewTranslatorVar(config)
 
 	// cli := flag.Bool("cli", false, translator.Get("cli_help_nogui"))
 	target := flag.String("target", "", translator.Get("cli_help_target"))
@@ -96,15 +96,15 @@ func Interface() {
 	defer os.RemoveAll(installerTempPath)
 	// if !*cli {
 	UnpackResourceDir("gui", filepath.Join(installerTempPath, "gui"))
-	gui, guiError := GuiNew(installerTempPath, translator)
+	gui, guiError := NewGui(installerTempPath, translator)
 	if guiError != nil {
 		log.Println("Unable to create window:", guiError)
 	} else {
-		gui.run()
+		gui.Run()
 	}
 	// }
 	// if *cli || guiError != nil {
-	// 	tui, err := TuiNew(installerTempPath, translator)
+	// 	tui, err := NewTui(installerTempPath, translator)
 	// 	if err != nil {
 	// 		log.Println(err)
 	// 	} else {
