@@ -12,8 +12,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	"golang.org/x/sys/unix"
 )
 
 const (
@@ -312,7 +310,7 @@ func (i *Installer) CheckInstallDir(dirName string) error {
 	if err != nil || !parentInfo.IsDir() {
 		return errors.New("path_err_not_dir")
 		// fmt.Sprintf("Install parent is not dir: '%s'", parent)
-	} else if unix.Access(parent, unix.W_OK) != nil {
+	} else if !osFileWriteAccess(parent) { // os-specific
 		return errors.New("path_err_not_writable")
 		// fmt.Sprintf("Install location is not writeable: '%s' -> '%s'", parent, parentInfo.Mode().Perm())
 	}
@@ -348,13 +346,8 @@ func (i *Installer) Progress() float64 {
 }
 
 func (i *Installer) diskSpace() int64 {
-	fs := unix.Statfs_t{}
-	if err := unix.Statfs(i.existingTargetParent, &fs); err != nil {
-		log.Println(err, i.Target, i.existingTargetParent)
-		return -1
-	}
-	// log.Printf("blocksize: %d, total: %d, avail: %d, free: %d\n", fs.Bsize, fs.Blocks, fs.Bavail, fs.Bfree)
-	return int64(int64(fs.Bavail) * fs.Bsize)
+	// os-specific
+	return osDiskSpace(i.existingTargetParent)
 }
 
 // SizeString returns a human-readable version of Size(), appending a size
