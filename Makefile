@@ -7,12 +7,12 @@ RES = \
 	resources/
 
 BIN = linux_installer
-DIST_DIR = win
 DATA_SRC_DIR = data
 DATA_DIST_DIR = data_compressed
 
 ZIP = zip
 
+WIN_DIST_DIR = win
 XCC_GOFLAGS = \
 	CGO_LDFLAGS_ALLOW="-Wl,-luuid"\
 	PKG_CONFIG_PATH=/usr/x86_64-w64-mingw32/lib/pkgconfig \
@@ -32,6 +32,7 @@ WIN_DLLS = \
 	libffi-6.dll \
 	libfontconfig-1.dll \
 	libfreetype-6.dll \
+	libfribidi-0.dll \
 	libgcc_s_seh-1.dll \
 	libgdk-3-0.dll \
 	libgdk_pixbuf-2.0-0.dll \
@@ -44,8 +45,9 @@ WIN_DLLS = \
 	libharfbuzz-0.dll \
 	libiconv-2.dll \
 	libintl-8.dll \
-	libjasper.dll \
+	libjasper-4.dll \
 	libjpeg-8.dll \
+	liblzma-5.dll \
 	libpango-1.0-0.dll \
 	libpangocairo-1.0-0.dll \
 	libpangoft2-1.0-0.dll \
@@ -54,6 +56,7 @@ WIN_DLLS = \
 	libpixman-1-0.dll \
 	libpng16-16.dll \
 	libstdc++-6.dll \
+	libtiff-5.dll \
 	libwinpthread-1.dll \
 	zlib1.dll \
 
@@ -84,20 +87,22 @@ run: linux_dist
 
 
 windows_build: $(SRC)
-	$(XCC_GOFLAGS) go build $(XCC_LD_FLAGS) -o $(DIST_DIR)/$(BIN).exe $(PKG)/main
+	$(XCC_GOFLAGS) go build $(XCC_LD_FLAGS) -o $(WIN_DIST_DIR)/$(BIN).exe $(PKG)/main
 
-windows_dist: windows_clean windows_build
-	# cp -r $(RES) $(DIST_DIR)
-	cp $(foreach dll,$(WIN_DLLS),$(WIN_DLL_SRC)/$(dll)) $(DIST_DIR)
+windows_dist: windows_build $(DATA_DIST_DIR)/data.zip
+	# cp -r $(RES) $(WIN_DIST_DIR)
+	mkdir -p $(WIN_DIST_DIR)
+	cp $(foreach dll,$(WIN_DLLS),$(WIN_DLL_SRC)/$(dll)) $(WIN_DIST_DIR)
+	$(GOPATH)/bin/rice append --exec $(WIN_DIST_DIR)/$(BIN).exe
 
 run_win: windows_dist
-	wine $(DIST_DIR)/$(BIN).exe
+	wine $(WIN_DIST_DIR)/$(BIN).exe
 
 
 clean: windows_clean linux_clean
 
 windows_clean: clean_data
-	rm -rf $(DIST_DIR)
+	rm -rf $(WIN_DIST_DIR)
 
 linux_clean: clean_data
 	rm -f $(BIN)
