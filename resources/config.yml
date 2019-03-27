@@ -3,7 +3,11 @@ variables:
   product: Example App
   version: 8.18.0.0
   applauncher: "{{.linux_app_launcher}}"
+
+default_install_dir_name: '{{.product | replace " " "" }}{{ index (.version | split ".") 0 }}'
+
 data_filename: data.zip
+
 gui_css: |
   textview {
     font-size: .7em;
@@ -16,4 +20,3 @@ gui_css: |
     background: #fff;
     color: #222;
   }
-default_install_dir_name: '{{.product | replace " " "" }}{{ index (.version | split ".") 0 }}'
