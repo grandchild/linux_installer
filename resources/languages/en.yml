@@ -6,6 +6,7 @@ _language_pick_text: Choose the installation language.
 
 ### Main UI strings
 title: "{{.product}} Installer"
+tagline: "World-leading example application suite"
 
 header_text: Install {{.product}} {{.version}}
 
@@ -58,8 +59,8 @@ failure_try_again: You may go back and try again.
 ### CLI help and messages
 cli_help_nogui: Install via command line instead of the GUI
 cli_help_target: >
-  Install directory -- if you agree to the license as well this will trigger a silent
-  installation without further questions
+  Install directory -- if you agree to the license as well, via -accept-license, this
+  will trigger a silent installation without further questions
 cli_help_showlicense: Show the license agreement and quit
 cli_help_acceptlicense: >
   Accept the license agreement -- this flag is mandatory for silent installs
