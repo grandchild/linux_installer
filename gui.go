@@ -50,7 +50,8 @@ type (
 
 func guiEventHandler(g *Gui) (handler EventHandler) {
 	return EventHandler{
-		"on_quit_clicked":        func() { g.quitDialog.ShowAll(); g.quitDialog.GrabFocus() },
+		"on_quit_clicked":        func() { g.showQuitDialog() },
+		"on_main_close":          func() bool { g.showQuitDialog(); return true },
 		"on_back_clicked":        func() { g.prevScreen() },
 		"on_next_clicked":        func() { g.nextScreen() },
 		"on_quit_no_clicked":     func() { g.quitDialog.Hide() },
@@ -59,11 +60,6 @@ func guiEventHandler(g *Gui) (handler EventHandler) {
 		"on_path_reset_clicked":  func() { g.resetInstallDir() },
 		"on_path_entry_changed":  func() { g.checkInstallDir() },
 		"on_main_destroy":        func() { gtk.MainQuit() },
-		"on_main_close": func() bool {
-			g.translateAllLabels(getBox(g.builder, "quit-dialog-box"))
-			g.quitDialog.ShowAll()
-			return true
-		},
 	}
 }
 
@@ -210,6 +206,12 @@ func NewGui(installerTempPath string, translator Translator, config *Config) (*G
 func (g *Gui) Run() {
 	g.win.ShowAll()
 	gtk.Main()
+}
+
+func (g *Gui) showQuitDialog() {
+	g.translateAllLabels(getBox(g.builder, "quit-dialog-box"))
+	g.quitDialog.ShowAll()
+	g.quitDialog.GrabFocus()
 }
 
 func (g *Gui) setScreenElementDefaults() {
