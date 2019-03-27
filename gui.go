@@ -150,15 +150,15 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 
 // NewGui returns a new installer GUI, given a path to a directory for temporary files
 // and a translator for translating message strings.
-func NewGui(installerTempPath string, translator Translator) (Gui, error) {
+func NewGui(installerTempPath string, translator Translator) (*Gui, error) {
 	// glib.InitI18n("installer", filepath.Join(installerTempPath, "strings"))
 	err := gtk.InitCheck(nil)
 	if err != nil {
-		return Gui{}, err
+		return &Gui{}, err
 	}
 	builder, err := gtk.BuilderNewFromFile(filepath.Join(installerTempPath, "gui", "gui_slider.glade"))
 	if err != nil {
-		return Gui{}, err
+		return &Gui{}, err
 	}
 	gui := Gui{
 		installer:   NewInstaller(installerTempPath),
@@ -205,7 +205,7 @@ func NewGui(installerTempPath string, translator Translator) (Gui, error) {
 		)
 	}
 	gui.showScreen(0)
-	return gui, nil
+	return &gui, nil
 }
 
 func (g *Gui) Run() {
