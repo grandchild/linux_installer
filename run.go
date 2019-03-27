@@ -108,7 +108,7 @@ func Run() {
 	// 	if err != nil {
 	// 		log.Println(err)
 	// 	} else {
-	// 		tui.run()
+	// 		tui.Run()
 	// 	}
 	// }
 }

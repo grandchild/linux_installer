@@ -158,7 +158,7 @@ func (t *Tui) replaceContent(num int) error {
 	return errors.New("UI has no element 'content'")
 }
 
-func (t *Tui) run() {
+func (t *Tui) Run() {
 	t.ui.Run()
 }
 
