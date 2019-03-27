@@ -1,14 +1,11 @@
 package linux_installer
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"log"
 	"regexp"
 	"sort"
-	"strings"
-	"text/template"
 
 	"github.com/cloudfoundry/jibber_jabber"
 	"golang.org/x/text/language"
@@ -20,15 +17,12 @@ const (
 	displayKey             = "_language_display"
 )
 
-type (
-	StringMap  map[string]string
-	Translator struct {
-		language    string
-		langStrings map[string]StringMap
-		variables   StringMap
-		display     string
-	}
-)
+type Translator struct {
+	language    string
+	langStrings map[string]StringMap
+	variables   StringMap
+	display     string
+}
 
 // NewTranslator returns a Translator without any variable lookup.
 func NewTranslator() Translator {
@@ -162,30 +156,4 @@ func (t *Translator) getLocale() string {
 
 func (t *Translator) Expand(str string) (expanded string) {
 	return ExpandVariables(str, t.variables)
-}
-
-// ExpandVariables takes a string with template variables like {{.var}} and expands them
-// with the given map.
-func ExpandVariables(str string, variables StringMap) (expanded string) {
-	functions := template.FuncMap{
-		"replace": func(from, to, input string) string { return strings.Replace(input, from, to, -1) },
-		"trim":    func(input string) string { return strings.Trim(input, " \r\n\t") },
-		"split":   func(sep, input string) []string { return strings.Split(input, sep) },
-		"join":    func(sep string, input []string) string { return strings.Join(input, sep) },
-		"upper":   func(input string) string { return strings.ToUpper(input) },
-		"lower":   func(input string) string { return strings.ToLower(input) },
-		"title":   func(input string) string { return strings.ToTitle(input) },
-	}
-	templ, err := template.New("").Funcs(functions).Parse(str)
-	if err != nil {
-		log.Println(fmt.Sprintf("Invalid string template: '%s'", err))
-		return str
-	}
-	var buf bytes.Buffer
-	err = templ.Execute(&buf, variables)
-	if err != nil {
-		log.Println(fmt.Sprintf("Error executing template: '%s'", err))
-		return str
-	}
-	return buf.String()
 }
