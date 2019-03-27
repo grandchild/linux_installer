@@ -73,10 +73,10 @@ type (
 // 	/* and go: */
 // 	installer.StartInstall()
 //
-// Alternatively you can just use InstallerToNew() and set the target
+// Alternatively you can just use NewInstallerTo() and set the target
 // directly:
 //
-// 	installer := InstallerToNew("/some/output/path/")
+// 	installer := NewInstallerTo("/some/output/path/")
 // 	installer.StartInstall()
 // 	/* some watch loop with 'installer.Status()' */
 //
@@ -84,7 +84,7 @@ func NewInstaller(tempPath string, config *Config) Installer {
 	return NewInstallerTo("", tempPath, config)
 }
 
-// InstallerToNew creates a new installer with a target path.
+// NewInstallerTo creates a new installer with a target path.
 func NewInstallerTo(target string, tempPath string, config *Config) Installer {
 	return Installer{
 		Target:              target,
