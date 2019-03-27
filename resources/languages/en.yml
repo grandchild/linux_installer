@@ -82,6 +82,7 @@ button_install: Install
 button_abort: Abort
 button_quit: Quit
 button_exit: Exit
+button_path_reset: Default
 
 really_quit_text: Do you really want to abort the installation?
 

@@ -84,6 +84,7 @@ button_install: Installieren
 button_abort: Abbrechen
 button_quit: Beenden
 button_exit: Verlassen
+button_path_reset: Standard
 
 really_quit_text: Möchten Sie die Installation wirklich abbrechen?
 

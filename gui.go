@@ -14,6 +14,8 @@ import (
 	"github.com/gotk3/gotk3/gtk"
 )
 
+const DEFAULT_INSTALL_DIR_NAME = `{{.product | replace " " "" }}v{{ index (.version | split ".") 0 }}`
+
 type (
 	EventHandler  map[string]interface{}
 	ScreenHandler struct {
@@ -55,6 +57,7 @@ func guiEventHandler(g *Gui) (handler EventHandler) {
 		"on_quit_no_clicked":     func() { g.quitDialog.Hide() },
 		"on_quit_yes_clicked":    func() { gtk.MainQuit() },
 		"on_path_browse_clicked": func() { g.browseInstallDir() },
+		"on_path_reset_clicked":  func() { g.resetInstallDir() },
 		"on_path_entry_changed":  func() { g.checkInstallDir() },
 		"on_main_destroy":        func() { gtk.MainQuit() },
 		"on_main_close": func() bool {
@@ -100,7 +103,7 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 			before: func() {
 				g.nextButton.SetLabel(g.t("button_install"))
 				g.nextButton.SetSensitive(false)
-				g.dirPathEdit.SetText(filepath.Join(glib.GetHomeDir(), "linux_installer_test"))
+				g.resetInstallDir()
 				g.checkInstallDir()
 			},
 		},
@@ -149,7 +152,6 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 // and a translator for translating message strings.
 func NewGui(installerTempPath string, translator Translator) (Gui, error) {
 	// glib.InitI18n("installer", filepath.Join(installerTempPath, "strings"))
-	// gtk.Init(nil)
 	err := gtk.InitCheck(nil)
 	if err != nil {
 		return Gui{}, err
@@ -276,6 +278,13 @@ func (g *Gui) browseInstallDir() {
 	chooser.Close()
 }
 
+func (g *Gui) resetInstallDir() {
+	g.dirPathEdit.SetText(filepath.Join(
+		glib.GetHomeDir(),
+		g.translator.Expand(DEFAULT_INSTALL_DIR_NAME),
+	))
+}
+
 func (g *Gui) checkInstallDir() {
 	g.nextButton.SetSensitive(true)
 	dirName, _ := g.dirPathEdit.GetText()
@@ -368,6 +377,9 @@ func (g *Gui) translateAllLabels(item interface{}) {
 		case "GtkLabel":
 			label := (*gtk.Label)(unsafe.Pointer(widget))
 			g.translateLabel(label)
+		case "GtkButton":
+			button := (*gtk.Button)(unsafe.Pointer(widget))
+			g.translateButton(button)
 		}
 	}
 }
@@ -376,6 +388,17 @@ func (g *Gui) translateLabel(label *gtk.Label) {
 	variable := regexp.MustCompile(`\$[a-zA-Z0-9_]+\$`).FindString(label.GetLabel())
 	if len(variable) > 2 {
 		label.SetLabel(g.t(variable[1 : len(variable)-1]))
+	}
+}
+
+func (g *Gui) translateButton(button *gtk.Button) {
+	buttonLabel, err := button.GetLabel()
+	if err != nil {
+		fmt.Println(err)
+	}
+	variable := regexp.MustCompile(`\$[a-zA-Z0-9_]+\$`).FindString(buttonLabel)
+	if len(variable) > 2 {
+		button.SetLabel(g.t(variable[1 : len(variable)-1]))
 	}
 }
 

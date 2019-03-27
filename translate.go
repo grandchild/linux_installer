@@ -7,6 +7,7 @@ import (
 	"log"
 	"regexp"
 	"sort"
+	"strings"
 	"text/template"
 
 	"github.com/cloudfoundry/jibber_jabber"
@@ -65,10 +66,10 @@ func NewTranslatorVar(variables StringMap) Translator {
 func (t *Translator) Get(key string) string {
 	variables := make(map[string]string)
 	for key, value := range t.variables {
-		variables[key] = t.expandVariables(value, t.langStrings[t.language])
+		variables[key] = ExpandVariables(value, t.langStrings[t.language])
 	}
 	str := t.GetRaw(key)
-	return t.expandVariables(str, variables)
+	return ExpandVariables(str, variables)
 }
 
 func (t *Translator) GetRaw(key string) string {
@@ -159,10 +160,23 @@ func (t *Translator) getLocale() string {
 	return match.String()
 }
 
-// expandVariables takes a string with template variables like {{.var}} and expands them
+func (t *Translator) Expand(str string) (expanded string) {
+	return ExpandVariables(str, t.variables)
+}
+
+// ExpandVariables takes a string with template variables like {{.var}} and expands them
 // with the given map.
-func (t *Translator) expandVariables(str string, variables StringMap) (expanded string) {
-	templ, err := template.New("").Parse(str)
+func ExpandVariables(str string, variables StringMap) (expanded string) {
+	functions := template.FuncMap{
+		"replace": func(from, to, input string) string { return strings.Replace(input, from, to, -1) },
+		"trim":    func(input string) string { return strings.Trim(input, " \r\n\t") },
+		"split":   func(sep, input string) []string { return strings.Split(input, sep) },
+		"join":    func(sep string, input []string) string { return strings.Join(input, sep) },
+		"upper":   func(input string) string { return strings.ToUpper(input) },
+		"lower":   func(input string) string { return strings.ToLower(input) },
+		"title":   func(input string) string { return strings.ToTitle(input) },
+	}
+	templ, err := template.New("").Funcs(functions).Parse(str)
 	if err != nil {
 		log.Println(fmt.Sprintf("Invalid string template: '%s'", err))
 		return str
