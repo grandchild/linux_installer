@@ -22,7 +22,8 @@ func startLogging(logFilename string) *os.File {
 		log.Fatal(err)
 	}
 	log.SetFlags(log.Ldate | log.Ltime)
-	log.SetOutput(io.MultiWriter(os.Stdout, logfile))
+	// log.SetOutput(io.MultiWriter(os.Stdout, logfile))
+	log.SetOutput(logfile)
 	return logfile
 }
 
@@ -37,7 +38,6 @@ func Run() {
 	}
 	translator := NewTranslatorVar(config)
 
-	// cli := flag.Bool("cli", false, translator.Get("cli_help_nogui"))
 	target := flag.String("target", "", translator.Get("cli_help_target"))
 	showLicense := flag.Bool("show-license", false, translator.Get("cli_help_showlicense"))
 	acceptLicense := flag.Bool("accept-license", false, translator.Get("cli_help_acceptlicense"))
