@@ -49,7 +49,7 @@ func Run() {
 	if err != nil {
 		return
 	}
-	translator := NewTranslatorVar(config)
+	translator := NewTranslatorVar(config.Variables)
 
 	target := flag.String("target", "", translator.Get("cli_help_target"))
 	showLicense := flag.Bool("show-license", false, translator.Get("cli_help_showlicense"))
@@ -78,7 +78,7 @@ func Run() {
 	installerTempPath := filepath.Join(os.TempDir(), "linux_installer")
 	if len(*target) > 0 {
 		if *acceptLicense {
-			installer := InstallerToNew(*target, installerTempPath)
+			installer := NewInstallerTo(*target, installerTempPath, config)
 			c := make(chan os.Signal, 1)
 			signal.Notify(c, os.Interrupt)
 			installer.SetProgressFunction(func(status InstallStatus) {
@@ -108,7 +108,7 @@ func Run() {
 	var guiError error
 	defer os.RemoveAll(installerTempPath)
 	UnpackResourceDir("gui", filepath.Join(installerTempPath, "gui"))
-	gui, guiError := NewGui(installerTempPath, translator)
+	gui, guiError := NewGui(installerTempPath, translator, config)
 	if guiError != nil {
 		log.Println("Unable to create window:", guiError)
 	} else {

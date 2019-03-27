@@ -1,4 +1,19 @@
 ---
-product: Example App
-version: 8.18.0.0
-applauncher: "{{.linux_app_launcher}}"
+variables:
+  product: Example App
+  version: 8.18.0.0
+  applauncher: "{{.linux_app_launcher}}"
+data_filename: data.zip
+gui_css: |
+  textview {
+    font-size: .7em;
+  }
+  textview text {
+    color: #000;
+    background: #f8f8f8;
+  }
+  window, dialog, button, entry {
+    background: #fff;
+    color: #222;
+  }
+default_install_dir_name: '{{.product | replace " " "" }}{{ index (.version | split ".") 0 }}'

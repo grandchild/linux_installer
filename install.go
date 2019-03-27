@@ -59,6 +59,7 @@ type (
 		abortConfirmChannel  chan bool
 		actionLock           sync.Mutex
 		progressFunction     func(InstallStatus)
+		config               *Config
 		err                  error
 	}
 )
@@ -79,10 +80,12 @@ type (
 // 	installer.StartInstall()
 // 	/* some watch loop with 'installer.Status()' */
 //
-func NewInstaller(tempPath string) Installer { return InstallerToNew("", tempPath) }
+func NewInstaller(tempPath string, config *Config) Installer {
+	return NewInstallerTo("", tempPath, config)
+}
 
 // InstallerToNew creates a new installer with a target path.
-func InstallerToNew(target string, tempPath string) Installer {
+func NewInstallerTo(target string, tempPath string, config *Config) Installer {
 	return Installer{
 		Target:              target,
 		tempPath:            tempPath,
@@ -90,6 +93,7 @@ func InstallerToNew(target string, tempPath string) Installer {
 		abortChannel:        make(chan bool, 1),
 		abortConfirmChannel: make(chan bool, 1),
 		progressFunction:    func(status InstallStatus) {},
+		config:              config,
 	}
 }
 
@@ -120,7 +124,7 @@ func (i *Installer) PrepareDataFilesFromSubdir(subdir string) error {
 	if err != nil {
 		return err
 	}
-	reader, err := zip.OpenReader(filepath.Join(i.tempPath, "data", "data.zip"))
+	reader, err := zip.OpenReader(filepath.Join(i.tempPath, "data", i.config.DataFilename))
 	if err != nil {
 		return err
 	}

@@ -8,9 +8,18 @@ import (
 
 const configFilename = "config.yml"
 
-func ConfigNew() (StringMap, error) {
+// Config holds a list of variables to be expanded in message strings, as well other
+// settings for the installer. (Currently only the name of the compressed data file)
+type Config struct {
+	Variables             StringMap `yaml:"variables,omitempty"`
+	DataFilename          string    `yaml:"data_filename"`
+	GuiCss                string    `yaml:"gui_css,omitempty"`
+	DefaultInstallDirName string    `yaml:"default_install_dir_name"`
+}
+
+func ConfigNew() (*Config, error) {
 	configFile := MustGetResource(configFilename)
-	config := make(StringMap)
+	config := &Config{Variables: make(StringMap)}
 	err := yaml.Unmarshal([]byte(configFile), config)
 	if err != nil {
 		log.Printf("Unable to parse config file %s\n", configFilename)

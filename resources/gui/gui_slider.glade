@@ -300,9 +300,6 @@
                             <property name="cursor_visible">False</property>
                             <property name="buffer">license-buf</property>
                             <property name="accepts_tab">False</property>
-                            <style>
-                              <class name="license-text"/>
-                            </style>
                           </object>
                         </child>
                       </object>
@@ -827,21 +824,21 @@
         </child>
       </object>
     </child>
-    <style>
-      <class name="main-window"/>
-    </style>
   </object>
   <object class="GtkDialog" id="quit-dialog">
     <property name="can_focus">True</property>
     <property name="type">popup</property>
     <property name="resizable">False</property>
+    <property name="modal">True</property>
     <property name="destroy_with_parent">True</property>
+    <property name="icon_name">emblem-unreadable</property>
     <property name="type_hint">dialog</property>
     <property name="skip_taskbar_hint">True</property>
     <property name="urgency_hint">True</property>
+    <property name="deletable">False</property>
     <property name="gravity">center</property>
     <property name="transient_for">installer-frame</property>
-    <child>
+    <child type="titlebar">
       <placeholder/>
     </child>
     <child internal-child="vbox">

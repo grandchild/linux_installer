@@ -14,8 +14,6 @@ import (
 	"github.com/gotk3/gotk3/gtk"
 )
 
-const DEFAULT_INSTALL_DIR_NAME = `{{.product | replace " " "" }}v{{ index (.version | split ".") 0 }}`
-
 type (
 	EventHandler  map[string]interface{}
 	ScreenHandler struct {
@@ -46,6 +44,7 @@ type (
 		screens          []Screen
 		screenChangeLock sync.Mutex
 		translator       Translator
+		config           *Config
 	}
 )
 
@@ -150,7 +149,7 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 
 // NewGui returns a new installer GUI, given a path to a directory for temporary files
 // and a translator for translating message strings.
-func NewGui(installerTempPath string, translator Translator) (*Gui, error) {
+func NewGui(installerTempPath string, translator Translator, config *Config) (*Gui, error) {
 	// glib.InitI18n("installer", filepath.Join(installerTempPath, "strings"))
 	err := gtk.InitCheck(nil)
 	if err != nil {
@@ -161,7 +160,7 @@ func NewGui(installerTempPath string, translator Translator) (*Gui, error) {
 		return &Gui{}, err
 	}
 	gui := Gui{
-		installer:   NewInstaller(installerTempPath),
+		installer:   NewInstaller(installerTempPath, config),
 		builder:     builder,
 		win:         getWindow(builder, "installer-frame"),
 		content:     getStack(builder, "content"),
@@ -175,6 +174,7 @@ func NewGui(installerTempPath string, translator Translator) (*Gui, error) {
 		screens:     make([]Screen, 0, len(screenHandlers(nil))),
 		curScreen:   0,
 		translator:  translator,
+		config:      config,
 	}
 	gui.builder.ConnectSignals(guiEventHandler(&gui))
 	for signal, handler := range internalEventHandler(&gui) {
@@ -189,8 +189,7 @@ func NewGui(installerTempPath string, translator Translator) (*Gui, error) {
 	if err == nil {
 		gtkScreen, err := gui.win.GetScreen()
 		if err == nil {
-			// css.LoadFromData(".main-window { background: #fff; }")
-			css.LoadFromData(".license-text { font-size: .7em; }")
+			css.LoadFromData(config.GuiCss)
 			gtk.AddProviderForScreen(gtkScreen, css, gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 		}
 	}
@@ -281,7 +280,7 @@ func (g *Gui) browseInstallDir() {
 func (g *Gui) resetInstallDir() {
 	g.dirPathEdit.SetText(filepath.Join(
 		glib.GetHomeDir(),
-		g.translator.Expand(DEFAULT_INSTALL_DIR_NAME),
+		g.translator.Expand(g.config.DefaultInstallDirName),
 	))
 }
 
