@@ -93,14 +93,14 @@ func InstallerToNew(target string, tempPath string) Installer {
 	}
 }
 
-// StartInstall runs the installer in a separate goroutine and returns
-// immediately. Use Status() to get updates about the progress.
+// StartInstall runs the installer in a separate goroutine and returns immediately. Use
+// Status() to get updates about the progress.
 func (i *Installer) StartInstall() {
 	go i.install("")
 }
 
-// StartInstallFromSubdir is the same as StartInstall but only installs a
-// subset of the source data.
+// StartInstallFromSubdir is the same as StartInstall but only installs a subset of the
+// source data.
 func (i *Installer) StartInstallFromSubdir(subdir string) {
 	go i.install(subdir)
 }
@@ -132,8 +132,8 @@ func (i *Installer) PrepareDataFilesFromSubdir(subdir string) error {
 		if err != nil {
 			continue
 		}
-		// Check for ZipSlip vulnerability and ignore any files with invalid
-		// paths. See: http://bit.ly/2MsjAWE
+		// Check for ZipSlip vulnerability and ignore any files with invalid paths.
+		// See: http://bit.ly/2MsjAWE
 		dummyTarget := "/some/dir/"
 		if !strings.HasPrefix(
 			filepath.Join(dummyTarget, relPath),
@@ -151,7 +151,9 @@ func (i *Installer) PrepareDataFilesFromSubdir(subdir string) error {
 	return err
 }
 
-// install runs the installation.
+// install runs the installation. It loops through all files collected by
+// PrepareDataFilesFromSubdir, creates directories as necessary and calls installFile on
+// each file.
 func (i *Installer) install(subdir string) {
 	i.Done = false
 	i.actionLock.Lock()
@@ -208,11 +210,15 @@ func (i *Installer) unpackDataZip() (*zip.ReadCloser, error) {
 	return zip.OpenReader(dataTempFilepath)
 }
 
+// installFile copies a file into the target location.
+//
+// The file will have the same permissions as the source file, except for read and write
+// permissions for the owning user, which are always given.
 func (i *Installer) installFile(file *InstallFile) error {
 	targetFile, err := os.OpenFile(
 		i.fileTarget(file),
 		os.O_WRONLY|os.O_CREATE|os.O_TRUNC,
-		file.Mode()|0600, // use file's permissions, but make sure that user has at least rw (=0600)
+		file.Mode()|0600, // user has at least read/write
 	)
 	if err != nil {
 		return err
@@ -231,6 +237,8 @@ func (i *Installer) installFile(file *InstallFile) error {
 	return err
 }
 
+// fileTarget returns the complete target path of a file, from the installer's Target
+// path and the file's relative Target path.
 func (i *Installer) fileTarget(file *InstallFile) string {
 	return filepath.Join(i.Target, file.Target)
 }
@@ -324,8 +332,8 @@ func (i *Installer) CheckInstallDir(dirName string) error {
 	return nil
 }
 
-// NextFile returns the file that the installer will install next, or the one
-// that is currently being installed.
+// NextFile returns the file that the installer will install next, or the one that is
+// currently being installed.
 func (i *Installer) NextFile() *InstallFile {
 	for _, file := range i.files {
 		if !file.installed {
@@ -335,12 +343,14 @@ func (i *Installer) NextFile() *InstallFile {
 	return nil
 }
 
+// SetProgressFunction takes a function which receives an InstallStatus, and sets it to
+// be called whenever the function
 func (i *Installer) SetProgressFunction(function func(InstallStatus)) {
 	i.progressFunction = function
 }
 
-// Progress returns the size ratio between already installed files and all
-// files. The result is a float between 0.0 and 1.0, inclusive.
+// Progress returns the size ratio between already installed files and all files. The
+// result is a float between 0.0 and 1.0, inclusive.
 func (i *Installer) Progress() float64 {
 	if i.totalSize == 0 {
 		return 0.0
@@ -348,11 +358,15 @@ func (i *Installer) Progress() float64 {
 	return float64(i.installedSize) / float64(i.totalSize)
 }
 
+// diskSpace returns the user-available disk space in bytes
 func (i *Installer) diskSpace() int64 {
 	// os-specific
 	return osDiskSpace(i.existingTargetParent)
 }
 
+// DiskSpaceSufficient returns true when the total size of files to be installed is
+// smaller than the remaining available space on the disk that contains the installer's
+// target path.
 func (i *Installer) DiskSpaceSufficient() bool {
 	return i.totalSize < i.diskSpace()
 }
