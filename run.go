@@ -3,7 +3,7 @@ package linux_installer
 import (
 	"flag"
 	"fmt"
-	"io"
+	// "io"
 	"log"
 	"os"
 	"os/signal"
@@ -16,6 +16,7 @@ const (
 	clearLineVT100 = "\033[2K\r"
 )
 
+// startLogging sets up the logging
 func startLogging(logFilename string) *os.File {
 	logfile, err := os.OpenFile(logFilename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
@@ -27,6 +28,18 @@ func startLogging(logFilename string) *os.File {
 	return logfile
 }
 
+// Run parses commandline options (if any) and starts one of two installer modes,
+// GUI or commandline mode.
+//
+// Commandline parameters are:
+//   -target          // Target directory to install to
+//   -show-license    // Print the software license and exit
+//   -accept-license  // Accept the license, needed to install the software in commandline mode.
+//   -lang            // Choose install language. This also affects the GUI mode.
+//
+// Giving any commandline parameters except for the last will trigger commandline, or
+// "silent" mode. -target and -accept-license are necessary to run commandline install.
+// -lang will also set the default GUI language.
 func Run() {
 	logfile := startLogging("installer.log")
 	defer logfile.Close()
@@ -94,7 +107,6 @@ func Run() {
 
 	var guiError error
 	defer os.RemoveAll(installerTempPath)
-	// if !*cli {
 	UnpackResourceDir("gui", filepath.Join(installerTempPath, "gui"))
 	gui, guiError := NewGui(installerTempPath, translator)
 	if guiError != nil {
@@ -102,8 +114,7 @@ func Run() {
 	} else {
 		gui.Run()
 	}
-	// }
-	// if *cli || guiError != nil {
+	// if guiError != nil {
 	// 	tui, err := NewTui(installerTempPath, translator)
 	// 	if err != nil {
 	// 		log.Println(err)
