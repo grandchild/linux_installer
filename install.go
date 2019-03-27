@@ -173,7 +173,7 @@ func (i *Installer) install(subdir string) {
 			i.abortConfirmChannel <- true
 			i.err = err
 		default:
-			// log.Printf("Installing file/dir %s", i.fileTarget(file))
+			log.Printf("Installing file/dir %s", i.fileTarget(file))
 			status := InstallStatus{File: file}
 			i.setStatus(status)
 			i.progressFunction(status)
@@ -259,7 +259,7 @@ func (i *Installer) Rollback() {
 	// folders not created by the installer.
 	for p := len(i.files) - 1; p >= 0; p-- {
 		if i.files[p].installed {
-			// log.Printf("Rolling back: %s", i.files[p].Target)
+			log.Printf("Rolling back: %s", i.files[p].Target)
 			err := os.Remove(i.files[p].Target)
 			if err != nil {
 				log.Printf("Error deleting %s", i.files[p].Target)
