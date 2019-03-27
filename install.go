@@ -116,7 +116,11 @@ func (i *Installer) PrepareDataFilesFromSubdir(subdir string) error {
 	if i.dataPrepared {
 		return nil
 	}
-	reader, err := i.unpackDataZip()
+	err := UnpackDataDir("", filepath.Join(i.tempPath, "data"))
+	if err != nil {
+		return err
+	}
+	reader, err := zip.OpenReader(filepath.Join(i.tempPath, "data", "data.zip"))
 	if err != nil {
 		return err
 	}
@@ -196,18 +200,6 @@ func (i *Installer) install(subdir string) {
 	i.Done = true
 	i.setStatus(InstallStatus{Done: true})
 	i.err = err
-}
-
-// UnpackDataZip extracts the appended data zipfile to the temporary directory
-// given by tempPath.
-func (i *Installer) unpackDataZip() (*zip.ReadCloser, error) {
-	dataTempFilepath := filepath.Join(i.tempPath, "data", "data.zip")
-	i.setStatus(InstallStatus{File: &InstallFile{Target: dataTempFilepath}})
-	err := UnpackDataFile("data.zip", dataTempFilepath)
-	if err != nil {
-		return nil, err
-	}
-	return zip.OpenReader(dataTempFilepath)
 }
 
 // installFile copies a file into the target location.
