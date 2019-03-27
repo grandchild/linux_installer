@@ -259,10 +259,11 @@ func (i *Installer) Rollback() {
 	// folders not created by the installer.
 	for p := len(i.files) - 1; p >= 0; p-- {
 		if i.files[p].installed {
-			log.Printf("Rolling back: %s", i.fileTarget(i.files[p]))
 			err := os.Remove(i.fileTarget(i.files[p]))
 			if err != nil {
-				log.Printf("Error deleting %s", i.fileTarget(i.files[p]))
+				log.Printf("Error deleting %s\n", i.fileTarget(i.files[p]))
+			} else {
+				log.Printf("Rolled back: %s\n", i.fileTarget(i.files[p]))
 			}
 			i.files[p].installed = false
 			if !i.files[p].FileInfo().IsDir() {
