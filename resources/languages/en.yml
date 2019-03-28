@@ -105,3 +105,6 @@ err_couldnt_open_install_path_dialog: Couldn't open path dialog window
 err_cli_mustacceptlicense: >
   You must accept the license with the '-accept-license' flag in order to perform a
   silent installation.
+err_gui_startup_failed: >
+  The graphical installer failed to start. The installation via command line uses the
+  following parameters

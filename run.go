@@ -13,7 +13,8 @@ import (
 
 const (
 	// Linux terminal command string to clear the current line and reset the cursor
-	clearLineVT100 = "\033[2K\r"
+	clearLineVT100         = "\033[2K\r"
+	cliInstallerMaxLineLen = 80
 )
 
 // startLogging sets up the logging
@@ -76,6 +77,7 @@ func Run() {
 	}
 
 	installerTempPath := filepath.Join(os.TempDir(), "linux_installer")
+	defer os.RemoveAll(installerTempPath)
 	if len(*target) > 0 {
 		if *acceptLicense {
 			installer := NewInstallerTo(*target, installerTempPath, config)
@@ -83,9 +85,8 @@ func Run() {
 			signal.Notify(c, os.Interrupt)
 			installer.SetProgressFunction(func(status InstallStatus) {
 				file := installer.NextFile().Target
-				maxLen := 70
-				if len(file) > maxLen {
-					file = "..." + file[len(file)-(maxLen-3):]
+				if len(file) > cliInstallerMaxLineLen {
+					file = "..." + file[len(file)-(cliInstallerMaxLineLen-3):]
 				}
 				fmt.Print(clearLineVT100 + file)
 			})
@@ -106,11 +107,12 @@ func Run() {
 	}
 
 	var guiError error
-	defer os.RemoveAll(installerTempPath)
 	UnpackResourceDir("gui", filepath.Join(installerTempPath, "gui"))
 	gui, guiError := NewGui(installerTempPath, translator, config)
 	if guiError != nil {
 		log.Println("Unable to create window:", guiError)
+		fmt.Println(translator.Get("err_gui_startup_failed"))
+		flag.PrintDefaults()
 	} else {
 		gui.Run()
 	}

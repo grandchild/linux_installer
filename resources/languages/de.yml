@@ -109,3 +109,6 @@ err_couldnt_open_install_path_dialog: Konnte den Pfad-Dialog nicht öffnen
 err_cli_mustacceptlicense: >
   Sie müssen die Lizenzvereinbarung mit dem '-accept-license'-Flag akzeptieren um eine
   stille Installation durchführen zu können.
+err_gui_startup_failed: >
+  Der graphische Installer konnte nicht gestartet werden. Die Installation per
+  Kommandozeile akzeptiert folgende Parameter
