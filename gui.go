@@ -63,7 +63,7 @@ type (
 		screenNames      []string
 		screens          []Screen
 		screenChangeLock sync.Mutex
-		translator       Translator
+		translator       *Translator
 		config           *Config
 	}
 )
@@ -105,7 +105,7 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 			name: "language",
 			before: func() {
 				g.backButton.SetSensitive(false)
-				g.setLabel("language-text", strings.Join(g.translator.GetAllVersionsList("_language_pick_text"), "\n"))
+				g.setLabel("language-text", strings.Join(g.translator.GetAllList("_language_pick_text"), "\n"))
 				g.setLanguageOptions("language-choose")
 			},
 			after: func() {
@@ -191,7 +191,7 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 
 // NewGui returns a new installer GUI, given a path to a directory for temporary files
 // and a translator for translating message strings.
-func NewGui(installerTempPath string, translator Translator, config *Config) (*Gui, error) {
+func NewGui(installerTempPath string, translator *Translator, config *Config) (*Gui, error) {
 	// glib.InitI18n("installer", filepath.Join(installerTempPath, "strings"))
 	err := gtk.InitCheck(nil)
 	if err != nil {
@@ -406,7 +406,7 @@ func (g *Gui) setLanguageOptions(chooserId string) error {
 	comboBox.RemoveAll()
 	langList := g.translator.GetLanguages()
 	defaultLang := g.translator.GetLanguage()
-	displayStrings := g.translator.GetAllVersions("_language_display")
+	displayStrings := g.translator.GetAll(displayKey)
 	for _, id := range langList {
 		comboBox.Append(id, displayStrings[id])
 		if id == defaultLang {

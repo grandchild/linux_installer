@@ -55,7 +55,7 @@ func Run() {
 	target := flag.String("target", "", translator.Get("cli_help_target"))
 	showLicense := flag.Bool("show-license", false, translator.Get("cli_help_showlicense"))
 	acceptLicense := flag.Bool("accept-license", false, translator.Get("cli_help_acceptlicense"))
-	lang := flag.String("lang", "", translator.Get("cli_help_lang")+" "+strings.Join(translator.GetLanguageOptionKeys(), ", "))
+	lang := flag.String("lang", "", translator.Get("cli_help_lang")+" "+strings.Join(translator.GetLanguages(), ", "))
 	flag.Parse()
 
 	if len(*lang) > 0 {
