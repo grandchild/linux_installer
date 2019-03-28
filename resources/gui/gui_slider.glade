@@ -279,6 +279,8 @@
                       <object class="GtkScrolledWindow">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
+                        <property name="margin_left">10</property>
+                        <property name="margin_right">10</property>
                         <property name="hscrollbar_policy">never</property>
                         <property name="vscrollbar_policy">always</property>
                         <child>
@@ -573,6 +575,9 @@
                         <property name="editable">False</property>
                         <property name="has_frame">False</property>
                         <property name="caps_lock_warning">False</property>
+                        <style>
+                          <class name="faint-text"/>
+                        </style>
                       </object>
                       <packing>
                         <property name="expand">False</property>

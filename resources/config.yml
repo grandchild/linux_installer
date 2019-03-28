@@ -11,6 +11,10 @@ icon_file: ExampleApp.png
 data_filename: data.zip
 
 gui_css: |
+  window, dialog, button, entry {
+    background: #fff;
+    color: #222;
+  }
   textview {
     font-size: .7em;
   }
@@ -18,7 +22,6 @@ gui_css: |
     color: #000;
     background: #f8f8f8;
   }
-  window, dialog, button, entry {
-    background: #fff;
-    color: #222;
+  entry.faint-text {
+    color: #888;
   }
