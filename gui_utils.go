@@ -147,3 +147,12 @@ func getTextBuffer(builder *gtk.Builder, name string) *gtk.TextBuffer {
 		return nil
 	}
 }
+
+func getCheckButton(builder *gtk.Builder, name string) *gtk.CheckButton {
+	obj := getObject(builder, name)
+	if w, ok := obj.(*gtk.CheckButton); ok {
+		return w
+	} else {
+		return nil
+	}
+}

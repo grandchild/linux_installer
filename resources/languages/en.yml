@@ -49,7 +49,7 @@ progress_text: "{{.product}} is being installed. Please wait."
 
 success_header: Success
 success_text: The installation is complete!
-success_start: Start {{.product}} now?
+success_run_checkbox_text: Run {{.product}} now
 
 failure_header: Failed
 failure_text: Errors occurred during the installation.

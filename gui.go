@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -168,6 +169,9 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 				g.nextButton.SetLabel(g.t("button_exit"))
 			},
 			after: func() {
+				if getCheckButton(g.builder, "success-run-checkbox").GetActive() {
+					exec.Command(filepath.Join(g.installer.Target, g.config.StartCommand)).Start()
+				}
 				gtk.MainQuit()
 			},
 		},
@@ -455,6 +459,8 @@ func (g *Gui) translateAllLabels(item interface{}) {
 		case "GtkLabel":
 			label := (*gtk.Label)(unsafe.Pointer(widget))
 			g.translateLabel(label)
+		case "GtkCheckButton":
+			fallthrough
 		case "GtkButton":
 			button := (*gtk.Button)(unsafe.Pointer(widget))
 			g.translateButton(button)
@@ -515,8 +521,10 @@ func (g *Gui) updateProgressbar() {
 // of the installer, and changes to the appropriate final screen of the installer GUI,
 // success or failure.
 func (g *Gui) showResultScreen() {
+	g.setLabel("failure-error-text", "")
 	if g.installer.err != nil {
 		log.Println(g.installer.err.Error())
+		g.setLabel("failure-error-text", g.installer.err.Error())
 		g.showNamedScreen("failure")
 	} else {
 		g.showNamedScreen("success")
