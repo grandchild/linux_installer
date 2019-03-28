@@ -25,7 +25,7 @@ Categories=Simulation;Engineering;Science;
 Terminal=true
 `
 
-	uninstallScriptFilename = "uinstall.sh"
+	uninstallScriptFilename = "uninstall.sh"
 	uninstallScriptTemplate = `#!/usr/bin/sh
 uninstallFiles=(
     "$(dirname "$(readlink -f "$0")")"
