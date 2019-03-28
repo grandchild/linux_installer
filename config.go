@@ -9,7 +9,17 @@ import (
 const configFilename = "config.yml"
 
 // Config holds a list of variables to be expanded in message strings, as well other
-// settings for the installer. (Currently only the name of the compressed data file)
+// settings for the installer.
+//
+// StartCommand is the name of the executable file that starts the installed program.
+//
+// IconFile is needed for the launcher shortcut creation and should be a filename or
+// filepath relative to the install directory.
+//
+// DataFilename is the name of the compressed zip-file that needs to be extracted before
+// installation and contains all data for the program to be installed.
+//
+// GuiCss is a CSS string configuring the style of the installer GUI.
 type Config struct {
 	Variables             StringMap `yaml:"variables,omitempty"`
 	DefaultInstallDirName string    `yaml:"default_install_dir_name"`
@@ -19,7 +29,8 @@ type Config struct {
 	GuiCss                string    `yaml:"gui_css,omitempty"`
 }
 
-func ConfigNew() (*Config, error) {
+// NewConfig returns a Config object containing the settings from resources/config.yml.
+func NewConfig() (*Config, error) {
 	configFile := MustGetResource(configFilename)
 	config := &Config{Variables: make(StringMap)}
 	err := yaml.Unmarshal([]byte(configFile), config)

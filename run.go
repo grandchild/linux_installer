@@ -46,7 +46,7 @@ func Run() {
 	defer logfile.Close()
 
 	openBoxes()
-	config, err := ConfigNew()
+	config, err := NewConfig()
 	if err != nil {
 		return
 	}
