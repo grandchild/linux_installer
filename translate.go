@@ -98,7 +98,14 @@ func (t *Translator) GetLanguages() (languages []string) {
 	return languages
 }
 
-func (t *Translator) GetAllStrings() StringMap { return t.langStrings[t.language] }
+func (t *Translator) GetAllStrings() StringMap {
+	strs := make(StringMap)
+	for key := range t.langStrings[t.language] {
+		strs[key] = t.Get(key)
+	}
+	return strs
+}
+func (t *Translator) GetAllStringsRaw() StringMap { return t.langStrings[t.language] }
 func (t *Translator) GetAllVersionsList(key string) (versions []string) {
 	languages := t.GetLanguages()
 	for _, lang := range languages {

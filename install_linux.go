@@ -18,11 +18,30 @@ const (
 Name={{.product}}
 Version={{.version}}
 Type=Application
-Icon={{.installDir}}/ExampleApp.png
-Exec={{.installDir}}/ExampleApp
+Icon={{.installDir}}/{{.iconFile}}
+Exec={{.installDir}}/{{.startCommand}}
 Comment={{.tagline}}
 Categories=Simulation;Engineering;Science;
 Terminal=true
+`
+
+	uninstallScriptFilename = "uinstall.sh"
+	uninstallScriptTemplate = `#!/usr/bin/sh
+uninstallFiles=(
+    "$(dirname "$(readlink -f "$0")")"
+    "{{.desktopFilepath}}"
+)
+echo "{{.uninstall_before}}: ${uninstallFiles[@]}"
+echo -n "{{.uninstall_question}} "
+read choice
+if [ "${choice:0:1}" != "n" ] ; then
+    rm -rf ${uninstallFiles[@]}
+    if [ "$?" == "0" ] ; then
+    	echo "{{.uninstall_success}}"
+    else
+    	echo "{{.uninstall_failure}}"
+    fi
+fi
 `
 )
 
@@ -38,18 +57,25 @@ func osDiskSpace(path string) int64 {
 	return int64(fs.Bavail) * fs.Bsize
 }
 
-func osCreateLauncherEntry(variables ...StringMap) error {
+func osCreateLauncherEntry(variables ...StringMap) (desktopFilepath string, err error) {
 	content := ExpandVariables(desktopFileTemplate, MergeVariables(variables...))
 	usr, err := user.Current()
 	if err != nil {
-		return err
+		return "", err
 	}
 	var applicationsDir string
-	if usr.Uid == 0 {
+	if usr.Uid == "0" {
 		applicationsDir = desktopFileSystemDir
 	} else {
 		applicationsDir = desktopFileUserDir
 	}
-	desktopFilepath := filepath.Join(usr.HomeDir, applicationsDir, desktopFilename)
-	return ioutil.WriteFile(desktopFilepath, []byte(content), 0755)
+	desktopFilepath = filepath.Join(usr.HomeDir, applicationsDir, desktopFilename)
+	err = ioutil.WriteFile(desktopFilepath, []byte(content), 0755)
+	return
+}
+
+func osCreateUninstaller(installDir string, variables ...StringMap) error {
+	content := ExpandVariables(uninstallScriptTemplate, MergeVariables(variables...))
+	uninstallScriptFilepath := filepath.Join(installDir, uninstallScriptFilename)
+	return ioutil.WriteFile(uninstallScriptFilepath, []byte(content), 0755)
 }

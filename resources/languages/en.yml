@@ -56,6 +56,14 @@ failure_text: Errors occurred during the installation.
 failure_try_again: You may go back and try again.
 
 
+### Uninstaller
+uninstall_question: >-
+  Do you really want to uninstall {{.product}}? Type "n", close this window or press
+  Ctrl+C to cancel. Press enter to confirm.
+uninstall_before: The following files will be removed
+uninstall_success: The uninstallation was successful.
+uninstall_failure: The uninstallation couldn't be completed.
+
 ### CLI help and messages
 cli_help_nogui: Install via command line instead of the GUI
 cli_help_target: >

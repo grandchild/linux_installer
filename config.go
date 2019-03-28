@@ -12,9 +12,11 @@ const configFilename = "config.yml"
 // settings for the installer. (Currently only the name of the compressed data file)
 type Config struct {
 	Variables             StringMap `yaml:"variables,omitempty"`
+	DefaultInstallDirName string    `yaml:"default_install_dir_name"`
+	StartCommand          string    `yaml:"start_command"`
+	IconFile              string    `yaml:"icon_file"`
 	DataFilename          string    `yaml:"data_filename"`
 	GuiCss                string    `yaml:"gui_css,omitempty"`
-	DefaultInstallDirName string    `yaml:"default_install_dir_name"`
 }
 
 func ConfigNew() (*Config, error) {

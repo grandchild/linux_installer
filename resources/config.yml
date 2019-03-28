@@ -5,6 +5,8 @@ variables:
   applauncher: "{{.linux_app_launcher}}"
 
 default_install_dir_name: '{{.product | replace " " "" }}{{ index (.version | split ".") 0 }}'
+start_command: ExampleApp
+icon_file: ExampleApp.png
 
 data_filename: data.zip
 

@@ -148,13 +148,24 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 		{
 			name: "success",
 			before: func() {
+				launcherFile, err := osCreateLauncherEntry(
+					g.translator.variables,
+					g.translator.GetAllStrings(),
+					StringMap{"installDir": g.installer.Target},
+				)
+				if err == nil {
+					osCreateUninstaller(
+						g.installer.Target,
+						g.translator.variables,
+						g.translator.GetAllStrings(),
+						StringMap{
+							"desktopFilepath": launcherFile,
+						},
+					)
+				}
 				g.quitButton.SetSensitive(false)
 				g.backButton.SetSensitive(false)
 				g.nextButton.SetLabel(g.t("button_exit"))
-				osCreateLauncherEntry(
-					g.translator.variables,
-					StringMap{"installDir": g.installer.Target},
-				)
 			},
 			after: func() {
 				gtk.MainQuit()

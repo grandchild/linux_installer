@@ -56,6 +56,16 @@ failure_text: Während der Installation sind Fehler aufgetreten.
 failure_try_again: Sie können zurückgehen und es nochmal versuchen.
 
 
+### Uninstaller
+uninstall_question: >-
+  Möchten Sie {{.product}} wirklich deinstallieren? Geben Sie "n" ein, schließen Sie
+  dieses Fenster oder drücken Sie Strg+C um abzubrechen. Drücken Sie Enter um
+  fortzufahren.
+uninstall_before: Folgende Dateien werden entfernt
+uninstall_success: Die Deinstallation war erfolgreich.
+uninstall_failure: Die Deinstallation konnte nicht abgeschlossen werden.
+
+
 ### CLI help and messages
 cli_help_nogui: Installation via Kommandozeile statt der GUI
 cli_help_target: >
