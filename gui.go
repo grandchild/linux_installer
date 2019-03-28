@@ -254,8 +254,13 @@ func (g *Gui) Run() {
 
 // showQuitDialog shows a dialog window to the user asking them whether they are sure
 // about exiting the installation before finishing. The decision is handled in an event
-// handler in guiEventHandler ("on_quit_no_clicked" & "on_quit_yes_clicked").
+// handler in guiEventHandler ("on_quit_no_clicked" & "on_quit_yes_clicked"). If the
+// current screen is "success" or "failure" (i.e. installation has finished) then the
+// installer will exit immediately.
 func (g *Gui) showQuitDialog() {
+	if g.screens[g.curScreen].name == "success" || g.screens[g.curScreen].name == "failure" {
+		gtk.MainQuit()
+	}
 	g.translateAllLabels(getBox(g.builder, "quit-dialog-box"))
 	g.quitDialog.ShowAll()
 	g.quitDialog.GrabFocus()
