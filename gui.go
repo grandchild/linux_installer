@@ -371,9 +371,7 @@ func (g *Gui) checkInstallDir() {
 // t returns a localized string for the key, and expands any template variables therein.
 // Variables are surrounded by double braces and preceded by a dot like this:
 // 	{{.var}}
-func (g *Gui) t(key string) (localized string) {
-	return g.translator.Get(key)
-}
+func (g *Gui) t(key string) (localized string) { return g.translator.Get(key) }
 
 // setLabel changes the text on a label with the given labelId to the given string.
 func (g *Gui) setLabel(labelId string, content string) error {
