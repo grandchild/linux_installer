@@ -153,6 +153,7 @@ func (i *Installer) install() {
 		err = i.PrepareDataFiles()
 		if err != nil {
 			i.err = err
+			return
 		}
 	}
 
@@ -163,6 +164,7 @@ func (i *Installer) install() {
 			i.Done = false
 			i.abortConfirmChannel <- true
 			i.err = err
+			return
 		default:
 			log.Printf("Installing file/dir %s", i.fileTarget(file))
 			status := InstallStatus{File: file}
@@ -175,6 +177,7 @@ func (i *Installer) install() {
 				err = i.installFile(file)
 				if err != nil {
 					i.err = err
+					return
 				}
 				i.installedSize += int64(file.UncompressedSize64)
 			}
