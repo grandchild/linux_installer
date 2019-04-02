@@ -20,6 +20,9 @@ const configFilename = "config.yml"
 // installation and contains all data for the program to be installed.
 //
 // GuiCss is a CSS string configuring the style of the installer GUI.
+//
+// NoLauncher is a flag from the command line that suppresses launcher shortcut
+// creation.
 type Config struct {
 	Variables             StringMap `yaml:"variables,omitempty"`
 	DefaultInstallDirName string    `yaml:"default_install_dir_name"`
@@ -27,6 +30,9 @@ type Config struct {
 	IconFile              string    `yaml:"icon_file"`
 	DataFilename          string    `yaml:"data_filename"`
 	GuiCss                string    `yaml:"gui_css,omitempty"`
+
+	// commandline config options
+	NoLauncher bool
 }
 
 // NewConfig returns a Config object containing the settings from resources/config.yml.

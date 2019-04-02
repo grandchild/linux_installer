@@ -150,6 +150,7 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 		{
 			name: "success",
 			before: func() {
+				g.installer.CreateLauncher = !g.config.NoLauncher
 				g.installer.PostInstall(
 					g.translator.variables,
 					g.translator.GetAllStrings(),

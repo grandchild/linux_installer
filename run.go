@@ -53,8 +53,9 @@ func Run() {
 	translator := NewTranslatorVar(config.Variables)
 
 	target := flag.String("target", "", translator.Get("cli_help_target"))
-	showLicense := flag.Bool("show-license", false, translator.Get("cli_help_showlicense"))
-	acceptLicense := flag.Bool("accept-license", false, translator.Get("cli_help_acceptlicense"))
+	showLicense := flag.Bool("license", false, translator.Get("cli_help_showlicense"))
+	acceptLicense := flag.Bool("accept", false, translator.Get("cli_help_acceptlicense"))
+	noLauncher := flag.Bool("no-launcher", false, translator.Get("cli_help_nolauncher"))
 	lang := flag.String("lang", "", translator.Get("cli_help_lang")+" "+strings.Join(translator.GetLanguages(), ", "))
 	flag.Parse()
 
@@ -76,11 +77,16 @@ func Run() {
 		return
 	}
 
+	if *noLauncher {
+		config.NoLauncher = true
+	}
+
 	installerTempPath := filepath.Join(os.TempDir(), "linux_installer")
 	defer os.RemoveAll(installerTempPath)
 	if len(*target) > 0 {
 		if *acceptLicense {
 			installer := NewInstallerTo(*target, installerTempPath, config)
+			installer.CreateLauncher = !config.NoLauncher
 			c := make(chan os.Signal, 1)
 			signal.Notify(c, os.Interrupt)
 			installer.SetProgressFunction(func(status InstallStatus) {
@@ -91,6 +97,7 @@ func Run() {
 				fmt.Print(clearLineVT100 + file)
 			})
 			fmt.Println(translator.Get("silent_installing"))
+			installer.PreInstall()
 			installer.StartInstall()
 			go func() {
 				for range c {
@@ -98,6 +105,10 @@ func Run() {
 				}
 			}()
 			installer.WaitForDone()
+			installer.PostInstall(
+				translator.variables,
+				translator.GetAllStrings(),
+			)
 			fmt.Println(clearLineVT100 + installer.SizeString())
 			fmt.Println(translator.Get("silent_done"))
 		} else {

@@ -61,22 +61,22 @@ uninstall_question: >-
   Möchten Sie {{.product}} wirklich deinstallieren? Geben Sie "n" ein, schließen Sie
   dieses Fenster oder drücken Sie Strg+C um abzubrechen. Drücken Sie Enter um
   fortzufahren.
-uninstall_before: Folgende Dateien werden entfernt
+uninstall_before: Folgende Ordner und/oder Dateien werden entfernt
 uninstall_success: Die Deinstallation war erfolgreich.
 uninstall_failure: Die Deinstallation konnte nicht abgeschlossen werden.
 
 
 ### CLI help and messages
 cli_help_nogui: Installation via Kommandozeile statt der GUI
-cli_help_target: >
-  Installationsverzeichnis -- Wenn Sie außerdem per '-accept-license' der
-  Lizenzvereinbarung zustimmen, löst dies eine stille Installation ohne weitere Fragen
-  aus
+cli_help_target: >-
+  Installationsverzeichnis -- Wenn Sie außerdem per '-accept' der Lizenzvereinbarung
+  zustimmen, löst dies eine stille Installation ohne weitere Fragen aus
 cli_help_showlicense: Die Lizenzvereinbarung anzeigen und beenden
-cli_help_acceptlicense: >
+cli_help_acceptlicense: >-
   Die Lizenzvereinbarung annehmen -- dieser Parameter ist zwingend für eine stille
   Installation
-cli_help_lang: "Wählen Sie die Sprache aus, als 2-Buchstaben-Code. Möglichkeiten:"
+cli_help_nolauncher: Keine Verknüpfung im {{.applauncher}} hinzufügen.
+cli_help_lang: "Wählen Sie die Installationssprache aus, als 2-Buchstaben-Code. Möglichkeiten:"
 
 silent_installing: Installieren...
 silent_done: Fertig.
