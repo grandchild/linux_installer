@@ -34,10 +34,11 @@ type (
 		installed bool
 	}
 	// InstallStatus is a message struct that gets passed around at various times in the
-	// installation process. All fields are optional and contain the current file, wether
-	// the installer as a whole is finished or not, or wether it's been aborted and rolled
-	// back.
+	// installation process. All fields are optional and contain the current file, a status
+	// string, wether the installer as a whole is finished or not, or wether it's been
+	// aborted and rolled back.
 	InstallStatus struct {
+		S       string
 		File    *InstallFile
 		Done    bool
 		Aborted bool
@@ -47,6 +48,8 @@ type (
 	// message channels, for each abort and its confirmation as well as status channel.
 	Installer struct {
 		Target               string
+		Status               *InstallStatus
+		CreateLauncher       bool
 		Done                 bool
 		tempPath             string
 		dataPrepared         bool
@@ -55,7 +58,7 @@ type (
 		totalSize            int64
 		installedSize        int64
 		files                []*InstallFile
-		statusChannel        chan InstallStatus
+		doneChannel          chan bool
 		abortChannel         chan bool
 		abortConfirmChannel  chan bool
 		actionLock           sync.Mutex
@@ -89,8 +92,10 @@ func NewInstaller(tempPath string, config *Config) Installer {
 func NewInstallerTo(target string, tempPath string, config *Config) Installer {
 	return Installer{
 		Target:              target,
+		CreateLauncher:      true,
+		Status:              &InstallStatus{},
 		tempPath:            tempPath,
-		statusChannel:       make(chan InstallStatus, 1),
+		doneChannel:         make(chan bool, 1),
 		abortChannel:        make(chan bool, 1),
 		abortConfirmChannel: make(chan bool, 1),
 		progressFunction:    func(status InstallStatus) {},
@@ -104,8 +109,8 @@ func (i *Installer) StartInstall() {
 	go i.install()
 }
 
-// PrepareDataFiles unpacks data.zip into the temp directory and scans the contents.
-func (i *Installer) PrepareDataFiles() error {
+// prepareDataFiles unpacks data.zip into the temp directory and scans the contents.
+func (i *Installer) prepareDataFiles() error {
 	if i.dataPrepared {
 		return nil
 	}
@@ -153,16 +158,17 @@ func (i *Installer) prepareHooks() error {
 }
 
 // install runs the installation. It loops through all files collected by
-// PrepareDataFiles, creates directories as necessary and calls installFile on each
+// prepareDataFiles, creates directories as necessary and calls installFile on each
 // file.
 func (i *Installer) install() {
 	i.Done = false
+	i.Status = &InstallStatus{}
 	i.actionLock.Lock()
 	defer i.actionLock.Unlock()
 
 	var err error
 	if !i.dataPrepared {
-		err = i.PrepareDataFiles()
+		err = i.prepareDataFiles()
 		if err != nil {
 			i.err = err
 			return
@@ -179,9 +185,8 @@ func (i *Installer) install() {
 			return
 		default:
 			log.Printf("Installing file/dir %s", i.fileTarget(file))
-			status := InstallStatus{File: file}
-			i.setStatus(status)
-			i.progressFunction(status)
+			i.Status = &InstallStatus{S: file.Name, File: file}
+			i.progressFunction(*i.Status)
 			if file.FileInfo().IsDir() {
 				os.MkdirAll(i.fileTarget(file), 0755)
 			} else {
@@ -194,11 +199,13 @@ func (i *Installer) install() {
 				i.installedSize += int64(file.UncompressedSize64)
 			}
 			file.installed = true
-			i.setStatus(InstallStatus{File: file})
+			i.Status = &InstallStatus{File: file}
 		}
 	}
+	os.RemoveAll(filepath.Join(i.tempPath, "data"))
 	i.Done = true
-	i.setStatus(InstallStatus{Done: true})
+	i.Status = &InstallStatus{Done: true}
+	i.doneChannel <- true
 	i.err = err
 }
 
@@ -269,31 +276,12 @@ func (i *Installer) Rollback() {
 			if !i.files[p].FileInfo().IsDir() {
 				i.installedSize -= int64(i.files[p].UncompressedSize64)
 			}
-			i.setStatus(InstallStatus{File: i.files[p]})
+			i.Status = &InstallStatus{File: i.files[p]}
 		}
 	}
-	os.RemoveAll(filepath.Join(i.tempPath, "data"))
 	i.Done = true
-	i.setStatus(InstallStatus{Aborted: true})
-}
-
-// setStatus is a non-blocking write to the status channel. If no-one is
-// listening through Status() then it will simply do nothing and return.
-func (i *Installer) setStatus(status InstallStatus) {
-	select {
-	case i.statusChannel <- status:
-	case <-time.After(1 * time.Second):
-	}
-}
-
-// Status returns the current installer status as an InstallerStatus object.
-func (i *Installer) Status() InstallStatus {
-	select {
-	case status := <-i.statusChannel:
-		return status
-	case <-time.After(1 * time.Second):
-		return InstallStatus{}
-	}
+	i.doneChannel <- true
+	i.Status = &InstallStatus{Aborted: true}
 }
 
 // CheckInstallDir checks if the given directory is a valid path, creating it
@@ -365,7 +353,10 @@ func (i *Installer) DiskSpaceSufficient() bool {
 
 // SizeString returns a human-readable version of Size(), appending a size suffix as
 // needed.
-func (i *Installer) SizeString() string  { return i.sizeString(i.totalSize) }
+func (i *Installer) SizeString() string {
+	i.prepareDataFiles()
+	return i.sizeString(i.totalSize)
+}
 func (i *Installer) SpaceString() string { return i.sizeString(i.diskSpace()) }
 func (i *Installer) sizeString(bytes int64) string {
 	switch {
@@ -388,7 +379,7 @@ func (i *Installer) sizeString(bytes int64) string {
 // rolling back).
 func (i *Installer) WaitForDone() {
 	for {
-		if status := <-i.statusChannel; status.Done {
+		if done := <-i.doneChannel; done {
 			return
 		}
 	}

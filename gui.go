@@ -360,7 +360,6 @@ func (g *Gui) checkInstallDir() {
 	} else {
 		g.setLabel("path-error-text", "")
 	}
-	g.installer.PrepareDataFiles()
 	g.setLabel("path-space-required", g.installer.SizeString())
 	g.setLabel("path-space-available", g.installer.SpaceString())
 	if !g.installer.DiskSpaceSufficient() {
@@ -484,7 +483,7 @@ func (g *Gui) translateButton(button *gtk.Button) {
 // returns false. During the file copy process this function checks on the status of the
 // installer and emits update signals for the progress bar and finish or undo handlers.
 func (g *Gui) installationProgress() (repeat bool) {
-	status := g.installer.Status()
+	status := g.installer.Status
 	g.win.Emit("update_progressbar")
 	if status.Done {
 		g.win.Emit("on_installation_finished")
