@@ -100,23 +100,11 @@ func NewInstallerTo(target string, tempPath string, config *Config) Installer {
 // StartInstall runs the installer in a separate goroutine and returns immediately. Use
 // Status() to get updates about the progress.
 func (i *Installer) StartInstall() {
-	go i.install("")
-}
-
-// StartInstallFromSubdir is the same as StartInstall but only installs a subset of the
-// source data.
-func (i *Installer) StartInstallFromSubdir(subdir string) {
-	go i.install(subdir)
+	go i.install()
 }
 
 // PrepareDataFiles unpacks data.zip into the temp directory and scans the contents.
 func (i *Installer) PrepareDataFiles() error {
-	return i.PrepareDataFilesFromSubdir("")
-}
-
-// PrepareDataFilesFromSubdir unpacks data.zip into the temp directory and scans the
-// contents, but only a subdirectory within data.zip.
-func (i *Installer) PrepareDataFilesFromSubdir(subdir string) error {
 	if i.dataPrepared {
 		return nil
 	}
@@ -133,25 +121,18 @@ func (i *Installer) PrepareDataFilesFromSubdir(subdir string) error {
 	i.totalSize = 0
 	i.files = make([]*InstallFile, 0, len(reader.File))
 	for _, file := range reader.File {
-		if !strings.HasPrefix(file.Name, subdir) {
-			continue
-		}
-		relPath, err := filepath.Rel(subdir, file.Name)
-		if err != nil {
-			continue
-		}
 		// Check for ZipSlip vulnerability and ignore any files with invalid paths.
 		// See: http://bit.ly/2MsjAWE
 		dummyTarget := "/some/dir/"
 		if !strings.HasPrefix(
-			filepath.Join(dummyTarget, relPath),
+			filepath.Join(dummyTarget, file.Name),
 			filepath.Clean(dummyTarget)+string(os.PathSeparator),
 		) {
 			continue
 		}
 		i.files = append(
 			i.files,
-			&InstallFile{file, relPath, false},
+			&InstallFile{file, file.Name, false},
 		)
 		i.totalSize += int64(file.UncompressedSize64)
 	}
@@ -160,16 +141,16 @@ func (i *Installer) PrepareDataFilesFromSubdir(subdir string) error {
 }
 
 // install runs the installation. It loops through all files collected by
-// PrepareDataFilesFromSubdir, creates directories as necessary and calls installFile on
-// each file.
-func (i *Installer) install(subdir string) {
+// PrepareDataFiles, creates directories as necessary and calls installFile on each
+// file.
+func (i *Installer) install() {
 	i.Done = false
 	i.actionLock.Lock()
 	defer i.actionLock.Unlock()
 
 	var err error
 	if !i.dataPrepared {
-		err = i.PrepareDataFilesFromSubdir(subdir)
+		err = i.PrepareDataFiles()
 		if err != nil {
 			i.err = err
 		}
