@@ -387,7 +387,6 @@ func (i *Installer) WaitForDone() {
 
 // PreInstall runs
 func (i *Installer) PreInstall() {
-	log.Println("PreInstall")
 	i.prepareHooks()
 	i.Status = &InstallStatus{S: "pre"}
 	err := osRunHookIfExists(filepath.Join(i.tempPath, "hooks", "pre-install"))
