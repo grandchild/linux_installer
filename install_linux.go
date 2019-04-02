@@ -36,7 +36,7 @@ uninstallFiles=(
     {{ if .desktopFilepath }}"{{.desktopFilepath}}"{{ end }}
 )
 echo "{{.uninstall_before}}: ${uninstallFiles[@]}"
-echo -n "{{.uninstall_question}} "
+echo -n '{{.uninstall_question}} '
 read choice
 if [ "${choice:0:1}" != "n" ] ; then
     rm -rf ${uninstallFiles[@]}
