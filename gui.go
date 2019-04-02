@@ -135,6 +135,7 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 			before: func() {
 				g.backButton.SetLabel(g.t("button_abort"))
 				g.nextButton.SetSensitive(false)
+				g.installer.PreInstall()
 				g.installer.StartInstall()
 				glib.IdleAdd(g.installationProgress)
 			},
@@ -149,21 +150,10 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 		{
 			name: "success",
 			before: func() {
-				launcherFile, err := osCreateLauncherEntry(
+				g.installer.PostInstall(
 					g.translator.variables,
 					g.translator.GetAllStrings(),
-					StringMap{"installDir": g.installer.Target},
 				)
-				if err == nil {
-					osCreateUninstaller(
-						g.installer.Target,
-						g.translator.variables,
-						g.translator.GetAllStrings(),
-						StringMap{
-							"desktopFilepath": launcherFile,
-						},
-					)
-				}
 				g.quitButton.SetSensitive(false)
 				g.backButton.SetSensitive(false)
 				g.nextButton.SetLabel(g.t("button_exit"))

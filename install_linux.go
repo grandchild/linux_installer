@@ -3,7 +3,11 @@
 package linux_installer
 
 import (
+	"errors"
 	"io/ioutil"
+	"log"
+	"os"
+	"os/exec"
 	"os/user"
 	"path/filepath"
 
@@ -29,7 +33,7 @@ Terminal=true
 	uninstallScriptTemplate = `#!/usr/bin/sh
 uninstallFiles=(
     "$(dirname "$(readlink -f "$0")")"
-    "{{.desktopFilepath}}"
+    {{ if .desktopFilepath }}"{{.desktopFilepath}}"{{ end }}
 )
 echo "{{.uninstall_before}}: ${uninstallFiles[@]}"
 echo -n "{{.uninstall_question}} "
@@ -78,4 +82,20 @@ func osCreateUninstaller(installDir string, variables ...StringMap) error {
 	content := ExpandVariables(uninstallScriptTemplate, MergeVariables(variables...))
 	uninstallScriptFilepath := filepath.Join(installDir, uninstallScriptFilename)
 	return ioutil.WriteFile(uninstallScriptFilepath, []byte(content), 0755)
+}
+
+func osRunHookIfExists(scriptFile string) error {
+	if _, err := os.Stat(scriptFile + ".sh"); os.IsNotExist(err) {
+		return nil
+	}
+	out, err := exec.Command("/bin/sh", scriptFile+".sh").Output()
+	log.Println("hook output:\n", string(out[:]))
+	if err != nil {
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			return errors.New(string(exitErr.Stderr))
+		} else {
+			return err
+		}
+	}
+	return err
 }

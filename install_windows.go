@@ -5,10 +5,12 @@ package linux_installer
 // this code is untested!!
 
 import (
-	"golang.org/x/sys/windows"
+	"os"
 	"path/filepath"
 	"syscall"
 	"unsafe"
+
+	"golang.org/x/sys/windows"
 )
 
 func osFileWriteAccess(path string) (success bool) {
@@ -40,4 +42,20 @@ func osDiskSpace(path string) (availableBytes int64) {
 		uintptr(unsafe.Pointer(&availableBytes)),
 	)
 	return
+}
+
+func osRunHookIfExists(scriptFile string) error {
+	if _, err := os.Stat(scriptFile + ".bat"); os.IsNotExist(err) {
+		return
+	}
+	out, err := exec.Command(scriptFile + ".bat").Output()
+	log.Println("hook output:\n", string(out[:]))
+	if err != nil {
+		if exitErr, ok := (*exec.ExitError)(err); ok {
+			return errors.New(err.Stderr)
+		} else {
+			return err
+		}
+	}
+	return err
 }

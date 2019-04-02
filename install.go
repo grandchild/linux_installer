@@ -50,6 +50,7 @@ type (
 		Done                 bool
 		tempPath             string
 		dataPrepared         bool
+		hooksPrepared        bool
 		existingTargetParent string
 		totalSize            int64
 		installedSize        int64
@@ -137,6 +138,17 @@ func (i *Installer) PrepareDataFiles() error {
 		i.totalSize += int64(file.UncompressedSize64)
 	}
 	i.dataPrepared = true
+	return err
+}
+
+func (i *Installer) prepareHooks() error {
+	if i.hooksPrepared {
+		return nil
+	}
+	err := UnpackResourceDir("hooks", filepath.Join(i.tempPath, "hooks"))
+	if err == nil {
+		i.hooksPrepared = true
+	}
 	return err
 }
 
@@ -379,5 +391,38 @@ func (i *Installer) WaitForDone() {
 		if status := <-i.statusChannel; status.Done {
 			return
 		}
+	}
+}
+
+// PreInstall runs
+func (i *Installer) PreInstall() {
+	log.Println("PreInstall")
+	i.prepareHooks()
+	i.Status = &InstallStatus{S: "pre"}
+	err := osRunHookIfExists(filepath.Join(i.tempPath, "hooks", "pre-install"))
+	if err != nil {
+		i.err = err
+	}
+}
+
+// PostInstall runs a post-install script & creates an uninstaller as well as an
+// optional launcher entry for the program.
+func (i *Installer) PostInstall(variables ...StringMap) {
+	i.prepareHooks()
+	i.Status = &InstallStatus{S: "post"}
+	err := osRunHookIfExists(filepath.Join(i.tempPath, "hooks", "post-install"))
+	if err != nil {
+		i.err = err
+		return
+	}
+	if i.CreateLauncher {
+		v := append(variables, StringMap{"installDir": i.Target})
+		launcherFile, err := osCreateLauncherEntry(v...)
+		if err == nil {
+			v := append(v, StringMap{"desktopFilepath": launcherFile})
+			osCreateUninstaller(i.Target, v...)
+		}
+	} else {
+		osCreateUninstaller(i.Target, variables...)
 	}
 }
