@@ -327,7 +327,9 @@ func (g *Gui) browseInstallDir() {
 		g.t("ok"), gtk.RESPONSE_ACCEPT,
 	)
 	if err != nil {
+		g.SetLabel("path-error-text", g.t("err_couldnt_open_install_path_dialog"))
 		log.Println(g.t("err_couldnt_open_install_path_dialog"))
+		return
 	}
 	// set some default folder here?
 	chooser.SetCurrentFolder(glib.GetHomeDir())
