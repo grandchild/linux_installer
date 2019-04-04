@@ -5,7 +5,10 @@ package linux_installer
 // this code is untested!!
 
 import (
+	"errors"
+	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"syscall"
 	"unsafe"
@@ -44,15 +47,18 @@ func osDiskSpace(path string) (availableBytes int64) {
 	return
 }
 
-func osRunHookIfExists(scriptFile string) error {
-	if _, err := os.Stat(scriptFile + ".bat"); os.IsNotExist(err) {
+func osCreateLauncherEntry(variables ...StringMap) (desktopFilepath string, err error) { return }
+func osCreateUninstaller(installDir string, variables ...StringMap) (err error)        { return }
+
+func osRunHookIfExists(scriptFile string) (err error) {
+	if _, err = os.Stat(scriptFile + ".bat"); os.IsNotExist(err) {
 		return
 	}
 	out, err := exec.Command(scriptFile + ".bat").Output()
 	log.Println("hook output:\n", string(out[:]))
 	if err != nil {
-		if exitErr, ok := (*exec.ExitError)(err); ok {
-			return errors.New(err.Stderr)
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			return errors.New(string(exitErr.Stderr))
 		} else {
 			return err
 		}

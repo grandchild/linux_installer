@@ -1,8 +1,9 @@
 
-# Executable
+# build output
 linux_installer
 go-installer
 installer
+win/
 
 # goland project files
 .idea/
