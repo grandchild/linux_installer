@@ -1,3 +1,3 @@
 #!/usr/bin/sh
 
-# Run post-installation commands here
+# Run linux post-installation commands here

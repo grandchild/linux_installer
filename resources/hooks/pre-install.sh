@@ -1,3 +1,3 @@
 #!/usr/bin/sh
 
-# Run pre-installation commands here
+# Run linux pre-installation commands here
