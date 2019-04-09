@@ -58,7 +58,7 @@ failure_try_again: You may go back and try again.
 
 ### Uninstaller
 uninstall_question: >-
-  Do you really want to uninstall {{.product}}? Type "n", close this window or press
+  Do you really want to uninstall {{.product}}? Type "no", close this window or press
   Ctrl+C to cancel. Press enter to confirm.
 uninstall_before: The following directories and/or files will be removed
 uninstall_success: The uninstallation was successful.

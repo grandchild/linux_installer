@@ -58,7 +58,7 @@ failure_try_again: Sie können zurückgehen und es nochmal versuchen.
 
 ### Uninstaller
 uninstall_question: >-
-  Möchten Sie {{.product}} wirklich deinstallieren? Geben Sie "n" ein, schließen Sie
+  Möchten Sie {{.product}} wirklich deinstallieren? Geben Sie "nein" ein, schließen Sie
   dieses Fenster oder drücken Sie Strg+C um abzubrechen. Drücken Sie Enter um
   fortzufahren.
 uninstall_before: Folgende Ordner und/oder Dateien werden entfernt
