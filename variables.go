@@ -15,7 +15,7 @@ type StringMap map[string]string
 func ExpandVariables(str string, variables StringMap) (expanded string) {
 	functions := template.FuncMap{
 		"replace": func(from, to, input string) string { return strings.Replace(input, from, to, -1) },
-		"trim":    func(input string) string { return strings.Trim(input, " \r\n\t") },
+		"trim":    func(input string) string { return strings.TrimSpace(input) },
 		"split":   func(sep, input string) []string { return strings.Split(input, sep) },
 		"join":    func(sep string, input []string) string { return strings.Join(input, sep) },
 		"upper":   func(input string) string { return strings.ToUpper(input) },
