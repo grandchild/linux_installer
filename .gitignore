@@ -6,6 +6,7 @@ win/
 builder/resources/
 builder/data*/
 builder.tar.gz
+resources/gui/gui.so
 
 # goland project files
 .idea/
