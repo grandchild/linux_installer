@@ -1,8 +1,11 @@
 ---
 variables:
+  company: ACME Inc.
+  company_short: ACME
   product: Example App
   version: 8.18.0.0
   applauncher: "{{.linux_app_launcher}}"
+  uninstaller_name: "{{.uninstaller_name}}"
 
 default_install_dir_name: '{{.product | replace " " "" }}{{ index (.version | split ".") 0 }}'
 start_command: ExampleApp

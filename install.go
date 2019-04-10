@@ -284,8 +284,9 @@ func (i *Installer) Rollback() {
 	i.Status = &InstallStatus{Aborted: true}
 }
 
-// CheckInstallDir checks if the given directory is a valid path, creating it
-// if it doesn't exist.
+// CheckInstallDir checks if the given directory is a valid path. Returns err when the
+// dirName exists but is not a directory, or when dirName or the lowest existing parent
+// is not writable.
 func (i *Installer) CheckInstallDir(dirName string) error {
 	parent := path.Dir(path.Clean(dirName))
 	for parent != string(os.PathSeparator) || parent != "." {
@@ -397,7 +398,7 @@ func (i *Installer) PreInstall() {
 
 // PostInstall runs a post-install script & creates an uninstaller as well as an
 // optional launcher entry for the program.
-func (i *Installer) PostInstall(variables ...StringMap) {
+func (i *Installer) PostInstall(variablesList ...VariableMap) {
 	i.prepareHooks()
 	i.Status = &InstallStatus{S: "post"}
 	err := osRunHookIfExists(filepath.Join(i.tempPath, "hooks", "post-install"))
@@ -405,14 +406,28 @@ func (i *Installer) PostInstall(variables ...StringMap) {
 		i.err = err
 		return
 	}
+	uninstallerFileList := make([]string, 0, len(i.files)+1) // +1 for launcher shortcut
+	// reversed -> delete dir content before dir
+	for j := len(i.files) - 1; j >= 0; j-- {
+		if i.files[j].installed {
+			uninstallerFileList = append(uninstallerFileList, i.fileTarget(i.files[j]))
+		}
+	}
+	variablesList = append(variablesList, VariableMap{"installDir": i.Target})
+	variables := MergeVariables(variablesList...)
 	if i.CreateLauncher {
-		v := append(variables, StringMap{"installDir": i.Target})
-		launcherFile, err := osCreateLauncherEntry(v...)
+		launcherFile, err := osCreateLauncherEntry(variables)
 		if err == nil {
-			v := append(v, StringMap{"desktopFilepath": launcherFile})
-			osCreateUninstaller(i.Target, v...)
+			uninstallerFileList = append(uninstallerFileList, launcherFile)
+			err = osCreateUninstaller(uninstallerFileList, variables)
+			if err != nil {
+				log.Println(err.Error())
+			}
 		}
 	} else {
-		osCreateUninstaller(i.Target, variables...)
+		err = osCreateUninstaller(uninstallerFileList, variables)
+		if err != nil {
+			log.Println(err.Error())
+		}
 	}
 }

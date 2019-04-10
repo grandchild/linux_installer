@@ -23,9 +23,10 @@ type BoxFile struct {
 var resourcesBox *rice.Box
 var dataBox *rice.Box
 
-// Opens all payload boxes needed.
-// For go.rice's 'append' mode to work, all calls to FindBox() have to be with
-// a literal string parameter.
+// openBoxes opens all payload boxes.
+//
+// For go.rice's 'append' mode to work, all calls to FindBox() have to have a literal
+// string parameter.
 func openBoxes() {
 	var err error
 	resourcesBox, err = rice.FindBox("resources")
@@ -38,10 +39,8 @@ func openBoxes() {
 	}
 }
 
-func DataSize() int64 {
-	return boxSize(dataBox)
-}
-
+// MustGetResource returns the contents of a resources file with the given name as a
+// string. If the file does not exists it panics.
 func MustGetResource(name string) string {
 	content, err := GetResource(name)
 	if err != nil {
@@ -49,6 +48,10 @@ func MustGetResource(name string) string {
 	}
 	return content
 }
+
+// MustGetResourceFiltered returns the contents of multiple resource files within the
+// subdir specified by name, and the filename regexp given by dirFilter. If the
+// directory name does not exist it panics.
 func MustGetResourceFiltered(name string, dirFilter *regexp.Regexp) map[string]string {
 	resources, err := GetResourceFiltered(name, dirFilter)
 	if err != nil {

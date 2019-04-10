@@ -24,12 +24,12 @@ const configFilename = "config.yml"
 // NoLauncher is a flag from the command line that suppresses launcher shortcut
 // creation.
 type Config struct {
-	Variables             StringMap `yaml:"variables,omitempty"`
-	DefaultInstallDirName string    `yaml:"default_install_dir_name"`
-	StartCommand          string    `yaml:"start_command"`
-	IconFile              string    `yaml:"icon_file"`
-	DataFilename          string    `yaml:"data_filename"`
-	GuiCss                string    `yaml:"gui_css,omitempty"`
+	Variables             VariableMap `yaml:"variables,omitempty"`
+	DefaultInstallDirName string      `yaml:"default_install_dir_name"`
+	StartCommand          string      `yaml:"start_command"`
+	IconFile              string      `yaml:"icon_file"`
+	DataFilename          string      `yaml:"data_filename"`
+	GuiCss                string      `yaml:"gui_css,omitempty"`
 
 	// commandline config options
 	NoLauncher bool
@@ -38,7 +38,7 @@ type Config struct {
 // NewConfig returns a Config object containing the settings from resources/config.yml.
 func NewConfig() (*Config, error) {
 	configFile := MustGetResource(configFilename)
-	config := &Config{Variables: make(StringMap)}
+	config := &Config{Variables: make(VariableMap)}
 	err := yaml.Unmarshal([]byte(configFile), config)
 	if err != nil {
 		log.Printf("Unable to parse config file %s\n", configFilename)

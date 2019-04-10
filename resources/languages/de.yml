@@ -57,13 +57,17 @@ failure_try_again: Sie können zurückgehen und es nochmal versuchen.
 
 
 ### Uninstaller
+uninstaller_name: deinstallieren
 uninstall_question: >-
   Möchten Sie {{.product}} wirklich deinstallieren? Geben Sie "nein" ein, schließen Sie
   dieses Fenster oder drücken Sie Strg+C um abzubrechen. Drücken Sie Enter um
   fortzufahren.
 uninstall_before: Folgende Ordner und/oder Dateien werden entfernt
 uninstall_success: Die Deinstallation war erfolgreich.
-uninstall_failure: Die Deinstallation konnte nicht abgeschlossen werden.
+uninstall_failure: >-
+  Die Deinstallation konnte nicht vollständig abgeschlossen werden. Vermutlich sind
+  eigene Dateien im Installationsordner '{{.installDir}}' vorhanden. Der Ordner muss
+  manuell gelöscht werden.
 
 
 ### CLI help and messages

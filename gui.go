@@ -153,7 +153,7 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 				g.installer.CreateLauncher = !g.config.NoLauncher
 				g.installer.PostInstall(
 					g.translator.variables,
-					g.translator.GetAllStrings(),
+					g.translator.GetAllStringsRaw(),
 				)
 				g.quitButton.SetSensitive(false)
 				g.backButton.SetSensitive(false)

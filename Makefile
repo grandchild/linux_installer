@@ -3,14 +3,15 @@ SRC = *.go \
 	main/*.go
 PKG = github.com/grandchild/linux_installer
 
-RES = \
-	resources/
-
 BIN = linux_installer
+RES_DIR = resources
 DATA_SRC_DIR = data
 DATA_DIST_DIR = data_compressed
+BUILDER_DIR = builder
+BUILDER_ARCHIVE = $(BUILDER_DIR).tar.gz
 
-ZIP = zip
+ZIP_EXE = zip
+RICE_EXE = rice
 
 WIN_DIST_DIR = win
 XCC_GOFLAGS = \
@@ -67,33 +68,44 @@ all: linux windows dist
 
 linux: linux_build $(DATA_DIST_DIR)/data.zip
 
+linux_builder: $(BUILDER_ARCHIVE)
+
 windows: windows_build $(DATA_DIST_DIR)/data.zip
 
 
 dist: linux_dist
 
 linux_build: $(SRC)
-	go build -o $(BIN) $(PKG)/main
+	go build -v -o $(BIN) $(PKG)/main
 
 $(DATA_DIST_DIR)/data.zip: $(DATA_SRC_DIR)
 	mkdir -p $(DATA_DIST_DIR)
-	cd $(DATA_SRC_DIR) ; $(ZIP) -r ../$(DATA_DIST_DIR)/data.zip .
+	rm $(DATA_DIST_DIR)/data.zip
+	cd $(DATA_SRC_DIR) ; $(ZIP_EXE) -r ../$(DATA_DIST_DIR)/data.zip .
 
 linux_dist: linux_build $(DATA_DIST_DIR)/data.zip
-	$(GOPATH)/bin/rice append --exec $(BIN)
+	$(GOPATH)/bin/$(RICE_EXE) append --exec $(BIN)
 
 run: linux_dist
 	./$(BIN)
 
+$(BUILDER_DIR): linux_build
+	mkdir -p $(BUILDER_DIR)
+	cp -r $(DATA_SRC_DIR) $(RES_DIR) $(BIN) $(GOPATH)/bin/$(RICE_EXE) $(BUILDER_DIR)/
+	chmod +x $(BUILDER_DIR)/$(RICE_EXE)
+
+$(BUILDER_ARCHIVE): $(BUILDER_DIR)/*
+	tar czf $(BUILDER_ARCHIVE) $(BUILDER_DIR)
+
 
 windows_build: $(SRC)
-	$(XCC_GOFLAGS) go build $(XCC_LD_FLAGS) -o $(WIN_DIST_DIR)/$(BIN).exe $(PKG)/main
+	$(XCC_GOFLAGS) go build -v $(XCC_LD_FLAGS) -o $(WIN_DIST_DIR)/$(BIN).exe $(PKG)/main
 
 windows_dist: windows_build $(DATA_DIST_DIR)/data.zip
-	# cp -r $(RES) $(WIN_DIST_DIR)
+	# cp -r $(RES_DIR) $(WIN_DIST_DIR)
 	mkdir -p $(WIN_DIST_DIR)
 	cp $(foreach dll,$(WIN_DLLS),$(WIN_DLL_SRC)/$(dll)) $(WIN_DIST_DIR)
-	$(GOPATH)/bin/rice append --exec $(WIN_DIST_DIR)/$(BIN).exe
+	$(GOPATH)/bin/$(RICE_EXE) append --exec $(WIN_DIST_DIR)/$(BIN).exe
 
 run_win: windows_dist
 	wine $(WIN_DIST_DIR)/$(BIN).exe
@@ -101,11 +113,15 @@ run_win: windows_dist
 
 clean: windows_clean linux_clean
 
-windows_clean: clean_data
+windows_clean: clean_data clean_builder
 	rm -rf $(WIN_DIST_DIR)
 
-linux_clean: clean_data
+linux_clean: clean_data clean_builder
 	rm -f $(BIN)
 
 clean_data:
 	rm -rf $(DATA_DIST_DIR)
+
+clean_builder:
+	rm -rf $(BUILDER_DIR)/{$(RES_DIR),$(DATA_DIST_DIR),$(DATA_SRC_DIR),$(BIN),$(RICE_EXE)}
+	rm -f $(BUILDER_ARCHIVE)

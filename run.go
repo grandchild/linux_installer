@@ -107,7 +107,7 @@ func Run() {
 			installer.WaitForDone()
 			installer.PostInstall(
 				translator.variables,
-				translator.GetAllStrings(),
+				translator.GetAllStringsRaw(),
 			)
 			fmt.Println(clearLineVT100 + installer.SizeString())
 			fmt.Println(translator.Get("silent_done"))

@@ -19,23 +19,23 @@ const (
 
 type Translator struct {
 	language    string
-	langStrings map[string]StringMap
-	variables   StringMap
+	langStrings map[string]VariableMap
+	variables   VariableMap
 }
 
 // NewTranslator returns a Translator without any variable lookup.
 func NewTranslator() *Translator {
-	return NewTranslatorVar(StringMap{})
+	return NewTranslatorVar(VariableMap{})
 }
 
 // NewTranslatorVar returns a Translator with a variable lookup. It scans for any yaml
 // files inside the languages folder in the resources box.
-func NewTranslatorVar(variables StringMap) *Translator {
+func NewTranslatorVar(variables VariableMap) *Translator {
 	languageFiles := MustGetResourceFiltered("languages", regexp.MustCompile(`\.ya?ml$`))
-	languages := make(map[string]StringMap)
+	languages := make(map[string]VariableMap)
 	for filename, content := range languageFiles {
 		languageTag := regexp.MustCompile(`.*/([^/]+)\.ya?ml`).ReplaceAllString(filename, "$1")
-		langStrings := make(StringMap)
+		langStrings := make(VariableMap)
 		err := yaml.Unmarshal([]byte(content), langStrings)
 		if err != nil {
 			log.Printf("Unable to parse language file %s\n", filename)
@@ -91,24 +91,14 @@ func (t *Translator) GetLanguages() (languages []string) {
 	return languages
 }
 
-// GetAllStrings returns a string map of all strings for the current language, with
-// variable templates expanded.
-func (t *Translator) GetAllStrings() StringMap {
-	strs := make(StringMap)
-	for key := range t.langStrings[t.language] {
-		strs[key] = t.Get(key)
-	}
-	return strs
-}
-
 // GetAllStringsRaw returns the unexpanded string map of all strings for the current
 // language.
-func (t *Translator) GetAllStringsRaw() StringMap { return t.langStrings[t.language] }
+func (t *Translator) GetAllStringsRaw() VariableMap { return t.langStrings[t.language] }
 
 // GetAll returns a map of all localizations for a given string, indexed by the language
 // code.
-func (t *Translator) GetAll(key string) StringMap {
-	versions := make(StringMap)
+func (t *Translator) GetAll(key string) VariableMap {
+	versions := make(VariableMap)
 	for _, lang := range t.GetLanguages() {
 		if value, ok := t.langStrings[lang][key]; ok {
 			versions[lang] = t.expand(value, lang)
@@ -168,11 +158,7 @@ func (t *Translator) expand(str, language string) (expanded string) {
 	if _, ok := t.langStrings[DefaultLanguage]; !ok {
 		return ""
 	}
-	variables := make(map[string]string)
-	for key, value := range t.variables {
-		variables[key] = ExpandVariables(value, t.langStrings[availableLanguage])
-	}
-	return ExpandVariables(str, variables)
+	return ExpandVariables(str, MergeVariables(t.variables, t.langStrings[availableLanguage]))
 }
 
 // getRaw returns a localized string for a given string key in a given language, without

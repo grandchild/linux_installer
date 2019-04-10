@@ -1,9 +1,11 @@
 
 # build output
 linux_installer
-go-installer
 installer
 win/
+builder/resources/
+builder/data*/
+builder.tar.gz
 
 # goland project files
 .idea/

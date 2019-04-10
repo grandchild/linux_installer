@@ -1,0 +1,30 @@
+#!/usr/bin/sh
+
+uninstallFiles=(
+    {{- range .installedFiles}}
+    "{{.}}"
+    {{- end}}
+)
+
+# echo "{{.uninstall_before}}: ${uninstallFiles[@]}"
+echo -n '{{.uninstall_question}} '
+read choice
+if [ "${choice:0:1}" != "n" ] ; then
+    for f in ${uninstallFiles[@]}; do
+        if [ -f "$f" ]; then
+            rm -f "$f"
+        elif [ -d "$f" ]; then
+            rmdir --ignore-fail-on-non-empty "$f"
+        fi
+    done
+    # Finally, try to remove install dir completely, unless files not created by the
+    # installer are present.
+    rmdir "{{.installDir}}" 2>/dev/null
+    if [ "$?" == "0" ] ; then
+        echo "{{.uninstall_success}}"
+        sleep 5
+    else
+        echo "{{.uninstall_failure}}"
+        read
+    fi
+fi

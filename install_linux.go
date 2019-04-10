@@ -15,10 +15,10 @@ import (
 )
 
 const (
-	desktopFileUserDir   = ".local/share/applications"
-	desktopFileSystemDir = "/usr/share/applications"
-	desktopFilename      = "acme-exampleapp.desktop"
-	desktopFileTemplate  = `[Desktop Entry]
+	desktopFileUserDir      = ".local/share/applications"
+	desktopFileSystemDir    = "/usr/share/applications"
+	desktopFilenameTemplate = `{{.company_short | lower | replace " " ""}}-{{.product | lower | replace " " ""}}.desktop`
+	desktopFileTemplate     = `[Desktop Entry]
 Name={{.product}}
 Version={{.version}}
 Type=Application
@@ -27,25 +27,6 @@ Exec={{.installDir}}/{{.startCommand}}
 Comment={{.tagline}}
 Categories=Simulation;Engineering;Science;
 Terminal=true
-`
-
-	uninstallScriptFilename = "uninstall.sh"
-	uninstallScriptTemplate = `#!/usr/bin/sh
-uninstallFiles=(
-    "$(dirname "$(readlink -f "$0")")"
-    {{ if .desktopFilepath }}"{{.desktopFilepath}}"{{ end }}
-)
-echo "{{.uninstall_before}}: ${uninstallFiles[@]}"
-echo -n '{{.uninstall_question}} '
-read choice
-if [ "${choice:0:1}" != "n" ] ; then
-    rm -rf ${uninstallFiles[@]}
-    if [ "$?" == "0" ] ; then
-    	echo "{{.uninstall_success}}"
-    else
-    	echo "{{.uninstall_failure}}"
-    fi
-fi
 `
 )
 
@@ -61,11 +42,12 @@ func osDiskSpace(path string) int64 {
 	return int64(fs.Bavail) * fs.Bsize
 }
 
-func osCreateLauncherEntry(variables ...StringMap) (desktopFilepath string, err error) {
-	content := ExpandVariables(desktopFileTemplate, MergeVariables(variables...))
+func osCreateLauncherEntry(variables VariableMap) (desktopFilepath string, err error) {
+	content := ExpandVariables(desktopFileTemplate, variables)
+	desktopFilename := ExpandVariables(desktopFilenameTemplate, variables)
 	usr, err := user.Current()
 	if err != nil {
-		return "", err
+		return
 	}
 	var applicationsDir string
 	if usr.Uid == "0" {
@@ -78,9 +60,20 @@ func osCreateLauncherEntry(variables ...StringMap) (desktopFilepath string, err 
 	return
 }
 
-func osCreateUninstaller(installDir string, variables ...StringMap) error {
-	content := ExpandVariables(uninstallScriptTemplate, MergeVariables(variables...))
-	uninstallScriptFilepath := filepath.Join(installDir, uninstallScriptFilename)
+func osCreateUninstaller(installedFiles []string, variables VariableMap) error {
+	uninstallScriptFilepath := filepath.Join(
+		variables["installDir"], variables["uninstaller_name"]+".sh",
+	)
+	uninstallScriptTemplate, err := GetResource("uninstaller/uninstall.sh.template")
+	if err != nil {
+		return err
+	}
+	installedFiles = append(installedFiles, uninstallScriptFilepath)
+	content := ExpandAllVariables(
+		uninstallScriptTemplate,
+		variables,
+		UntypedVariableMap{"installedFiles": installedFiles},
+	)
 	return ioutil.WriteFile(uninstallScriptFilepath, []byte(content), 0755)
 }
 
