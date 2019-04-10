@@ -128,7 +128,7 @@ func (i *Installer) prepareDataFiles() error {
 	i.files = make([]*InstallFile, 0, len(reader.File))
 	for _, file := range reader.File {
 		// Check for ZipSlip vulnerability and ignore any files with invalid paths.
-		// See: http://bit.ly/2MsjAWE
+		// See: https://snyk.io/research/zip-slip-vulnerability#go
 		dummyTarget := "/some/dir/"
 		if !strings.HasPrefix(
 			filepath.Join(dummyTarget, file.Name),
