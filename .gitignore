@@ -5,6 +5,7 @@ installer
 win/
 builder/resources/
 builder/data*/
+builder/rice
 builder.tar.gz
 resources/gui/gui.so
 
