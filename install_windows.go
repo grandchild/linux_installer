@@ -2,7 +2,7 @@
 
 package linux_installer
 
-// this code is untested!!
+// This code is unused & untested!! (And probably completely unnecessary...)
 
 import (
 	"errors"
@@ -47,8 +47,12 @@ func osDiskSpace(path string) (availableBytes int64) {
 	return
 }
 
-func osCreateLauncherEntry(variables ...StringMap) (desktopFilepath string, err error) { return }
-func osCreateUninstaller(installDir string, variables ...StringMap) (err error)        { return }
+func osCreateLauncherEntry(variables VariableMap) (desktopFilepath string, err error) {
+	return
+}
+func osCreateUninstaller(uninstallerFileList []string, variables VariableMap) error {
+	return nil
+}
 
 func osRunHookIfExists(scriptFile string) (err error) {
 	if _, err = os.Stat(scriptFile + ".bat"); os.IsNotExist(err) {
@@ -65,3 +69,5 @@ func osRunHookIfExists(scriptFile string) (err error) {
 	}
 	return err
 }
+
+func osShowRawErrorDialog(message string) (err error) { return }
