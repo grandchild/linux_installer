@@ -2,6 +2,7 @@
 variables:
   company: ACME Inc.
   company_short: ACME
+  company_email: support@example.com
   product: Example App
   version: 8.18.0.0
   applauncher: "{{.linux_app_launcher}}"
@@ -12,6 +13,7 @@ start_command: ExampleApp
 icon_file: ExampleApp.png
 
 data_filename: data.zip
+log_filename: installer.log
 
 gui_css: |
   window, dialog, button, entry {

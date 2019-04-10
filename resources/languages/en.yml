@@ -112,3 +112,14 @@ err_cli_mustacceptlicense: >
 err_gui_startup_failed: >
   The graphical installer failed to start. The installation via command line uses the
   following parameters
+err_gui_startup_failed_nogtk: |
+  Your Linux version does not support the graphical
+  installation mode (no GTK3). Please install via
+  command line mode, on the terminal.
+  To show help, run:
+      {{.installerName}} -h
+err_gui_startup_internal_error: |
+  An unexpected error occurred while loading the GUI,
+  please contact {{.company_short}} support, and provide
+  the installer.log file if you can:
+      {{.company_email}}

@@ -116,3 +116,16 @@ err_cli_mustacceptlicense: >
 err_gui_startup_failed: >
   Der graphische Installer konnte nicht gestartet werden. Die Installation per
   Kommandozeile akzeptiert folgende Parameter
+err_gui_startup_failed_nogtk: |
+  Ihre Linuxversion unterstützt den graphischen
+  Installationsmodus nicht (kein GTK3). Bitte
+  installieren Sie via Kommandozeilenmodus, im
+  Terminal.
+  Um die Hilfe anzuzeigen geben Sie folgendes ein:
+      {{.installerName}} -h
+err_gui_startup_internal_error: |
+  Es ist ein unerwarter Fehler beim Laden des graphischen
+  Installers aufgetreten. Bitte kontaktieren Sie den
+  {{.company_short}}-Support und senden die
+  installer.log-Datei mit wenn Sie können:
+      {{.company_email}}

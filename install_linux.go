@@ -92,3 +92,14 @@ func osRunHookIfExists(scriptFile string) error {
 	}
 	return err
 }
+
+func osShowRawErrorDialog(message string) (err error) {
+	_, err = exec.Command(
+		"zenity",
+		"--error",
+		"--title", "error",
+		"--no-wrap",
+		"--text", message,
+	).Output()
+	return
+}
