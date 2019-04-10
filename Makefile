@@ -69,7 +69,7 @@ all: linux windows dist
 
 linux: linux_build $(DATA_DIST_DIR)/data.zip
 
-linux_builder: $(BUILDER_ARCHIVE)
+linux_builder: linux_clean $(BUILDER_ARCHIVE)
 
 windows: windows_build $(DATA_DIST_DIR)/data.zip
 
@@ -94,11 +94,10 @@ run: linux_dist
 	./$(BIN)
 
 $(BUILDER_DIR): linux_build
-	mkdir -p $(BUILDER_DIR)
 	cp -r $(DATA_SRC_DIR) $(RES_DIR) $(BIN) $(GOPATH)/bin/$(RICE_EXE) $(BUILDER_DIR)/
 	chmod +x $(BUILDER_DIR)/$(RICE_EXE)
 
-$(BUILDER_ARCHIVE): $(BUILDER_DIR)/*
+$(BUILDER_ARCHIVE): $(BUILDER_DIR)
 	tar czf $(BUILDER_ARCHIVE) $(BUILDER_DIR)
 
 
