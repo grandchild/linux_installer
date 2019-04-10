@@ -1,6 +1,8 @@
-package linux_installer
+package main
 
 import (
+	"github.com/grandchild/linux_installer"
+
 	"errors"
 	"fmt"
 	"log"
@@ -14,6 +16,8 @@ import (
 	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
 )
+
+var gui *Gui
 
 type (
 	// EventHandler defines a function to be called when a certain event, identified by a
@@ -48,7 +52,7 @@ type (
 	// Gui defines a GTK3-based graphical interface for the installer in which a procession
 	// of screens must be followed, and includes the actual installation.
 	Gui struct {
-		installer        Installer
+		installer        *linux_installer.Installer
 		builder          *gtk.Builder
 		win              *gtk.Window
 		content          *gtk.Stack
@@ -63,10 +67,12 @@ type (
 		screenNames      []string
 		screens          []Screen
 		screenChangeLock sync.Mutex
-		translator       *Translator
-		config           *Config
+		translator       *linux_installer.Translator
+		config           *linux_installer.Config
 	}
 )
+
+const displayKey = "_language_display"
 
 // guiEventHandler returns an EventHandler that handles events from the GTK3 elements in
 // the .glade GUI-definition file, such as buttons, entries and window events.
@@ -152,7 +158,7 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 			before: func() {
 				g.installer.CreateLauncher = !g.config.NoLauncher
 				g.installer.PostInstall(
-					g.translator.variables,
+					g.translator.Variables,
 					g.translator.GetAllStringsRaw(),
 				)
 				g.quitButton.SetSensitive(false)
@@ -182,18 +188,23 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 
 // NewGui returns a new installer GUI, given a path to a directory for temporary files
 // and a translator for translating message strings.
-func NewGui(installerTempPath string, translator *Translator, config *Config) (*Gui, error) {
+func NewGui(
+	installerTempPath string,
+	installer *linux_installer.Installer,
+	translator *linux_installer.Translator,
+	config *linux_installer.Config,
+) error {
 	// glib.InitI18n("installer", filepath.Join(installerTempPath, "strings"))
 	err := gtk.InitCheck(nil)
 	if err != nil {
-		return &Gui{}, err
+		return err
 	}
 	builder, err := gtk.BuilderNewFromFile(filepath.Join(installerTempPath, "gui", "gui_slider.glade"))
 	if err != nil {
-		return &Gui{}, err
+		return err
 	}
-	gui := Gui{
-		installer:   NewInstaller(installerTempPath, config),
+	gui = &Gui{
+		installer:   installer,
 		builder:     builder,
 		win:         getWindow(builder, "installer-frame"),
 		content:     getStack(builder, "content"),
@@ -209,8 +220,8 @@ func NewGui(installerTempPath string, translator *Translator, config *Config) (*
 		translator:  translator,
 		config:      config,
 	}
-	gui.builder.ConnectSignals(guiEventHandler(&gui))
-	for signal, handler := range internalEventHandler(&gui) {
+	gui.builder.ConnectSignals(guiEventHandler(gui))
+	for signal, handler := range internalEventHandler(gui) {
 		glib.SignalNew(signal)
 		gui.win.Connect(signal, handler)
 	}
@@ -227,7 +238,7 @@ func NewGui(installerTempPath string, translator *Translator, config *Config) (*
 		}
 	}
 
-	for _, handler := range screenHandlers(&gui) {
+	for _, handler := range screenHandlers(gui) {
 		gui.screens = append(gui.screens,
 			Screen{
 				name:    handler.name,
@@ -237,13 +248,13 @@ func NewGui(installerTempPath string, translator *Translator, config *Config) (*
 		)
 	}
 	gui.showScreen(0)
-	return &gui, nil
+	return err
 }
 
 // Run presents the GUI and starts the main event loop. When Run returns the application
 // is done and should quit.
-func (g *Gui) Run() {
-	g.win.ShowAll()
+func RunGui() {
+	gui.win.ShowAll()
 	gtk.Main()
 }
 
@@ -424,7 +435,7 @@ func (g *Gui) setLanguage(chooserId string) error {
 	g.translateAllLabels(getBox(g.builder, "quit-dialog-box"))
 
 	licenseFile := fmt.Sprintf("licenses/license_%s.txt", g.translator.GetLanguage())
-	licenseText, err := GetResource(licenseFile)
+	licenseText, err := linux_installer.GetResource(licenseFile)
 	if err != nil {
 		log.Println(fmt.Sprintf("License file not found: %s", licenseFile))
 		return err
@@ -512,9 +523,9 @@ func (g *Gui) updateProgressbar() {
 // success or failure.
 func (g *Gui) showResultScreen() {
 	g.setLabel("failure-error-text", "")
-	if g.installer.err != nil {
-		log.Println(g.installer.err.Error())
-		g.setLabel("failure-error-text", g.installer.err.Error())
+	if g.installer.Error() != nil {
+		log.Println(g.installer.Error().Error())
+		g.setLabel("failure-error-text", g.installer.Error().Error())
 		g.showNamedScreen("failure")
 	} else {
 		g.showNamedScreen("success")

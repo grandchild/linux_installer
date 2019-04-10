@@ -1,13 +1,14 @@
 package linux_installer
 
 import (
+	// "io"
 	"flag"
 	"fmt"
-	// "io"
 	"log"
 	"os"
 	"os/signal"
 	"path/filepath"
+	"plugin"
 	"strings"
 )
 
@@ -106,7 +107,7 @@ func Run() {
 			}()
 			installer.WaitForDone()
 			installer.PostInstall(
-				translator.variables,
+				translator.Variables,
 				translator.GetAllStringsRaw(),
 			)
 			fmt.Println(clearLineVT100 + installer.SizeString())
@@ -119,13 +120,34 @@ func Run() {
 
 	var guiError error
 	UnpackResourceDir("gui", filepath.Join(installerTempPath, "gui"))
-	gui, guiError := NewGui(installerTempPath, translator, config)
+	guiPlugin, guiError := plugin.Open(filepath.Join(installerTempPath, "gui", "gui.so"))
 	if guiError != nil {
-		log.Println("Unable to create window:", guiError)
-		fmt.Println(translator.Get("err_gui_startup_failed"))
-		flag.PrintDefaults()
+		fmt.Println("load plugin")
+		handleGuiErr(guiError, translator)
+		return
+	}
+	NewGui, err := guiPlugin.Lookup("NewGui")
+	if err != nil {
+		fmt.Println("lookup NewGui")
+		handleGuiErr(guiError, translator)
+		return
+	}
+	RunGui, err := guiPlugin.Lookup("RunGui")
+	if err != nil {
+		fmt.Println("lookup RunGui")
+		handleGuiErr(guiError, translator)
+		return
+	}
+	installer := NewInstaller(installerTempPath, config)
+	guiError = NewGui.(func(string, *Installer, *Translator, *Config) error)(
+		installerTempPath, installer, translator, config,
+	)
+	if guiError != nil {
+		fmt.Println("NewGui()")
+		handleGuiErr(guiError, translator)
+		return
 	} else {
-		gui.Run()
+		RunGui.(func())()
 	}
 	// if guiError != nil {
 	// 	tui, err := NewTui(installerTempPath, translator)
@@ -135,4 +157,10 @@ func Run() {
 	// 		tui.Run()
 	// 	}
 	// }
+}
+
+func handleGuiErr(err error, translator *Translator) {
+	log.Println("Unable to load GUI:", err)
+	fmt.Println(translator.Get("err_gui_startup_failed"))
+	flag.PrintDefaults()
 }

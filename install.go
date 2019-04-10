@@ -84,13 +84,13 @@ type (
 // 	installer.StartInstall()
 // 	/* some watch loop with 'installer.Status()' */
 //
-func NewInstaller(tempPath string, config *Config) Installer {
+func NewInstaller(tempPath string, config *Config) *Installer {
 	return NewInstallerTo("", tempPath, config)
 }
 
 // NewInstallerTo creates a new installer with a target path.
-func NewInstallerTo(target string, tempPath string, config *Config) Installer {
-	return Installer{
+func NewInstallerTo(target string, tempPath string, config *Config) *Installer {
+	return &Installer{
 		Target:              target,
 		CreateLauncher:      true,
 		Status:              &InstallStatus{},
@@ -430,4 +430,8 @@ func (i *Installer) PostInstall(variablesList ...VariableMap) {
 			log.Println(err.Error())
 		}
 	}
+}
+
+func (i *Installer) Error() error {
+	return i.err
 }

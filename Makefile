@@ -1,5 +1,6 @@
 
 SRC = *.go \
+	gui/*.go \
 	main/*.go
 PKG = github.com/grandchild/linux_installer
 
@@ -75,12 +76,15 @@ windows: windows_build $(DATA_DIST_DIR)/data.zip
 
 dist: linux_dist
 
-linux_build: $(SRC)
+linux_build: $(SRC) $(RES_DIR)/gui/gui.so
 	go build -v -o $(BIN) $(PKG)/main
+
+$(RES_DIR)/gui/gui.so: $(SRC)
+	go build -v -buildmode=plugin -o $(RES_DIR)/gui/gui.so $(PKG)/gui
 
 $(DATA_DIST_DIR)/data.zip: $(DATA_SRC_DIR)
 	mkdir -p $(DATA_DIST_DIR)
-	rm $(DATA_DIST_DIR)/data.zip
+	rm -f $(DATA_DIST_DIR)/data.zip
 	cd $(DATA_SRC_DIR) ; $(ZIP_EXE) -r ../$(DATA_DIST_DIR)/data.zip .
 
 linux_dist: linux_build $(DATA_DIST_DIR)/data.zip

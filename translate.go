@@ -14,13 +14,12 @@ import (
 
 const (
 	DefaultLanguage string = "en"
-	displayKey             = "_language_display"
 )
 
 type Translator struct {
+	Variables   VariableMap
 	language    string
 	langStrings map[string]VariableMap
-	variables   VariableMap
 }
 
 // NewTranslator returns a Translator without any variable lookup.
@@ -45,7 +44,7 @@ func NewTranslatorVar(variables VariableMap) *Translator {
 	}
 	t := Translator{
 		langStrings: languages,
-		variables:   variables,
+		Variables:   variables,
 	}
 	err := t.SetLanguage(t.getLocale())
 	if err != nil {
@@ -158,7 +157,7 @@ func (t *Translator) expand(str, language string) (expanded string) {
 	if _, ok := t.langStrings[DefaultLanguage]; !ok {
 		return ""
 	}
-	return ExpandVariables(str, MergeVariables(t.variables, t.langStrings[availableLanguage]))
+	return ExpandVariables(str, MergeVariables(t.Variables, t.langStrings[availableLanguage]))
 }
 
 // getRaw returns a localized string for a given string key in a given language, without
