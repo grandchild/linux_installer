@@ -9,10 +9,8 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
-	// "strings"
 
 	"github.com/GeertJohan/go.rice"
-	//"github.com/grandchild/go.rice"
 )
 
 type BoxFile struct {
