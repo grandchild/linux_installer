@@ -26,7 +26,7 @@ var dataBox *rice.Box
 // openBoxes opens all payload boxes.
 //
 // For go.rice's 'append' mode to work, all calls to FindBox() have to have a literal
-// string parameter.
+// string parameter. If you update directory names here, update builder/rice.go as well!
 func openBoxes() {
 	var err error
 	resourcesBox, err = rice.FindBox("resources")

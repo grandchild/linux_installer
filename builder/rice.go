@@ -7,6 +7,8 @@ import "github.com/GeertJohan/go.rice"
 
 func boxes() {
 	// Modify/add/remove these lines to include different/more/fewer directories.
+	// If you change, add or remove directories here, have them changed in
+	// the installer base project's resources.go file as well!
 	rice.FindBox("resources")
 	rice.FindBox("data_compressed")
 }
