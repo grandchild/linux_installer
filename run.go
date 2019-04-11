@@ -135,6 +135,12 @@ func RunCliInstall(
 	installerTempPath, target string, translator *Translator, config *Config,
 ) {
 	installer := NewInstallerTo(target, installerTempPath, config)
+	err := installer.CheckSetInstallDir(target)
+	if err != nil {
+		log.Println(translator.Get(err.Error()), target)
+		fmt.Println(translator.Get(err.Error()))
+		return
+	}
 	installer.CreateLauncher = !config.NoLauncher
 	cancelChannel := make(chan os.Signal, 1)
 	signal.Notify(cancelChannel, os.Interrupt)
