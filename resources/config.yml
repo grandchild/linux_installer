@@ -12,7 +12,6 @@ default_install_dir_name: '{{.product | replace " " "" }}{{ index (.version | sp
 start_command: ExampleApp
 icon_file: ExampleApp.png
 
-data_filename: data.zip
 log_filename: installer.log
 
 gui_css: |

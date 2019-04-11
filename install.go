@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"path"
@@ -114,33 +115,46 @@ func (i *Installer) prepareDataFiles() error {
 	if i.dataPrepared {
 		return nil
 	}
-	err := UnpackDataDir("", filepath.Join(i.tempPath, "data"))
+	dataTmpDir := filepath.Join(i.tempPath, "data")
+	err := UnpackDataDir("", dataTmpDir)
 	if err != nil {
 		return err
 	}
-	reader, err := zip.OpenReader(filepath.Join(i.tempPath, "data", i.config.DataFilename))
+	dataFiles, err := ioutil.ReadDir(dataTmpDir)
 	if err != nil {
 		return err
+	}
+	zipReaders := make([]*zip.ReadCloser, 0, len(dataFiles))
+	totalFileCount := int(0)
+	for _, f := range dataFiles {
+		zipReader, err := zip.OpenReader(filepath.Join(dataTmpDir, f.Name()))
+		if err != nil {
+			continue
+		}
+		zipReaders = append(zipReaders, zipReader)
+		totalFileCount += len(zipReader.File)
 	}
 
 	i.dataPrepared = false
 	i.totalSize = 0
-	i.files = make([]*InstallFile, 0, len(reader.File))
-	for _, file := range reader.File {
-		// Check for ZipSlip vulnerability and ignore any files with invalid paths.
-		// See: https://snyk.io/research/zip-slip-vulnerability#go
-		dummyTarget := "/some/dir/"
-		if !strings.HasPrefix(
-			filepath.Join(dummyTarget, file.Name),
-			filepath.Clean(dummyTarget)+string(os.PathSeparator),
-		) {
-			continue
+	i.files = make([]*InstallFile, 0, totalFileCount)
+	for _, zipReader := range zipReaders {
+		for _, file := range zipReader.File {
+			// Check for ZipSlip vulnerability and ignore any files with invalid paths.
+			// See: https://snyk.io/research/zip-slip-vulnerability#go
+			dummyTarget := "/some/dir/"
+			if !strings.HasPrefix(
+				filepath.Join(dummyTarget, file.Name),
+				filepath.Clean(dummyTarget)+string(os.PathSeparator),
+			) {
+				continue
+			}
+			i.files = append(
+				i.files,
+				&InstallFile{file, file.Name, false},
+			)
+			i.totalSize += int64(file.UncompressedSize64)
 		}
-		i.files = append(
-			i.files,
-			&InstallFile{file, file.Name, false},
-		)
-		i.totalSize += int64(file.UncompressedSize64)
 	}
 	i.dataPrepared = true
 	return err
