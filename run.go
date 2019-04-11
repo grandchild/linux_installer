@@ -160,12 +160,17 @@ func RunCliInstall(
 		}
 	}()
 	installer.WaitForDone()
-	installer.PostInstall(
-		translator.Variables,
-		translator.GetAllStringsRaw(),
-	)
-	fmt.Println(clearLineVT100 + installer.SizeString())
-	fmt.Println(translator.Get("silent_done"))
+	if installer.Error() != nil {
+		log.Println(installer.Error())
+		fmt.Println(translator.Get("silent_failed"))
+	} else {
+		installer.PostInstall(
+			translator.Variables,
+			translator.GetAllStringsRaw(),
+		)
+		fmt.Println(clearLineVT100 + installer.SizeString())
+		fmt.Println(translator.Get("silent_done"))
+	}
 }
 
 // RunTuiInstall starts a terminal curses-based UI (currently disabled).

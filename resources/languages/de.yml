@@ -84,6 +84,8 @@ cli_help_lang: "Wählen Sie die Installationssprache aus, als 2-Buchstaben-Code.
 
 silent_installing: Installieren...
 silent_done: Fertig.
+silent_failed: >-
+  Die Installation ist fehlgeschlagen. Schauen Sie in der installer.log-Datei für Details.
 
 
 ### Buttons, Dialogs etc.

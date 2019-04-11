@@ -80,6 +80,7 @@ cli_help_lang: "Choose the installation language, with a two-letter code. Choice
 
 silent_installing: Installing...
 silent_done: Done.
+silent_failed: The installation failed. See the installer.log file for details.
 
 
 ### Buttons, Dialogs etc.
