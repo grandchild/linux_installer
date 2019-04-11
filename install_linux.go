@@ -30,10 +30,13 @@ Terminal=true
 `
 )
 
+// osFileWriteAccess returns whether a given path has write access for the current user.
 func osFileWriteAccess(path string) bool {
 	return unix.Access(path, unix.W_OK) == nil
 }
 
+// osDiskSpace returns the amount of bytes available to the current user on the
+// partition that the given path resides on.
 func osDiskSpace(path string) int64 {
 	fs := unix.Statfs_t{}
 	if err := unix.Statfs(path, &fs); err != nil {
@@ -42,6 +45,11 @@ func osDiskSpace(path string) int64 {
 	return int64(fs.Bavail) * fs.Bsize
 }
 
+// osCreateLauncherEntry creates an application menu entry for the application being
+// installed.
+//
+// On linux this creates a .desktop file in the users application dir, or—if
+// installing as root—in the system-wide application dir.
 func osCreateLauncherEntry(variables VariableMap) (desktopFilepath string, err error) {
 	content := ExpandVariables(desktopFileTemplate, variables)
 	desktopFilename := ExpandVariables(desktopFilenameTemplate, variables)
@@ -60,6 +68,15 @@ func osCreateLauncherEntry(variables VariableMap) (desktopFilepath string, err e
 	return
 }
 
+// osCreateUninstaller expands the uninstaller template with installed files that were
+// installed, and writes the result into a file that removes the installed application
+// when executed.
+//
+// The uninstaller script template(s) are located in the resources/uninstaller/
+// directory.
+//
+// On Linux, this is a simple .sh script with a list of files and directories to be fed
+// to rm and rmdir respectively.
 func osCreateUninstaller(installedFiles []string, variables VariableMap) error {
 	uninstallScriptFilepath := filepath.Join(
 		variables["installDir"], variables["uninstaller_name"]+".sh",
@@ -77,6 +94,10 @@ func osCreateUninstaller(installedFiles []string, variables VariableMap) error {
 	return ioutil.WriteFile(uninstallScriptFilepath, []byte(content), 0755)
 }
 
+// osRunHookIfExists runs a script given its base name (no extension), if that script
+// does exist. The hook scripts are located in the resources/hooks/ directory.
+//
+// On Linux it loads the hook files that end in ".sh".
 func osRunHookIfExists(scriptFile string) error {
 	if _, err := os.Stat(scriptFile + ".sh"); os.IsNotExist(err) {
 		return nil
@@ -93,6 +114,10 @@ func osRunHookIfExists(scriptFile string) error {
 	return err
 }
 
+// osShowRawErrorDialog tries to show a graphical error dialog in case the main GUI
+// fails to load. If that fails too, an error is returned.
+//
+// On Linux it tries to run a Zenity command.
 func osShowRawErrorDialog(message string) (err error) {
 	_, err = exec.Command(
 		"zenity",

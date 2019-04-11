@@ -58,26 +58,38 @@ func MustGetResourceFiltered(name string, dirFilter *regexp.Regexp) map[string]s
 	return resources
 }
 
+// GetResource returns the contents of of a resources file with the given name as a
+// string. If the file does not exists it returns an error.
 func GetResource(name string) (string, error) { return getBoxContent(resourcesBox, name) }
+
+// GetResourceFiltered returns the contents of multiple resource files within the subdir
+// specified by name, and the filename regexp given by dirFilter. If the directory name
+// does not exist it returns an error.
 func GetResourceFiltered(name string, dirFilter *regexp.Regexp) (map[string]string, error) {
 	return getBoxContentFiltered(resourcesBox, name, dirFilter)
 }
-func GetData(name string) (string, error) { return getBoxContent(dataBox, name) }
-func GetDataFiltered(name string, dirFilter *regexp.Regexp) (map[string]string, error) {
-	return getBoxContentFiltered(dataBox, name, dirFilter)
-}
-func ListDataDir(name string) ([]BoxFile, error)      { return listDir(dataBox, name) }
-func UnpackResourceFile(from string, to string) error { return unpackFile(resourcesBox, from, to) }
-func UnpackDataFile(from string, to string) error     { return unpackFile(dataBox, from, to) }
-func UnpackResourceDir(from string, to string) error  { return unpackDir(resourcesBox, from, to) }
-func UnpackDataDir(from string, to string) error      { return unpackDir(dataBox, from, to) }
 
+// UnpackResourceDir copies all resource files from a subdir given by from to a path
+// given by to. It returns an error if the boxes aren't opened yet, the path can't be
+// written to, or anything else goes wrong.
+func UnpackResourceDir(from string, to string) error { return unpackDir(resourcesBox, from, to) }
+
+// UnpackDataDir copies all data files from a subdir given by from to a path given by
+// to. It returns an error if the boxes aren't opened yet, the path can't be written to,
+// or anything else goes wrong.
+func UnpackDataDir(from string, to string) error { return unpackDir(dataBox, from, to) }
+
+// getBoxContent returns the content of a file given by name inside a given rice box.
 func getBoxContent(box *rice.Box, name string) (string, error) {
 	if box == nil {
 		return "", errors.New("Boxes not opened yet.")
 	}
 	return box.String(name)
 }
+
+// getBoxContentFiltered returns the content of multiple files inside a given rice box.
+// It returns contents for all files within the directory given by name and whose
+// filenames match the dirFilter regexp.
 func getBoxContentFiltered(box *rice.Box, name string, dirFilter *regexp.Regexp) (map[string]string, error) {
 	contents := make(map[string]string)
 	if box == nil {
@@ -103,6 +115,8 @@ func getBoxContentFiltered(box *rice.Box, name string, dirFilter *regexp.Regexp)
 	return contents, err
 }
 
+// unpackFile copies a single file from a given rice box, from fromPath inside the box
+// to toPath on the filesystem.
 func unpackFile(box *rice.Box, fromPath string, toPath string) error {
 	var err error
 	if box == nil {
@@ -130,6 +144,8 @@ func unpackFile(box *rice.Box, fromPath string, toPath string) error {
 	return nil
 }
 
+// unpackDir copies a directory, recursively, from a given rice box, from fromPath
+// inside the box to toPath on the filesystem.
 func unpackDir(box *rice.Box, fromPath string, toPath string) error {
 	if box == nil {
 		return errors.New("Boxes not opened yet.")
@@ -150,33 +166,4 @@ func unpackDir(box *rice.Box, fromPath string, toPath string) error {
 		return err
 	})
 	return err
-}
-
-func listDir(box *rice.Box, name string) ([]BoxFile, error) {
-	list := []BoxFile{}
-	if box == nil {
-		return list, errors.New("Boxes not opened yet.")
-	}
-	err := box.Walk(name, func(path string, info os.FileInfo, err error) error {
-		list = append(list, BoxFile{path: path, info: info})
-		return err
-	})
-	return list, err
-}
-
-func boxSize(box *rice.Box) int64 {
-	if box == nil {
-		return 0
-	}
-	var size int64 = 0
-	err := box.Walk("", func(_ string, info os.FileInfo, err error) error {
-		if !info.IsDir() {
-			size += info.Size()
-		}
-		return err
-	})
-	if err != nil {
-		return 0
-	}
-	return size
 }
