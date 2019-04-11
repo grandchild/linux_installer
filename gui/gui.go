@@ -20,8 +20,8 @@ import (
 var gui *Gui
 
 type (
-	// EventHandler defines a function to be called when a certain event, identified by a
-	// string key, is emitted from the GTK GUI or manually.
+	// EventHandler defines a function to be called when a certain event, identified by
+	// a string key, is emitted from the GTK GUI or manually.
 	EventHandler map[string]interface{}
 	// ScreenHandler is a name and a set of functions that corresponds to a specific
 	// screen in the installer process.
@@ -29,8 +29,9 @@ type (
 	// before() is called immediately after the screen is presented, and allows
 	// initializing some GUI elements or running other setup code.
 	//
-	// after() is called immediately before the next (or previous) screen is presented, and
-	// is useful for applying the choices that were made in the still-current screen.
+	// after() is called immediately before the next (or previous) screen is presented,
+	// and is useful for applying the choices that were made in the still-current
+	// screen.
 	//
 	// undo() is called if the user navigated backwards. It is called immediately after
 	// after(). Undo must return a bool: if false is returned then screen switching is
@@ -40,17 +41,17 @@ type (
 		name   string
 		before func()
 		after  func()
-		undo   func() bool // if undo() returns false, then screen switching is canceled.
+		undo   func() bool // if undo returns false, then screen switching is canceled.
 	}
-	// Screen is a single step in the installer, such as the license screen, or selecting
-	// the installation path. It also contains its handler configuration.
+	// Screen is a single step in the installer, such as the license screen, or
+	// selecting the installation path. It also contains its handler configuration.
 	Screen struct {
 		name    string
 		widget  *gtk.Box
 		handler ScreenHandler
 	}
-	// Gui defines a GTK3-based graphical interface for the installer in which a procession
-	// of screens must be followed, and includes the actual installation.
+	// Gui defines a GTK3-based graphical interface for the installer in which a
+	// procession of screens must be followed, and includes the actual installation.
 	Gui struct {
 		installer        *linux_installer.Installer
 		builder          *gtk.Builder
@@ -111,7 +112,10 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 			name: "language",
 			before: func() {
 				g.backButton.SetSensitive(false)
-				g.setLabel("language-text", strings.Join(g.translator.GetAllList("_language_pick_text"), "\n"))
+				g.setLabel(
+					"language-text",
+					strings.Join(g.translator.GetAllList("_language_pick_text"), "\n"),
+				)
 				g.setLanguageOptions("language-choose")
 			},
 			after: func() {
@@ -167,7 +171,9 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 			},
 			after: func() {
 				if getCheckButton(g.builder, "success-run-checkbox").GetActive() {
-					exec.Command(filepath.Join(g.installer.Target, g.config.StartCommand)).Start()
+					exec.Command(filepath.Join(
+						g.installer.Target, g.config.StartCommand,
+					)).Start()
 				}
 				gtk.MainQuit()
 			},
@@ -199,7 +205,9 @@ func NewGui(
 	if err != nil {
 		return err
 	}
-	builder, err := gtk.BuilderNewFromFile(filepath.Join(installerTempPath, "gui", "gui_slider.glade"))
+	builder, err := gtk.BuilderNewFromFile(
+		filepath.Join(installerTempPath, "gui", "gui_slider.glade"),
+	)
 	if err != nil {
 		return err
 	}
@@ -234,7 +242,9 @@ func NewGui(
 		gtkScreen, err := gui.win.GetScreen()
 		if err == nil {
 			css.LoadFromData(config.GuiCss)
-			gtk.AddProviderForScreen(gtkScreen, css, gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+			gtk.AddProviderForScreen(
+				gtkScreen, css, gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
+			)
 		}
 	}
 
@@ -264,7 +274,8 @@ func RunGui() {
 // current screen is "success" or "failure" (i.e. installation has finished) then the
 // installer will exit immediately.
 func (g *Gui) showQuitDialog() {
-	if g.screens[g.curScreen].name == "success" || g.screens[g.curScreen].name == "failure" {
+	if g.screens[g.curScreen].name == "success" ||
+		g.screens[g.curScreen].name == "failure" {
 		gtk.MainQuit()
 	}
 	g.translateAllLabels(getBox(g.builder, "quit-dialog-box"))
