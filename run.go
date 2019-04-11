@@ -27,7 +27,7 @@ const (
 //   -accept-license  // Accept the license, needed to install the software in commandline mode.
 //   -lang            // Choose install language. This also affects the GUI mode.
 //
-// Giving any commandline parameters except for the last will trigger commandline, or
+// Giving any commandline parameters other than -lang will trigger commandline, or
 // "silent" mode. -target and -accept-license are necessary to run commandline install.
 // -lang will also set the default GUI language.
 func Run() {
@@ -90,6 +90,18 @@ func Run() {
 }
 
 // RunGuiInstall loads the gui.so plugin, and starts the installer GUI.
+//
+// If the GUI can't be loaded for some reason, an error is returned. Most common reasons
+// for error include (on Linux):
+//
+//  * no desktop running (headless servers, remote logins)
+//  * GTK3 missing (Redhat/Centos 6 or older)
+//
+// When the GUI fails to load it will try a last-ditch effort to show an error dialog
+// with Zenity (which comes with Centos 6). Other than that there is no way to interact
+// with the user graphically, and it will simply log the error, and print usage help to
+// the command line (which is not much help, since the user probably just double-clicked
+// the installer binary.
 func RunGuiInstall(
 	installerTempPath string,
 	translator *Translator,
