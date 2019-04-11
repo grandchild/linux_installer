@@ -172,7 +172,7 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 			after: func() {
 				if getCheckButton(g.builder, "success-run-checkbox").GetActive() {
 					exec.Command(filepath.Join(
-						g.installer.Target, g.config.StartCommand,
+						g.installer.Target, g.config.Variables["start_command"],
 					)).Start()
 				}
 				gtk.MainQuit()

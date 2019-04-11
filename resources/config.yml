@@ -1,16 +1,16 @@
 ---
 variables:
+  product: Example App
+  version: 8.18.0.0
   company: ACME Inc.
   company_short: ACME
   company_email: support@example.com
-  product: Example App
-  version: 8.18.0.0
   applauncher: "{{.linux_app_launcher}}"
   uninstaller_name: "{{.uninstaller_name}}"
+  start_command: ExampleApp
+  icon_file: ExampleApp.png
 
 default_install_dir_name: '{{.product | replace " " "" }}{{ index (.version | split ".") 0 }}'
-start_command: ExampleApp
-icon_file: ExampleApp.png
 
 log_filename: installer.log
 

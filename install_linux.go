@@ -22,8 +22,8 @@ const (
 Name={{.product}}
 Version={{.version}}
 Type=Application
-Icon={{.installDir}}/{{.iconFile}}
-Exec={{.installDir}}/{{.startCommand}}
+Icon={{.installDir}}/{{.icon_file}}
+Exec={{.installDir}}/{{.start_command}}
 Comment={{.tagline}}
 Categories=Simulation;Engineering;Science;
 Terminal=true

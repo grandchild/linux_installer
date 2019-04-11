@@ -11,20 +11,14 @@ const configFilename = "config.yml"
 // Config holds a list of variables to be expanded in message strings, as well other
 // settings for the installer.
 //
-// StartCommand is the name of the executable file that starts the installed program.
-//
-// IconFile is needed for the launcher shortcut creation and should be a filename or
-// filepath relative to the install directory.
-//
-// GuiCss is a CSS string configuring the style of the installer GUI.
+// DefaultInstallDirName is a string or template for the default application directory,
+// into which to install.
 //
 // NoLauncher is a flag from the command line that suppresses launcher shortcut
 // creation.
 type Config struct {
 	Variables             VariableMap `yaml:"variables,omitempty"`
 	DefaultInstallDirName string      `yaml:"default_install_dir_name"`
-	StartCommand          string      `yaml:"start_command"`
-	IconFile              string      `yaml:"icon_file"`
 	GuiCss                string      `yaml:"gui_css,omitempty"`
 
 	// commandline config options
