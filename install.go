@@ -284,32 +284,30 @@ func (i *Installer) Rollback() {
 	i.Status = &InstallStatus{Aborted: true}
 }
 
-// CheckInstallDir checks if the given directory is a valid path. Returns err when the
-// dirName exists but is not a directory, or when dirName or the lowest existing parent
+// CheckSetInstallDir checks if the given directory is a valid, writable path. If it is
+// it sets it as the installer's target directory. Returns err when the installPath
+// exists but is not a directory, or when installPath (or the nearest existing parent)
 // is not writable.
-func (i *Installer) CheckInstallDir(dirName string) error {
-	parent := path.Dir(path.Clean(dirName))
+func (i *Installer) CheckSetInstallDir(installPath string) error {
+	parent := path.Clean(installPath)
 	for parent != string(os.PathSeparator) || parent != "." {
 		parentInfo, err := os.Stat(parent)
-		if err != nil || !parentInfo.IsDir() {
-			parent = path.Dir(parent)
+		if err != nil {
+			if os.IsNotExist(err) {
+				parent = path.Dir(parent)
+			} else {
+				return errors.New("path_err_other")
+			}
+		} else if !parentInfo.IsDir() {
+			return errors.New("path_err_not_dir")
+		} else if !osFileWriteAccess(parent) { // os-specific
+			return errors.New("path_err_not_writable")
 		} else {
 			break
 		}
 	}
 	i.existingTargetParent = parent
-	parentInfo, err := os.Stat(parent)
-	if err != nil || !parentInfo.IsDir() {
-		return errors.New("path_err_not_dir")
-		// fmt.Sprintf("Install parent is not dir: '%s'", parent)
-	} else if !osFileWriteAccess(parent) { // os-specific
-		return errors.New("path_err_not_writable")
-		// fmt.Sprintf("Install location is not writeable: '%s' -> '%s'", parent, parentInfo.Mode().Perm())
-	}
-	if err != nil {
-		return errors.New("path_err_other")
-	}
-	i.Target = path.Clean(dirName)
+	i.Target = path.Clean(installPath)
 	return nil
 }
 

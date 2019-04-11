@@ -367,7 +367,7 @@ func (g *Gui) resetInstallDir() {
 func (g *Gui) checkInstallDir() {
 	g.nextButton.SetSensitive(true)
 	dirName, _ := g.dirPathEdit.GetText()
-	err := g.installer.CheckInstallDir(dirName)
+	err := g.installer.CheckSetInstallDir(dirName)
 	if err != nil {
 		g.setLabel("path-error-text", g.t(err.Error()))
 		g.nextButton.SetSensitive(false)
