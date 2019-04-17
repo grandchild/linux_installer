@@ -1,5 +1,5 @@
 # The final installer filename. You can override this when calling make like this:
-#   make -DOUTPUT=Setup_ExampleApp_v9.2_ACME_64bit.bin
+#   make OUTPUT=Setup_ExampleApp_v1.1
 # or something similar.
 OUTPUT=Setup
 # The raw installer's filename (created by the parent linux-installer project)
