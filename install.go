@@ -398,7 +398,9 @@ func (i *Installer) WaitForDone() {
 	}
 }
 
-// PreInstall runs
+// PreInstall runs a pre-install script, if a file hooks/pre-install.* exists in the
+// resource directory. The file extension is OS-specific (.sh for Linux, .bat for
+// Windows).
 func (i *Installer) PreInstall() {
 	i.prepareHooks()
 	i.Status = &InstallStatus{S: "pre"}
