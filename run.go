@@ -101,11 +101,9 @@ func Run() {
 // with Zenity (which comes with Centos 6). Other than that there is no way to interact
 // with the user graphically, and it will simply log the error, and print usage help to
 // the command line (which is not much help, since the user probably just double-clicked
-// the installer binary.
+// the installer binary).
 func RunGuiInstall(
-	installerTempPath string,
-	translator *Translator,
-	config *Config,
+	installerTempPath string, translator *Translator, config *Config,
 ) (err error) {
 	UnpackResourceDir("gui", filepath.Join(installerTempPath, "gui"))
 	guiPlugin, err := plugin.Open(filepath.Join(installerTempPath, "gui", "gui.so"))
