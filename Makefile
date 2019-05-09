@@ -98,6 +98,7 @@ $(BUILDER_DIR): linux_build
 	chmod +x $(BUILDER_DIR)/$(RICE_EXE)
 
 $(BUILDER_ARCHIVE): $(BUILDER_DIR)
+	chmod -R g+w $(BUILDER_DIR)
 	tar czf $(BUILDER_ARCHIVE) $(BUILDER_DIR)
 
 
