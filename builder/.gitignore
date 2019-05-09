@@ -1,0 +1,11 @@
+# output
+Setup*
+*.bin
+
+# data
+data/
+data_compressed/
+resources/
+
+# installer logfile
+installer.log
