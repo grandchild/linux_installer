@@ -124,6 +124,9 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 		},
 		{
 			name: "welcome",
+			before: func() {
+				g.backButton.SetSensitive(false)
+			},
 		},
 		{
 			name: "license",
