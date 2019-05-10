@@ -437,6 +437,8 @@ func (i *Installer) PostInstall(variablesList ...VariableMap) {
 			if err != nil {
 				log.Println(err.Error())
 			}
+		} else {
+			log.Println(err.Error())
 		}
 	} else {
 		err = osCreateUninstaller(uninstallerFileList, variables)
