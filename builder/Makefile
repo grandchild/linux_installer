@@ -39,15 +39,16 @@ version: $(RESOURCE_SRC_DIR)/config.yml
 	sed -i 's/^  version: .\+$$/  version: $(VERSION)/' $(RESOURCE_SRC_DIR)/config.yml
 
 # Pre-compress the source data
-$(DATA_DIST_DIR): $(DATA_SRC_DIR)
+$(DATA_DIST_DIR)/data.zip: $(DATA_SRC_DIR)
 	mkdir -p $(DATA_DIST_DIR)
 	cd $(DATA_SRC_DIR) ; $(ZIP_EXE) -r ../$(DATA_DIST_DIR)/data.zip .
 
 # Make a copy of the raw installer & append the zipped data and resources to it.
-$(OUTPUT): $(INPUT) version clean $(DATA_DIST_DIR)
+$(OUTPUT): $(INPUT) version clean $(DATA_DIST_DIR)/data.zip
 	cp $(INPUT) $(OUTPUT)
 	./rice append --exec=$(OUTPUT)
 
 # Remove previously created installer.
 clean:
+	rm -f $(DATA_DIST_DIR)/data.zip
 	rm -f $(OUTPUT)
