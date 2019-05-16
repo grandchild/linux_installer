@@ -1,7 +1,7 @@
 ---
 variables:
   product: Example App
-  version: 8.18.0.0
+  version: 1.0
   company: ACME Inc.
   company_short: ACME
   company_email: support@example.com
