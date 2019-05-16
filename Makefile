@@ -8,7 +8,7 @@ BIN = linux_installer
 RES_DIR = resources
 DATA_SRC_DIR = data
 DATA_DIST_DIR = data_compressed
-BUILDER_DIR = builder
+BUILDER_DIR = linux-builder
 BUILDER_ARCHIVE = $(BUILDER_DIR).tar.gz
 
 ZIP_EXE = zip

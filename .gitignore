@@ -3,10 +3,10 @@
 linux_installer
 installer
 win/
-builder/resources/
-builder/data*/
-builder/rice
-builder.tar.gz
+linux-builder/resources/
+linux-builder/data*/
+linux-builder/rice
+linux-builder.tar.gz
 resources/gui/gui.so
 
 # goland project files
