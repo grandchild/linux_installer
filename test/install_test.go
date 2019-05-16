@@ -7,8 +7,8 @@ import (
 )
 
 func TestNewInstallerSizeIsZero(t *testing.T) {
-	i := linux_installer.install.NewInstaller()
-	if i.Size() != 0 {
+	i := installer.NewInstaller("", &installer.Config{})
+	if i.SizeString() != "0 B" {
 		t.Error("Size not zero")
 	}
 }
