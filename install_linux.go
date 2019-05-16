@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"os/user"
 	"path/filepath"
+	"syscall"
 
 	"golang.org/x/sys/unix"
 )
@@ -62,6 +63,10 @@ func osCreateLauncherEntry(variables VariableMap) (desktopFilepath string, err e
 		applicationsDir = desktopFileSystemDir
 	} else {
 		applicationsDir = desktopFileUserDir
+	}
+	err = os.MkdirAll(filepath.Join(usr.HomeDir, applicationsDir), 0755)
+	if err != nil {
+		return
 	}
 	desktopFilepath = filepath.Join(usr.HomeDir, applicationsDir, desktopFilename)
 	err = ioutil.WriteFile(desktopFilepath, []byte(content), 0755)
@@ -127,4 +132,14 @@ func osShowRawErrorDialog(message string) (err error) {
 		"--text", message,
 	).Output()
 	return
+}
+
+// osExecVE runs cmd with the given args, replaces the current process and never
+// returns.
+func osExecVE(cmd string, args []string) {
+	err := syscall.Exec(cmd, args, os.Environ())
+	if err != nil {
+		log.Println("execve error:", err.Error())
+		os.Exit(1)
+	}
 }

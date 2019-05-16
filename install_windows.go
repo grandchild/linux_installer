@@ -71,3 +71,15 @@ func osRunHookIfExists(scriptFile string) (err error) {
 }
 
 func osShowRawErrorDialog(message string) (err error) { return }
+
+// osExecVE emulates Linux execve in that it starts a new process and then terminates
+// the current one (and thus never returns).
+func osExecVE(cmd string, args []string) {
+	_, _, err := syscall.StartProcess(cmd, args, nil)
+	if err != nil {
+		log.Println("execve error:", err.Error())
+		os.Exit(1)
+	} else {
+		os.Exit(0)
+	}
+}

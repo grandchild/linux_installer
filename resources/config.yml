@@ -7,7 +7,7 @@ variables:
   company_email: support@example.com
   applauncher: "{{.linux_app_launcher}}"
   uninstaller_name: "{{.uninstaller_name}}"
-  start_command: ExampleApp
+  start_command: ExampleApp.sh
   icon_file: ExampleApp.png
 
 default_install_dir_name: '{{.product | replace " " "" }}{{ index (.version | split ".") 0 }}'
