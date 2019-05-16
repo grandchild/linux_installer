@@ -304,7 +304,7 @@ func (i *Installer) Rollback() {
 // is not writable.
 func (i *Installer) CheckSetInstallDir(installPath string) error {
 	parent := path.Clean(installPath)
-	for parent != string(os.PathSeparator) || parent != "." {
+	for parent != string(os.PathSeparator) && parent != "." {
 		parentInfo, err := os.Stat(parent)
 		if err != nil {
 			if os.IsNotExist(err) {
