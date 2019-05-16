@@ -93,7 +93,7 @@ linux_dist: linux_build $(DATA_DIST_DIR)/data.zip
 run: linux_dist
 	./$(BIN)
 
-$(BUILDER_DIR): linux_build
+$(BUILDER_DIR): linux_build $(DATA_SRC_DIR)
 	cp -r $(DATA_SRC_DIR) $(RES_DIR) $(BIN) $(GOPATH)/bin/$(RICE_EXE) $(BUILDER_DIR)/
 	chmod +x $(BUILDER_DIR)/$(RICE_EXE)
 
@@ -114,6 +114,9 @@ windows_dist: windows_build $(DATA_DIST_DIR)/data.zip
 run_win: windows_dist
 	wine $(WIN_DIST_DIR)/$(BIN).exe
 
+
+$(DATA_SRC_DIR):
+	mkdir $@
 
 clean: windows_clean linux_clean
 
