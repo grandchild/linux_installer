@@ -124,6 +124,7 @@ windows_clean: clean_data clean_builder
 	rm -rf $(WIN_DIST_DIR)
 
 linux_clean: clean_data clean_builder
+	rm -f $(RES_DIR)/gui/gui.so
 	rm -f $(BIN)
 
 clean_data:
