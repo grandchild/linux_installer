@@ -206,7 +206,7 @@ func NewGui(
 		return err
 	}
 	builder, err := gtk.BuilderNewFromFile(
-		filepath.Join(installerTempPath, "gui", "gui_slider.glade"),
+		filepath.Join(installerTempPath, "gui", "gui.glade"),
 	)
 	if err != nil {
 		return err
