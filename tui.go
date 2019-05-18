@@ -1,5 +1,7 @@
 // +build ignore
 
+// This code is not used. The CLI mode serves well enough.
+
 package linux_installer
 
 import (
