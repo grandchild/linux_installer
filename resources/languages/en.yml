@@ -120,7 +120,7 @@ err_gui_startup_failed_nogtk: |
   To show help, run:
       {{.installerName}} -h
 err_gui_startup_internal_error: |
-  An unexpected error occurred while loading the GUI,
+  An internal error occurred while loading the GUI,
   please contact {{.company_short}} support, and provide
   the installer.log file if you can:
       {{.company_email}}

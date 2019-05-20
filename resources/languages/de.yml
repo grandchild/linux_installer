@@ -126,7 +126,7 @@ err_gui_startup_failed_nogtk: |
   Um die Hilfe anzuzeigen geben Sie folgendes ein:
       {{.installerName}} -h
 err_gui_startup_internal_error: |
-  Es ist ein unerwarter Fehler beim Laden des graphischen
+  Es ist ein inerner Fehler beim Laden des graphischen
   Installers aufgetreten. Bitte kontaktieren Sie den
   {{.company_short}}-Support und senden die
   installer.log-Datei mit wenn Sie können:
