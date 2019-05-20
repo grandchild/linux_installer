@@ -115,9 +115,10 @@ err_gui_startup_failed: >
   following parameters
 err_gui_startup_failed_nogtk: |
   Your Linux version does not support the graphical
-  installation mode (no GTK3). Please install via
-  command line mode, on the terminal.
-  To show help, run:
+  installation mode (GTK3 not available). Please
+  install via command line mode.
+  
+  To show help, run the following in a terminal:
       {{.installerName}} -h
 err_gui_startup_internal_error: |
   An internal error occurred while loading the GUI,

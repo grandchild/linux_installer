@@ -120,10 +120,11 @@ err_gui_startup_failed: >
   Kommandozeile akzeptiert folgende Parameter
 err_gui_startup_failed_nogtk: |
   Ihre Linuxversion unterstützt den graphischen
-  Installationsmodus nicht (kein GTK3). Bitte
-  installieren Sie via Kommandozeilenmodus, im
-  Terminal.
-  Um die Hilfe anzuzeigen geben Sie folgendes ein:
+  Installationsmodus nicht (GTK3 nicht verfügbar).
+  Bitte installieren Sie via Kommandozeilenmodus.
+  
+  Um die Hilfe anzuzeigen geben Sie folgendes in
+  einem Terminal ein:
       {{.installerName}} -h
 err_gui_startup_internal_error: |
   Es ist ein inerner Fehler beim Laden des graphischen
