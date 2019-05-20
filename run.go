@@ -85,6 +85,7 @@ func Run() {
 
 	guiError := RunGuiInstall(installerTempPath, translator, config)
 	if guiError != nil {
+		// TUI disabled
 		RunTuiInstall(installerTempPath, translator)
 	}
 }
