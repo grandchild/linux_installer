@@ -1,4 +1,3 @@
-
 # Linux Installer
 
 A GTK3-based GUI installer for an audience that's used to Windows installers.
@@ -23,6 +22,22 @@ nonetheless. Imitates the look and feel of
 how to install Go on your system
 * Make sure your installation works, by following the instructions "*Test your
 installation*" on the installation page.
+* The repository needs to be cloned into
+   $GOPATH/src/github.com/grandchild/linux_installer
+* Additional packages needed to build (linux-builder):
+    *   make
+    *   libgio2.0-cil-dev
+    *   libglib2.0-dev
+    *   libcairo2-dev
+    *   libgdk3.0-cil-dev
+    *   libgtk-3-dev
+    *   libpango1.0-dev
+    *   golang-rice **
+* Additional packages needed to execute linux-builder:
+    *   zip
+
+** Copying rice binary not working, Makefile has to be adjustet to point to /usr/bin/rice instead of $GOPATH/bin/rice.
+    Alternatively, rice can be build manually.
 
 
 ## Usage
