@@ -192,8 +192,9 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 	}
 }
 
-// NewGui returns a new installer GUI, given a path to a directory for temporary files
-// and a translator for translating message strings.
+// NewGui creates a new installer GUI, given a path to a directory for temporary files
+// and a translator for translating message strings. The gui object is stored in the
+// global variable "gui", and can then be run with "RunGui()".
 func NewGui(
 	installerTempPath string,
 	installer *linux_installer.Installer,
