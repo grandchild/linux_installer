@@ -56,12 +56,6 @@ installation*" on the installation page.
     * `libgtk-3-dev`
     * `libglib2.0-dev`
 
-* The `rice` command from go-rice. Install it with:
-
-```bash
-    go install github.com/GeertJohan/go.rice/rice
-```
-
 
 ## Usage
 
