@@ -1,6 +1,7 @@
 package linux_installer
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -100,43 +101,26 @@ func Run() int {
 //  * GTK3 missing (Redhat/Centos 6 or older)
 //
 // When the GUI fails to load it will try a last-ditch effort to show an error dialog
-// with Zenity (which comes with Centos 6). Other than that there is no way to interact
-// with the user graphically, and it will simply log the error, and print usage help to
-// the command line (which is not much help, since the user probably just double-clicked
-// the installer binary).
+// with Zenity (which comes with e.g. Centos 6). Beyond than that there is no way to
+// interact with the user graphically, and it will simply log the error, and print usage
+// help to the command line (which is not much help, since the user probably just
+// double-clicked the installer binary). On headless servers, though, the user will then
+// see the usage help.
 func RunGuiInstall(
 	installerTempPath string, translator *Translator, config *Config,
 ) (err error) {
 	UnpackResourceDir("gui", filepath.Join(installerTempPath, "gui"))
-	guiPlugin, err := plugin.Open(filepath.Join(installerTempPath, "gui", "gui.so"))
+	NewGui, RunGui, err := loadGuiPlugin(installerTempPath, translator)
 	if err != nil {
-		err = osShowRawErrorDialog(translator.Get("err_gui_startup_failed_nogtk"))
-		if err != nil {
-			handleGuiErr(err, translator.Get("err_gui_startup_failed_nogtk"))
-		}
-		return
-	}
-	NewGui, err := guiPlugin.Lookup("NewGui")
-	if err != nil {
-		osShowRawErrorDialog(translator.Get("err_gui_startup_internal_error"))
-		handleGuiErr(err, "")
-		return
-	}
-	RunGui, err := guiPlugin.Lookup("RunGui")
-	if err != nil {
-		osShowRawErrorDialog(translator.Get("err_gui_startup_internal_error"))
-		handleGuiErr(err, "")
 		return
 	}
 	installer := NewInstaller(installerTempPath, config)
-	err = NewGui.(func(string, *Installer, *Translator, *Config) error)(
-		installerTempPath, installer, translator, config,
-	)
+	err = NewGui(installerTempPath, installer, translator, config)
 	if err != nil {
-		handleGuiErr(err, translator.Get("err_gui_startup_failed"))
+		handleGuiErr(translator.Get("err_gui_startup_failed"), err)
 		return
 	} else {
-		RunGui.(func())()
+		RunGui()
 	}
 	return
 }
@@ -208,12 +192,54 @@ func startLogging(logFilename string) *os.File {
 	return logfile
 }
 
+// loadGuiPlugin tries and loads the code from gui.so, casts and returns the constructor
+// and run-function for the GUI. If there are errors, a message is displayed using
+// Zenity and the error is logged and returned.
+func loadGuiPlugin(installerTempPath string, translator *Translator) (
+	NewGui func(string, *Installer, *Translator, *Config) error,
+	RunGui func(),
+	err error,
+) {
+	guiPlugin, err := plugin.Open(filepath.Join(installerTempPath, "gui", "gui.so"))
+	if err != nil {
+		errDialog := osShowRawErrorDialog(translator.Get("err_gui_startup_failed_nogtk"))
+		if errDialog != nil {
+			handleGuiErr(translator.Get("err_gui_startup_failed_nogtk"), err)
+		}
+		return
+	}
+	NewGuiRaw, errNewGui := guiPlugin.Lookup("NewGui")
+	RunGuiRaw, errRunGui := guiPlugin.Lookup("RunGui")
+	NewGui, castOkNewGui := NewGuiRaw.(func(string, *Installer, *Translator, *Config) error)
+	RunGui, castOkRunGui := RunGuiRaw.(func())
+	if errNewGui != nil || errRunGui != nil || !castOkNewGui || !castOkRunGui {
+		osShowRawErrorDialog(translator.Get("err_gui_startup_internal_error"))
+		var errCastNewGui, errCastRunGui error
+		if !castOkNewGui {
+			errCastNewGui = errors.New("Error casting NewGui(), probably function type mismatch")
+		}
+		if !castOkRunGui {
+			errCastRunGui = errors.New("Error casting RunGui(), probably function type mismatch")
+		}
+		err = handleGuiErr("", errNewGui, errRunGui, errCastNewGui, errCastRunGui)
+		return
+	}
+	return
+}
+
 // handleGuiErr prints and logs GUI startup errors, and prints the commandline usage.
-func handleGuiErr(err error, msg string) {
-	log.Println("Unable to load GUI:", err)
+// The errs list is searched for all non-nil error, which are logged. The last error is
+// passed through and returned.
+func handleGuiErr(msg string, errs ...error) (err error) {
+	for _, err = range errs {
+		if err != nil {
+			log.Println("Unable to load GUI:", err)
+		}
+	}
 	if len(msg) > 0 {
 		log.Println(msg)
 		fmt.Println(msg)
 	}
 	flag.PrintDefaults()
+	return
 }
