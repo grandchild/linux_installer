@@ -127,7 +127,9 @@ is compiled separately as a [Go plugin](https://golang.org/pkg/plugin/) (a Go-sp
 kind of *.so* dynamic library). This allows compiling the installer without linking to
 GTK3 explicitly, which in turn allows running the installer on older Linux
 distributions, and falling back gracefully to an error message and allowing CLI
-installation mode—instead of failing with a linker error, with no recourse.
+installation mode. If the code would not be separated out into the plugin, the installer
+would always fail on systems without GTK3, reporting only a linker error and without
+recourse.
 
 
 #### Main Go Files
@@ -140,6 +142,11 @@ used by all installation modes.
 
 `install_linux.go` contains the Linux-specific system calls and application-menu,
 uninstaller and pre-/post-hooks (which are all OS-specific).
+
+`gui/gui.go` describes the GUI's behavior. It contains the event handlers at the top,
+followed by the constructor. The second half of the code are various functions the GUI
+code uses, such as switching from one screen to the next, or checking on the installer's
+progress.
 
 `config.go` defines the structure for the config.yml file. It is used throughout the
 code, for accessing variables and options.
@@ -159,6 +166,11 @@ before a language can be chosen.
 `variables.go` provides a simple templating engine to expand variables inside strings.
 This can even be done recursively (i.e. a variable *value* may contain a variable
 reference as well).
+
+`gui/gui_utils.go` contains wrappers for retrieving various GTK3 widget types from the
+gui definition file. Go [famously has no generics](https://golang.org/doc/faq#generics),
+making this list of similar functions necessary. They all do the same thing, which is
+casting a widget loaded from the builder into the desired type.
 
 
 #### Metadata
