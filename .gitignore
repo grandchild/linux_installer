@@ -6,6 +6,7 @@ win/
 linux-builder/resources/
 linux-builder/data*/
 linux-builder/rice
+linux-builder/rice.exe
 linux-builder.tar.gz
 resources/gui/gui.so
 

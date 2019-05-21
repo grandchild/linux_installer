@@ -9,7 +9,7 @@ RES_DIR = resources
 DATA_SRC_DIR = data
 DATA_DIST_DIR = data_compressed
 BUILDER_DIR = linux-builder
-BUILDER_ARCHIVE = $(BUILDER_DIR).tar.gz
+BUILDER_ARCHIVE = $(BUILDER_DIR).zip
 
 ZIP_EXE = zip
 RICE_EXE = rice
@@ -91,33 +91,29 @@ $(DATA_DIST_DIR)/data.zip: $(DATA_SRC_DIR)
 	rm -f $(DATA_DIST_DIR)/data.zip
 	cd $(DATA_SRC_DIR) ; $(ZIP_EXE) -r ../$(DATA_DIST_DIR)/data.zip .
 
-$(GOPATH)/bin/$(RICE_EXE):
-	go get github.com/GeertJohan/go.rice
-	go install github.com/GeertJohan/go.rice/rice
-
-linux_dist: linux_build $(DATA_DIST_DIR)/data.zip $(GOPATH)/bin/$(RICE_EXE)
-	$(GOPATH)/bin/$(RICE_EXE) append --exec $(BIN)
+linux_dist: linux_build $(DATA_DIST_DIR)/data.zip
+	rice_bin/rice append --exec $(BIN)
 
 run: linux_dist
 	./$(BIN)
 
-$(BUILDER_DIR): linux_build $(DATA_SRC_DIR) $(GOPATH)/bin/$(RICE_EXE)
-	cp -r $(DATA_SRC_DIR) $(RES_DIR) $(BIN) $(GOPATH)/bin/$(RICE_EXE) $(BUILDER_DIR)/
+$(BUILDER_DIR): linux_build $(DATA_SRC_DIR)
+	cp -r $(DATA_SRC_DIR) $(RES_DIR) $(BIN) rice_bin/$(RICE_EXE)* $(BUILDER_DIR)/
 	chmod +x $(BUILDER_DIR)/$(RICE_EXE)
 
 $(BUILDER_ARCHIVE): $(BUILDER_DIR)
 	chmod -R g+w $(BUILDER_DIR)
-	tar czf $(BUILDER_ARCHIVE) $(BUILDER_DIR)
+	zip -r $(BUILDER_ARCHIVE) $(BUILDER_DIR)
 
 
 windows_build: $(SRC)
 	$(XCC_GOFLAGS) go build -v $(GO_MOD_FLAGS) $(XCC_LD_FLAGS) -o $(WIN_DIST_DIR)/$(BIN).exe $(PKG)/main
 
-windows_dist: windows_build $(DATA_DIST_DIR)/data.zip $(GOPATH)/bin/$(RICE_EXE)
+windows_dist: windows_build $(DATA_DIST_DIR)/data.zip
 	# cp -r $(RES_DIR) $(WIN_DIST_DIR)
 	mkdir -p $(WIN_DIST_DIR)
 	cp $(foreach dll,$(WIN_DLLS),$(WIN_DLL_SRC)/$(dll)) $(WIN_DIST_DIR)
-	$(GOPATH)/bin/$(RICE_EXE) append --exec $(WIN_DIST_DIR)/$(BIN).exe
+	rice_bin/rice.exe append --exec $(WIN_DIST_DIR)/$(BIN).exe
 
 run_win: windows_dist
 	wine $(WIN_DIST_DIR)/$(BIN).exe
@@ -141,3 +137,16 @@ clean_data:
 clean_builder:
 	rm -rf $(BUILDER_DIR)/{$(RES_DIR),$(DATA_DIST_DIR),$(DATA_SRC_DIR),$(BIN),$(RICE_EXE)}
 	rm -f $(BUILDER_ARCHIVE)
+
+
+# To update rice to the newest version run this target ("make rice_bin").
+#
+# The GOBIN-trick doesn't work for cross-compilation, so that one is created in
+# $GOPATH/bin as usual and then copied.
+rice_bin: .FORCE
+	go get github.com/GeertJohan/go.rice
+	GOBIN=`readlink -f rice_bin` go install github.com/GeertJohan/go.rice/rice
+	GOOS=windows go install github.com/GeertJohan/go.rice/rice
+	cp $(GOPATH)/bin/windows_amd64/rice.exe rice_bin/
+
+.FORCE: # targets with this requirement are always out of date

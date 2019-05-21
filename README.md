@@ -37,14 +37,13 @@ A commandline or "*silent*" mode is available as well.
 
 ## Requirements
 
-* Clone the repository into `~/go/src/github.com/grandchild/linux_installer`:
+* Clone the repository anywhere<sup>[(1)](#anchor-1)</sup>:
 
 ```bash
-    mkdir -p ~/go/src/github.com/grandchild/
-    git clone https://github.com/grandchild/linux-installer.git ~/go/src/github.com/grandchild/linux_installer
+    git clone https://github.com/grandchild/linux-installer.git
 ```
 
-* A working Go installation, see the
+* A working Go *1.11* (or higher) installation, see the
 [official installation instructions](https://golang.org/doc/install) for information on
 how to install Go on your system
 
@@ -56,12 +55,12 @@ installation*" on the installation page.
   * `zip`
 
 * On RPM-based systems (Centos, Ubuntu, etc) the following dev-packages need to be
-  installed as well
+  installed as well:
   * `libgtk-3-dev`
   * `libglib2.0-dev`
 
 * If you want to edit the installer GUI layout you need to install
-  [Glade](https://glade.gnome.org/)
+  [Glade](https://glade.gnome.org/) as well.
 
 
 ## Usage
@@ -69,21 +68,27 @@ installation*" on the installation page.
 This project creates an installer *builder* (altough it can create test installers
 directly) with which one can create installers for customers.
 
-To create the builder run
+To create installers with the builder follow these steps
 
-```bash
-    make clean linux-builder.tar.gz
-```
+1. Run:<br/>
+  `make clean linux-builder.zip`
 
-You can then copy and extract the linux-builder onto another system, fill the contained
-data folder with files, edit the `config.yml` with any information needed, and inside
-the "*linux-builder/*" directory run
+1. *(Optional)* Copy the `linux-builder.zip` onto the computer you want to create
+  installers with (you can *create* Linux installers on *Windows* as well).
 
-```bash
-    make OUTPUT=<Your installer name here> VERSION=<Your program version here>
-```
+1. Extract the `linux-builder.zip` in a location of your choice.
 
-So for example something like
+1. Add all required files and folders to the contained `data` folder.
+
+1. Edit `resources/config.yml` with any information needed (The version number can be
+  set now, or in the next step).
+
+1. Inside the "*linux-builder/*" directory run:<br/>
+  `make OUTPUT=<Your installer name here> VERSION=<Your program version here>`
+
+### Example
+
+A command like:
 
 ```bash
     make OUTPUT=Setup_ExampleApp_v1.1
@@ -95,7 +100,9 @@ the UI.
 
 ## Testing
 
-To simply build and test an installer in the main project, run
+To simply build and test an installer in the main project, add some files to the `data/`
+directory and then run:
+
 ```bash
     make clean run
 ```
@@ -103,23 +110,35 @@ To simply build and test an installer in the main project, run
 
 ## Hacking
 
-### Code Structure
-
 This part serves as a general overview. For detailed information on structures and
-functions, refer to the documentation in the code, which can also be presented more
-readably in the browser through
-[`godoc`](https://godoc.org/golang.org/x/tools/cmd/godoc):
+functions, refer to the documentation in the code, which can also be accessed through
+[`go doc`](https://golang.org/cmd/go/#hdr-Show_documentation_for_package_or_symbol):
 
 Run
 ```bash
-    godoc github.com/grandchild/linux_installer
+    go doc --all -u github.com/grandchild/linux_installer
 ```
-and then go to: http://localhost:6060/pkg/github.com/grandchild/linux_installer/?m=all
+and 
+```bash
+    go doc --all -u github.com/grandchild/linux_installer/gui
+```
 
+to see text documentation for all symbols.
+
+To read documentation for a specific item, e.g. the `installFile()` and the `updateProgressbar()` functions, run:
+
+```bash
+    go doc --all -u github.com/grandchild/linux_installer installFile
+    go doc --all -u github.com/grandchild/linux_installer/gui updateProgressbar
+```
+
+
+
+### Code Structure
 
 The code's entry point is the `main()` function in `main/main.go`, which simply calls
 the actual main function which is `run.go`'s `Run()`
-function[<sup>(1)</sup>](#anchor-1).
+function[<sup>(2)</sup>](#anchor-2).
 
 All GUI code is placed in its own "main" package, inside the `gui/` folder, because it
 is compiled separately as a [Go plugin](https://golang.org/pkg/plugin/) (a Go-specific
@@ -267,6 +286,9 @@ E.g. in order to add French, create and translate `resources/languages/fr.yml`.
 ## Footnotes
 
 ### (1)
+Specifically *not* in `~/go/src/github.com/grandchild/linux_installer`!
+
+### (2)
 The reason for the existence of `main/main.go` is that a Go program's main function has
 to be placed inside a package called "main". But the installer package with most of the
 code should be called "installer", not "main" in order to behave more like an importable
