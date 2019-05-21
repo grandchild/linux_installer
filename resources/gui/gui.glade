@@ -852,6 +852,7 @@
     <property name="deletable">False</property>
     <property name="gravity">center</property>
     <property name="transient_for">installer-frame</property>
+    <signal name="delete-event" handler="on_quit_dialog_delete_event" swapped="no"/>
     <child type="titlebar">
       <placeholder/>
     </child>

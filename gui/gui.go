@@ -78,16 +78,17 @@ const displayKey = "_language_display"
 // the .glade GUI-definition file, such as buttons, entries and window events.
 func guiEventHandler(g *Gui) (handler EventHandler) {
 	return EventHandler{
-		"on_quit_clicked":        func() { g.showQuitDialog() },
-		"on_main_close":          func() bool { g.showQuitDialog(); return true },
-		"on_back_clicked":        func() { g.prevScreen() },
-		"on_next_clicked":        func() { g.nextScreen() },
-		"on_quit_no_clicked":     func() { g.quitDialog.Hide() },
-		"on_quit_yes_clicked":    func() { gtk.MainQuit() },
-		"on_path_browse_clicked": func() { g.browseInstallDir() },
-		"on_path_reset_clicked":  func() { g.resetInstallDir() },
-		"on_path_entry_changed":  func() { g.checkInstallDir() },
-		"on_main_destroy":        func() { gtk.MainQuit() },
+		"on_quit_clicked":             func() { g.showQuitDialog() },
+		"on_main_close":               func() bool { g.showQuitDialog(); return true },
+		"on_back_clicked":             func() { g.prevScreen() },
+		"on_next_clicked":             func() { g.nextScreen() },
+		"on_quit_no_clicked":          func() { g.quitDialog.Hide() },
+		"on_quit_yes_clicked":         func() { gtk.MainQuit() },
+		"on_quit_dialog_delete_event": func() bool { g.quitDialog.Hide(); return true },
+		"on_path_browse_clicked":      func() { g.browseInstallDir() },
+		"on_path_reset_clicked":       func() { g.resetInstallDir() },
+		"on_path_entry_changed":       func() { g.checkInstallDir() },
+		"on_main_destroy":             func() { gtk.MainQuit() },
 	}
 }
 
