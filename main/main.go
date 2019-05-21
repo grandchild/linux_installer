@@ -2,8 +2,9 @@ package main
 
 import (
 	"github.com/grandchild/linux_installer"
+	"os"
 )
 
 func main() {
-	linux_installer.Run()
+	os.Exit(linux_installer.Run())
 }

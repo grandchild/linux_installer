@@ -30,14 +30,14 @@ const (
 // Giving any commandline parameters other than -lang will trigger commandline, or
 // "silent" mode. -target and -accept-license are necessary to run commandline install.
 // -lang will also set the default GUI language.
-func Run() {
+func Run() int {
 	logfile := startLogging(logFilename)
 	defer logfile.Close()
 
 	openBoxes()
 	config, err := NewConfig()
 	if err != nil {
-		return
+		return 1
 	}
 	config.Variables["installerName"] = os.Args[0]
 	translator := NewTranslatorVar(config.Variables)
@@ -67,7 +67,7 @@ func Run() {
 		} else {
 			fmt.Print(licenseFile)
 		}
-		return
+		return 2
 	}
 
 	if *noLauncher {
@@ -80,14 +80,15 @@ func Run() {
 		} else {
 			fmt.Println(translator.Get("err_cli_mustacceptlicense"))
 		}
-		return
+		return 3
 	}
 
-	guiError := RunGuiInstall(installerTempPath, translator, config)
-	if guiError != nil {
-		// TUI disabled
-		RunTuiInstall(installerTempPath, translator)
+	err = RunGuiInstall(installerTempPath, translator, config)
+	if err != nil {
+		return 4
+		// err = RunTuiInstall(installerTempPath, translator)
 	}
+	return 0
 }
 
 // RunGuiInstall loads the gui.so plugin, and starts the installer GUI.
@@ -185,13 +186,14 @@ func RunCliInstall(
 }
 
 // RunTuiInstall starts a terminal curses-based UI (currently disabled).
-func RunTuiInstall(installerTempPath string, translator *Translator) {
+func RunTuiInstall(installerTempPath string, translator *Translator) (err error) {
 	// 	tui, err := NewTui(installerTempPath, translator)
 	// 	if err != nil {
 	// 		log.Println(err)
 	// 	} else {
 	// 		tui.Run()
 	// 	}
+	return errors.New("TUI not implemented")
 }
 
 // startLogging sets up the logging
