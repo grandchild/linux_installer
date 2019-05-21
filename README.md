@@ -51,13 +51,13 @@ installation*" on the installation page.
 
 * On RPM-based systems (Centos, Ubuntu, etc) the following dev-packages need to be
   installed as well
-    *   make
-    *   libgio2.0-cil-dev
-    *   libglib2.0-dev
-    *   libcairo2-dev
-    *   libgdk3.0-cil-dev
-    *   libgtk-3-dev
-    *   libpango1.0-dev
+    * `make`
+    * `libgio2.0-cil-dev`
+    * `libglib2.0-dev`
+    * `libcairo2-dev`
+    * `libgdk3.0-cil-dev`
+    * `libgtk-3-dev`
+    * `libpango1.0-dev`
 
 * The `rice` command from go-rice. Install it with:
 
