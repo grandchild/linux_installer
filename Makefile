@@ -16,6 +16,8 @@ RICE_EXE = rice
 
 GOPATH ?= ~/go
 
+GO_MOD_FLAGS = -mod=vendor
+
 WIN_DIST_DIR = win
 XCC_GOFLAGS = \
 	CGO_LDFLAGS_ALLOW="-Wl,-luuid"\
@@ -79,10 +81,10 @@ windows: windows_build $(DATA_DIST_DIR)/data.zip
 dist: linux_dist
 
 linux_build: $(SRC) $(RES_DIR)/gui/gui.so
-	go build -v -o $(BIN) $(PKG)/main
+	go build -v $(GO_MOD_FLAGS) -o $(BIN) $(PKG)/main
 
 $(RES_DIR)/gui/gui.so: $(SRC)
-	go build -v -buildmode=plugin -o $(RES_DIR)/gui/gui.so $(PKG)/gui
+	go build -v $(GO_MOD_FLAGS) -buildmode=plugin -o $(RES_DIR)/gui/gui.so $(PKG)/gui
 
 $(DATA_DIST_DIR)/data.zip: $(DATA_SRC_DIR)
 	mkdir -p $(DATA_DIST_DIR)
@@ -109,7 +111,7 @@ $(BUILDER_ARCHIVE): $(BUILDER_DIR)
 
 
 windows_build: $(SRC)
-	$(XCC_GOFLAGS) go build -v $(XCC_LD_FLAGS) -o $(WIN_DIST_DIR)/$(BIN).exe $(PKG)/main
+	$(XCC_GOFLAGS) go build -v $(GO_MOD_FLAGS) $(XCC_LD_FLAGS) -o $(WIN_DIST_DIR)/$(BIN).exe $(PKG)/main
 
 windows_dist: windows_build $(DATA_DIST_DIR)/data.zip $(GOPATH)/bin/$(RICE_EXE)
 	# cp -r $(RES_DIR) $(WIN_DIST_DIR)
