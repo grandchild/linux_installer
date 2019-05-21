@@ -63,6 +63,7 @@ installation*" on the installation page.
 * If you want to edit the installer GUI layout you need to install
   [Glade](https://glade.gnome.org/)
 
+
 ## Usage
 
 This project creates an installer *builder* (altough it can create test installers
@@ -90,6 +91,7 @@ So for example something like
 
 would create a new file *Setup.bin* which installs the software and shows version 1.1 in
 the UI.
+
 
 ## Testing
 
