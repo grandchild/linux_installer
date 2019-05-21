@@ -89,14 +89,15 @@ $(DATA_DIST_DIR)/data.zip: $(DATA_SRC_DIR)
 	rm -f $(DATA_DIST_DIR)/data.zip
 	cd $(DATA_SRC_DIR) ; $(ZIP_EXE) -r ../$(DATA_DIST_DIR)/data.zip .
 
-linux_dist: linux_build $(DATA_DIST_DIR)/data.zip
+$(GOPATH)/bin/$(RICE_EXE):
+	go get github.com/GeertJohan/go.rice
+	go install github.com/GeertJohan/go.rice/rice
+
+linux_dist: linux_build $(DATA_DIST_DIR)/data.zip $(GOPATH)/bin/$(RICE_EXE)
 	$(GOPATH)/bin/$(RICE_EXE) append --exec $(BIN)
 
 run: linux_dist
 	./$(BIN)
-
-$(GOPATH)/bin/$(RICE_EXE):
-	go install github.com/GeertJohan/go.rice/rice
 
 $(BUILDER_DIR): linux_build $(DATA_SRC_DIR) $(GOPATH)/bin/$(RICE_EXE)
 	cp -r $(DATA_SRC_DIR) $(RES_DIR) $(BIN) $(GOPATH)/bin/$(RICE_EXE) $(BUILDER_DIR)/
@@ -110,7 +111,7 @@ $(BUILDER_ARCHIVE): $(BUILDER_DIR)
 windows_build: $(SRC)
 	$(XCC_GOFLAGS) go build -v $(XCC_LD_FLAGS) -o $(WIN_DIST_DIR)/$(BIN).exe $(PKG)/main
 
-windows_dist: windows_build $(DATA_DIST_DIR)/data.zip
+windows_dist: windows_build $(DATA_DIST_DIR)/data.zip $(GOPATH)/bin/$(RICE_EXE)
 	# cp -r $(RES_DIR) $(WIN_DIST_DIR)
 	mkdir -p $(WIN_DIST_DIR)
 	cp $(foreach dll,$(WIN_DLLS),$(WIN_DLL_SRC)/$(dll)) $(WIN_DIST_DIR)
