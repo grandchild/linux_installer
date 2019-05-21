@@ -521,7 +521,7 @@ func (g *Gui) installationProgress() (repeat bool) {
 	return true
 }
 
-// updateProgressbar updates the progress bar with the current filename that the
+// updateProgressbar updates the progress bar with the current filename and the
 // percentage of bytes copies to disk so far.
 func (g *Gui) updateProgressbar() {
 	installingFile := g.installer.NextFile()
