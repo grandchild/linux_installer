@@ -14,6 +14,8 @@ BUILDER_ARCHIVE = $(BUILDER_DIR).tar.gz
 ZIP_EXE = zip
 RICE_EXE = rice
 
+GOPATH ?= ~/go
+
 WIN_DIST_DIR = win
 XCC_GOFLAGS = \
 	CGO_LDFLAGS_ALLOW="-Wl,-luuid"\
@@ -93,7 +95,10 @@ linux_dist: linux_build $(DATA_DIST_DIR)/data.zip
 run: linux_dist
 	./$(BIN)
 
-$(BUILDER_DIR): linux_build $(DATA_SRC_DIR)
+$(GOPATH)/bin/$(RICE_EXE):
+	go install github.com/GeertJohan/go.rice/rice
+
+$(BUILDER_DIR): linux_build $(DATA_SRC_DIR) $(GOPATH)/bin/$(RICE_EXE)
 	cp -r $(DATA_SRC_DIR) $(RES_DIR) $(BIN) $(GOPATH)/bin/$(RICE_EXE) $(BUILDER_DIR)/
 	chmod +x $(BUILDER_DIR)/$(RICE_EXE)
 
