@@ -38,7 +38,7 @@ A commandline or "*silent*" mode is available as well.
 ## Requirements
 
 * Clone the repository into
-   $GOPATH/src/github.com/grandchild/linux_installer
+   `$GOPATH/src/github.com/grandchild/linux_installer`
 
 * A working Go installation, see the
 [official installation instructions](https://golang.org/doc/install) for information on
@@ -47,17 +47,14 @@ how to install Go on your system
 * Make sure your installation works, by following the instructions "*Test your
 installation*" on the installation page.
 
-* `zip` command, simply install the `zip` package.
+* The `make` & `zip` commands, simply install their packages:
+    * `make`
+    * `zip`
 
 * On RPM-based systems (Centos, Ubuntu, etc) the following dev-packages need to be
   installed as well
-    * `make`
-    * `libgio2.0-cil-dev`
-    * `libglib2.0-dev`
-    * `libcairo2-dev`
-    * `libgdk3.0-cil-dev`
     * `libgtk-3-dev`
-    * `libpango1.0-dev`
+    * `libglib2.0-dev`
 
 * The `rice` command from go-rice. Install it with:
 
