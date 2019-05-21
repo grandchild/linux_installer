@@ -19,7 +19,6 @@ welcome_text: |-
 license_header: Lizenzvereinbarung
 license_text_above: Lesen und akzeptieren Sie folgende Lizenzvereinbarung bevor sie {{.product}} installieren.
 license_text_below: Klicken Sie auf <b>Akzeptieren</b> um fortzufahren.
-license_button_accept: Akzeptieren
 
 type_header: Installationstyp
 type_text: Wählen Sie die Art der Installation, die Sie durchführen möchten.
@@ -94,13 +93,16 @@ silent_failed: >-
 ok: OK
 cancel: Abbrechen
 
-button_prev: Zurück
-button_next: Weiter
-button_install: Installieren
-button_abort: Abbrechen
-button_quit: Beenden
-button_exit: Verlassen
-button_path_reset: Standard
+# Underline denotes the Alt-accelerator key follows.
+# Take care not to use the same ones on the same screen!
+button_prev: _Zurück
+button_next: _Weiter
+button_quit: _Beenden
+button_license_accept: _Akzeptieren
+button_path_reset: _Standard
+button_install: _Installieren
+button_install_abort: _Abbrechen
+button_exit: _Verlassen
 
 really_quit_text: Möchten Sie die Installation wirklich abbrechen?
 

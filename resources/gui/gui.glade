@@ -17,10 +17,20 @@
     <property name="can_focus">False</property>
     <property name="stock">gtk-go-forward</property>
   </object>
+  <object class="GtkImage" id="image_no">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-no</property>
+  </object>
   <object class="GtkImage" id="image_quit">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="stock">gtk-cancel</property>
+  </object>
+  <object class="GtkImage" id="image_yes">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-yes</property>
   </object>
   <object class="GtkTextBuffer" id="license-buf"/>
   <object class="GtkWindow" id="installer-frame">
@@ -782,12 +792,13 @@
             <property name="spacing">15</property>
             <child>
               <object class="GtkButton" id="button-quit">
-                <property name="label">Quit</property>
+                <property name="label">_Quit</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="halign">start</property>
                 <property name="image">image_quit</property>
+                <property name="use_underline">True</property>
                 <property name="always_show_image">True</property>
                 <signal name="clicked" handler="on_quit_clicked" swapped="no"/>
               </object>
@@ -799,11 +810,12 @@
             </child>
             <child>
               <object class="GtkButton" id="button-back">
-                <property name="label">Back</property>
+                <property name="label">_Back</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="image">image_back</property>
+                <property name="use_underline">True</property>
                 <property name="always_show_image">True</property>
                 <signal name="clicked" handler="on_back_clicked" swapped="no"/>
               </object>
@@ -815,11 +827,12 @@
             </child>
             <child>
               <object class="GtkButton" id="button-next">
-                <property name="label">Next</property>
+                <property name="label">_Next</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="image">image_next</property>
+                <property name="use_underline">True</property>
                 <property name="always_show_image">True</property>
                 <signal name="clicked" handler="on_next_clicked" swapped="no"/>
               </object>
@@ -840,10 +853,10 @@
     </child>
   </object>
   <object class="GtkDialog" id="quit-dialog">
-    <property name="can_focus">True</property>
-    <property name="type">popup</property>
+    <property name="can_focus">False</property>
     <property name="resizable">False</property>
     <property name="modal">True</property>
+    <property name="window_position">center-on-parent</property>
     <property name="destroy_with_parent">True</property>
     <property name="icon_name">emblem-unreadable</property>
     <property name="type_hint">dialog</property>
@@ -858,22 +871,24 @@
     </child>
     <child internal-child="vbox">
       <object class="GtkBox" id="quit-dialog-box">
-        <property name="can_focus">True</property>
+        <property name="can_focus">False</property>
         <property name="margin_left">10</property>
         <property name="margin_right">10</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
           <object class="GtkButtonBox">
-            <property name="can_focus">True</property>
+            <property name="can_focus">False</property>
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="quit-no">
-                <property name="label">gtk-no</property>
+                <property name="label">_No</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
-                <property name="use_stock">True</property>
+                <property name="image">image_no</property>
+                <property name="use_underline">True</property>
+                <property name="always_show_image">True</property>
                 <signal name="clicked" handler="on_quit_no_clicked" swapped="no"/>
               </object>
               <packing>
@@ -884,11 +899,13 @@
             </child>
             <child>
               <object class="GtkButton" id="quit-yes">
-                <property name="label">gtk-yes</property>
+                <property name="label">_Yes</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
-                <property name="use_stock">True</property>
+                <property name="image">image_yes</property>
+                <property name="use_underline">True</property>
+                <property name="always_show_image">True</property>
                 <signal name="clicked" handler="on_quit_yes_clicked" swapped="no"/>
               </object>
               <packing>

@@ -131,7 +131,7 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 		{
 			name: "license",
 			before: func() {
-				g.nextButton.SetLabel(g.t("license_button_accept"))
+				g.nextButton.SetLabel(g.t("button_license_accept"))
 			},
 		},
 		{
@@ -267,6 +267,7 @@ func NewGui(
 // is done and should quit.
 func RunGui() {
 	gui.win.ShowAll()
+	getButton(gui.builder, "button-next").GrabFocus()
 	gtk.Main()
 }
 
@@ -282,7 +283,6 @@ func (g *Gui) showQuitDialog() {
 	}
 	g.translateAllLabels(getBox(g.builder, "quit-dialog-box"))
 	g.quitDialog.ShowAll()
-	g.quitDialog.GrabFocus()
 }
 
 // setScreenElementDefaults resets all navigation buttons to their defaults at the start

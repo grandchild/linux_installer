@@ -19,7 +19,6 @@ welcome_text: |-
 license_header: License Agreement
 license_text_above: Review and accept the following license agreement before installing {{.product}}.
 license_text_below: Click <b>Accept</b> to continue.
-license_button_accept: Accept
 
 type_header: Installation Type
 type_text: Select the type of installation you wish to perform.
@@ -89,13 +88,16 @@ silent_failed: The installation failed. See the installer.log file for details.
 ok: OK
 cancel: Cancel
 
-button_prev: Back
-button_next: Next
-button_install: Install
-button_abort: Abort
-button_quit: Quit
-button_exit: Exit
-button_path_reset: Default
+# Underline denotes the Alt-accelerator key follows.
+# Take care not to use the same ones on the same screen!
+button_prev: _Back
+button_next: _Next
+button_quit: _Quit
+button_license_accept: _Accept
+button_path_reset: _Default
+button_install: _Install
+button_install_abort: _Abort
+button_exit: _Exit
 
 really_quit_text: Do you really want to abort the installation?
 
