@@ -48,14 +48,16 @@ how to install Go on your system
 installation*" on the installation page.
 
 * The `make` & `zip` commands, simply install their packages:
-    * `make`
-    * `zip`
+  * `make`
+  * `zip`
 
 * On RPM-based systems (Centos, Ubuntu, etc) the following dev-packages need to be
   installed as well
-    * `libgtk-3-dev`
-    * `libglib2.0-dev`
+  * `libgtk-3-dev`
+  * `libglib2.0-dev`
 
+* If you want to edit the installer GUI layout you need to install
+  [Glade](https://glade.gnome.org/)
 
 ## Usage
 
