@@ -37,8 +37,12 @@ A commandline or "*silent*" mode is available as well.
 
 ## Requirements
 
-* Clone the repository into
-   `$GOPATH/src/github.com/grandchild/linux_installer`
+* Clone the repository into `~/go/src/github.com/grandchild/linux_installer`:
+
+```bash
+    mkdir -p ~/go/src/github.com/grandchild/
+    git clone https://github.com/grandchild/linux-installer.git ~/go/src/github.com/grandchild/linux_installer
+```
 
 * A working Go installation, see the
 [official installation instructions](https://golang.org/doc/install) for information on
