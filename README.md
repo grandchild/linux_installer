@@ -28,6 +28,7 @@ A commandline or "*silent*" mode is available as well.
     * [Metadata](#metadata)
     * [Unused Go Files](#unused-go-files)
   * [Installer Style & Layout](#installer-style-layout)
+    * [GUI CSS](#gui-css)
   * [New Installer Screens](#new-installer-screens)
     * [Layout](#layout)
     * [Behavior](#behavior)
@@ -217,15 +218,27 @@ installer. Incomplete. The CLI mode serves well enough.
 
 ### Installer Style & Layout
 
-The GUI layout of the installer is specified in the `gui.glade`. This file can be edited
-with [Glade](https://glade.gnome.org/), a WYSIWYG GTK3 UI editor.
+The GUI layout of the installer is specified in `resources/gui/gui.glade`. This file can
+be edited with [Glade](https://glade.gnome.org/), a WYSIWYG GTK3 UI editor.
 
-The layout consists of the main installer frame and a dialog box, asking for
-confirmation before exiting the installer.
+The layout consists of the main installer window and a do-you-really-want-to-quit dialog
+box.
 
-The installer frame consists mainly of the "Stack" of screens that the installer can go
+The installer window consists mainly of the "Stack" of screens that the installer can go
 through. Not all have to be visited (e.g. installation failure), and not necessarily in
 order (although they are mostly run through sequentially).
+
+#### GUI CSS
+
+GTK3 supports styling UI elements with CSS. Elements can have *id*s, *class*es and are
+of a type, just like regular HTML elements.
+
+The GUI CSS is loaded from a variable in `resources/config.yml` called `gui_css`, which
+controls some colors in the GUI, and mostly sets the background color to white, and
+changes some font properties so the license text is not too large, and the filenames in
+the installer progress not too prominent.
+
+To change the styling of the installer, simply change the content of that variable.
 
 
 ### New Installer Screens
