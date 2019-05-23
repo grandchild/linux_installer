@@ -20,19 +20,22 @@ A commandline or "*silent*" mode is available as well.
 
 * [Requirements](#requirements)
 * [Usage](#usage)
+  * [Example](#example)
 * [Testing](#testing)
+* [Customization](#customization)
+  * [Installer Style & Layout](#installer-style-layout)
+    * [GUI CSS](#gui-css)
+  * [Hooks](#hooks)
+  * [New Language Translation](#new-language-translation)
+  * [New Installer Screens](#new-installer-screens)
+    * [Layout](#layout)
+    * [Behavior](#behavior)
 * [Hacking](#hacking)
   * [Code Structure](#code-structure)
     * [Main Go Files](#main-go-files)
     * [Helper Go Files](#helper-go-files)
     * [Metadata](#metadata)
     * [Unused Go Files](#unused-go-files)
-  * [Installer Style & Layout](#installer-style-layout)
-    * [GUI CSS](#gui-css)
-  * [New Installer Screens](#new-installer-screens)
-    * [Layout](#layout)
-    * [Behavior](#behavior)
-  * [New Language Translation](#new-language-translation)
 
 
 
@@ -109,10 +112,117 @@ directory and then run:
 ```
 
 
+## Customization
+
+Various parts of the installer can be customized and changed without touching the code,
+such as the style and layout of elements, and the translation strings. The way to do
+this is described in this section.
+
+Adding a new screen (or removing one) requires only minor code changes, and is explained
+below as well.
+
+
+### Installer Style & Layout
+
+The GUI layout of the installer is specified in `resources/gui/gui.glade`. This file can
+be edited with [Glade](https://glade.gnome.org/), a WYSIWYG GTK3 UI editor.
+
+The layout consists of the main installer window and a do-you-really-want-to-quit dialog
+box.
+
+The installer window consists mainly of the "Stack" of screens that the installer can go
+through. Not all have to be visited (e.g. installation failure), and not necessarily in
+order (although they are mostly run through sequentially).
+
+#### GUI CSS
+
+GTK3 supports styling UI elements with CSS. Elements can have *id*s, *class*es and are
+of a type, just like regular HTML elements.
+
+The GUI CSS is loaded from a variable in `resources/config.yml` called `gui_css`, which
+controls some colors in the GUI, and mostly sets the background color to white, and
+changes some font properties so the license text is not too large, and the filenames in
+the installer progress not too prominent.
+
+To change the styling of the installer, simply change the content of that variable.
+
+
+### Hooks
+
+Before installation starts, and after, there is the possibility of running a custom
+script to do any tasks necessary at that time. Currently these are present, but empty.
+
+The hook scripts live in `resources/hooks/` and are named after their execution time,
+namely `pre-install.sh` and `post-install.sh`, which run before and after installation,
+respectively.
+
+You can write custom commands into these files and they will be executed. Their output
+(for debugging purposes) is logged into the installer.log file that is created when the
+installer is run.
+
+
+### New Language Translation
+
+In short: Add a new file named `xx.yml` inside `resources/languages/` (or better, copy
+`en.yml`), where "*xx*" is the language's two-letter [ISO
+639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) code. Then translate all
+messages. The language should now be available in the language selection in the GUI and
+the help text in the CLI mode.
+
+E.g. in order to add French, create and translate `resources/languages/fr.yml`.
+
+
+### New Installer Screens
+
+A new installer screen is a two-step process:
+
+1. *Layout*: Create a new installer screen in `resources/gui/gui.glade`
+1. *Behavior*: Add screen to `screenHandlers()` inside `gui/gui.go`
+
+#### Layout
+
+In the list of screens in Glade, right-click on the screen after which you want to
+insert your new screen, and select "*Insert Page After*" at the bottom of the context
+menu. Double-click inside the resulting empty space and select GtkBox to create a layout
+base for the new screen. Give the Box an ID in the details panel on the right in the
+"General" tab. This ID is needed in the next step.
+
+You can then design the inside of the Box however you like. Remember to add IDs to
+relevant elements in order to reach them from the behavior code.
+
+#### Behavior
+
+In `gui/gui.go` inside `screenHandlers()` add a new section for the screen like this:
+
+```go
+    {
+        name: "myscreen",
+        before: func() {
+            // ...
+        },
+        after: func() {
+            // ...
+        },
+        undo: func() bool {
+            // ...
+        }
+    },
+```
+
+The "*name*" key is the ID you chose in the layout step. The "*before*", "*after*" and
+"*undo*" keys are documented in the documentation for the ScreenHandler struct a little
+bit earlier in `gui/gui.go`. Refer to that for details.
+
+If a function for a key is empty, the key can be omitted completely.
+
+
+
 ## Hacking
 
-This part serves as a general overview. For detailed information on structures and
-functions, refer to the documentation in the code, which can also be accessed through
+This part serves as a general overview over which parts of the code do what. Which
+should help if more substantial changes or bug fixes are necessary. For detailed
+information on structures and functions, refer to the documentation in the code itself,
+which can also be accessed through
 [`go doc`](https://golang.org/cmd/go/#hdr-Show_documentation_for_package_or_symbol):
 
 Run
@@ -126,13 +236,13 @@ and
 
 to see text documentation for all symbols.
 
-To read documentation for a specific item, e.g. the `installFile()` and the `updateProgressbar()` functions, run:
+To read documentation for a specific item, e.g. the `installFile()` and the
+`updateProgressbar()` functions, run:
 
 ```bash
     go doc --all -u github.com/grandchild/linux_installer installFile
     go doc --all -u github.com/grandchild/linux_installer/gui updateProgressbar
 ```
-
 
 
 ### Code Structure
@@ -157,10 +267,15 @@ recourse.
 GUI or CLI mode.
 
 `install.go` provides the `Installer` type that performs the actual installation. It is
-used by all installation modes.
+used by all installation modes. The installer scans all zips present in the
+data_compressed folder, and prepares a list of files to be installed. Once the actual
+installation starts, it copies them to the target location on the system. It then
+creates an uninstaller script as well as an application menu shortcut, and runs any hook
+scripts that have been defined (for either before or after installation).
 
 `install_linux.go` contains the Linux-specific system calls and application-menu,
-uninstaller and pre-/post-hooks (which are all OS-specific).
+uninstaller and pre-/post-hooks (which are all OS-specific). It is only compiled when
+compiling for Linux (which is what the very first line in the file does).
 
 `gui/gui.go` describes the GUI's behavior. It contains the event handlers at the top,
 followed by the constructor. The second half of the code are various functions the GUI
@@ -215,85 +330,6 @@ installer.
 `tui.go` A tentative implementation of an ncurses-based terminal-graphical UI for the
 installer. Incomplete. The CLI mode serves well enough.
 
-
-### Installer Style & Layout
-
-The GUI layout of the installer is specified in `resources/gui/gui.glade`. This file can
-be edited with [Glade](https://glade.gnome.org/), a WYSIWYG GTK3 UI editor.
-
-The layout consists of the main installer window and a do-you-really-want-to-quit dialog
-box.
-
-The installer window consists mainly of the "Stack" of screens that the installer can go
-through. Not all have to be visited (e.g. installation failure), and not necessarily in
-order (although they are mostly run through sequentially).
-
-#### GUI CSS
-
-GTK3 supports styling UI elements with CSS. Elements can have *id*s, *class*es and are
-of a type, just like regular HTML elements.
-
-The GUI CSS is loaded from a variable in `resources/config.yml` called `gui_css`, which
-controls some colors in the GUI, and mostly sets the background color to white, and
-changes some font properties so the license text is not too large, and the filenames in
-the installer progress not too prominent.
-
-To change the styling of the installer, simply change the content of that variable.
-
-
-### New Installer Screens
-
-A new installer screen is a two-step process:
-
-1. *Layout*: Create a new installer screen in `resources/gui/gui.glade`
-1. *Behavior*: Add screen to `screenHandlers()` inside `gui/gui.go`
-
-#### Layout
-
-In the list of screens in Glade, right-click on the screen after which you want to
-insert your new screen, and select "*Insert Page After*" at the bottom of the context
-menu. Double-click inside the resulting empty space and select GtkBox to create a layout
-base for the new screen. Give the Box an ID in the details panel on the right in the
-"General" tab. This ID is needed in the next step.
-
-You can then design the inside of the Box however you like. Remember to add IDs to
-relevant elements in order to reach them from the behavior code.
-
-#### Behavior
-
-In `gui/gui.go` inside `screenHandlers()` add a new section for the screen like this:
-
-```go
-    {
-        name: "myscreen",
-        before: func() {
-            // ...
-        },
-        after: func() {
-            // ...
-        },
-        undo: func() bool {
-            // ...
-        }
-    },
-```
-
-The "*name*" key is the ID you chose in the layout step. The "*before*", "*after*" and
-"*undo*" keys are documented in the documentation for the ScreenHandler struct a little
-bit earlier in `gui/gui.go`. Refer to that for details.
-
-If a function for a key is empty, the key can be omitted completely.
-
-
-### New Language Translation
-
-In short: Add a new file named `xx.yml` inside `resources/languages/` (or better, copy
-`en.yml`), where "*xx*" is the language's two-letter [ISO
-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) code. Then translate all
-messages. The language should now be available in the language selection in the GUI and
-the help text in the CLI mode.
-
-E.g. in order to add French, create and translate `resources/languages/fr.yml`.
 
 
 ## Footnotes
