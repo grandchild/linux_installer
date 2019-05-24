@@ -16,6 +16,7 @@ nonetheless. Imitates the look and feel of
 
 A commandline or "*silent*" mode is available as well.
 
+
 ## Contents
 
 * [Requirements](#requirements)
@@ -310,8 +311,7 @@ casting a widget loaded from the builder into the desired type.
 #### Metadata
 
 `doc.go` Contains a general description of the installer package, accessible through
-[`go doc`](https://golang.org/cmd/doc/) or
-[`godoc`](https://godoc.org/golang.org/x/tools/cmd/godoc) (See above).
+[`go doc`](https://golang.org/cmd/doc/) (See above).
 
 `go.mod` & `go.sum` Contain a list of dependencies, their versions and checksums. Used
 with [`go mod`](https://golang.org/cmd/mod/).
