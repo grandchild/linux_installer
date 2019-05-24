@@ -160,6 +160,8 @@ func (i *Installer) prepareDataFiles() error {
 	return err
 }
 
+// prepareHooks unpacks the hook script directory and sets a flag so repeated call to
+// this function do nothing.
 func (i *Installer) prepareHooks() error {
 	if i.hooksPrepared {
 		return nil
@@ -351,7 +353,8 @@ func (i *Installer) Progress() float64 {
 	return float64(i.installedSize) / float64(i.totalSize)
 }
 
-// diskSpace returns the user-available disk space in bytes
+// diskSpace returns the user-available disk space in bytes, for the currently selected
+// installer target path.
 func (i *Installer) diskSpace() int64 {
 	// os-specific
 	return osDiskSpace(i.existingTargetParent)
@@ -364,13 +367,20 @@ func (i *Installer) DiskSpaceSufficient() bool {
 	return i.totalSize < i.diskSpace()
 }
 
-// SizeString returns a human-readable version of Size(), appending a size suffix as
-// needed.
+// SizeString returns a human-readable string denoting the total size of all files
+// contained in the installer, appending a size suffix as needed.
 func (i *Installer) SizeString() string {
 	i.prepareDataFiles()
 	return i.sizeString(i.totalSize)
 }
+
+// SpaceString returns a human-readable string denoting the remaining available space on
+// the currently selected installer target path.
 func (i *Installer) SpaceString() string { return i.sizeString(i.diskSpace()) }
+
+// sizeString returns a human-redable string representation of the given amount of
+// bytes. Every power of 1024 is shortened to its IEC prefix (*not SI*!), i.e. 2000
+// bytes become the string "1.95 KiB", and 5242880 bytes becomes "5.00 MiB".
 func (i *Installer) sizeString(bytes int64) string {
 	switch {
 	case bytes < KiB:
@@ -454,6 +464,7 @@ func (i *Installer) ExecInstalled() {
 	osExecVE(filepath.Join(i.Target, i.config.Variables["start_command"]), []string{})
 }
 
+// Error returns the latest insatller error or nil.
 func (i *Installer) Error() error {
 	return i.err
 }

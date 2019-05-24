@@ -4,5 +4,5 @@
 // installed via a GTK3-based GUI, or alternatively a commandline interface (referred to
 // as a "silent" install).
 //
-// TODO(jakob): write detailed description of code layout.
+// See the README.md for usage and code structure overview.
 package linux_installer
