@@ -101,11 +101,10 @@ func Run() int {
 //  * GTK3 missing (Redhat/Centos 6 or older)
 //
 // When the GUI fails to load it will try a last-ditch effort to show an error dialog
-// with Zenity (which comes with e.g. Centos 6). Beyond than that there is no way to
+// with Zenity (which comes with e.g. RedHat/Centos 6). Beyond that there is no way to
 // interact with the user graphically, and it will simply log the error, and print usage
-// help to the command line (which is not much help, since the user probably just
-// double-clicked the installer binary). On headless servers, though, the user will then
-// see the usage help.
+// help to the command line. (Which of course, will only be visible if started via
+// command-line and not via double-click.)
 func RunGuiInstall(
 	installerTempPath string, translator *Translator, config *Config,
 ) (err error) {
