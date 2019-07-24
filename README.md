@@ -79,7 +79,7 @@ To create installers with the builder follow these steps
   `make clean linux-builder.zip`
 
 1. *(Optional)* Copy the `linux-builder.zip` onto the computer you want to create
-  installers with (you can *create* Linux installers on *Windows* as well).
+  installers with.
 
 1. Extract the `linux-builder.zip` in a location of your choice.
 
