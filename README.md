@@ -24,6 +24,7 @@ A commandline or "*silent*" mode is available as well.
   * [Example](#example)
 * [Testing](#testing)
 * [Customization](#customization)
+  * [Images](#images)
   * [Installer Style & Layout](#installer-style-layout)
     * [GUI CSS](#gui-css)
   * [Hooks](#hooks)
@@ -121,6 +122,22 @@ this is described in this section.
 
 Adding a new screen (or removing one) requires only minor code changes, and is explained
 below as well.
+
+
+### Images
+
+The `splash.bmp` image is shown on the left-hand side of the language-, welcome- and
+success-/failure screens, and needs to be a vertical 164×314 pixels in size. The right
+side of the image should connect well with the `window.background` color (currently
+plain white `#ffffff`).
+
+The `banner.bmp` image is shown on the top of all other screens and needs to be a
+horizontal 497×60 pixels in size. The bottom of the image should connect well with the
+`window.background` color like above.
+
+The `icon.gif` image is used as the icon in the taskbar and possibly the window's title
+bar while the installer is running. It should be a square GIF image, not too large
+(16×16 or 32×32 pixels).
 
 
 ### Installer Style & Layout
