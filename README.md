@@ -127,12 +127,12 @@ below as well.
 ### Images
 
 The `splash.bmp` image is shown on the left-hand side of the language-, welcome- and
-success-/failure screens, and needs to be a vertical 164×314 pixels in size. The right
-side of the image should connect well with the `window.background` color (currently
+success-/failure screens, and needs to be a vertical 164×314 pixels in size. The *right
+side* of the image should connect well with the `window.background` color (currently
 plain white `#ffffff`).
 
 The `banner.bmp` image is shown on the top of all other screens and needs to be a
-horizontal 497×60 pixels in size. The bottom of the image should connect well with the
+horizontal 497×60 pixels in size. The *bottom* of the image should connect well with the
 `window.background` color like above.
 
 The `icon.gif` image is used as the icon in the taskbar and possibly the window's title
