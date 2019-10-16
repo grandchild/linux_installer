@@ -74,12 +74,12 @@ installation*" on the installation page.
 This project creates an installer *builder* (altough it can create test installers
 directly) with which one can create installers for customers.
 
-To create installers with the builder follow these steps
+To create the installer builder follow these steps:
 
-1. Run:<br/>
+1. In the repository root directory run:<br/>
   `make clean linux-builder.zip`
 
-1. *(Optional)* Copy the `linux-builder.zip` onto the computer you want to create
+1. Copy the resulting `linux-builder.zip` onto the computer you want to create
   installers with (you can *create* Linux installers on *Windows* as well).
 
 1. Extract the `linux-builder.zip` in a location of your choice.
