@@ -1,0 +1,11 @@
+installer-builder:
+  image: golang:latest
+  before_script:
+    - apt update
+    - apt install -yq make libgtk-3-dev
+  script:
+    - make linux-builder
+  artifacts:
+    name: "linux-builder"
+    paths:
+      - linux-builder
