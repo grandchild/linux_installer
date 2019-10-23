@@ -19,6 +19,7 @@ A commandline or "*silent*" mode is available as well.
 
 ## Contents
 
+* [Quickstart: Setup & Run the Linux-Builder](#quickstart-setup-run-the-linux-builder)
 * [Requirements](#requirements)
 * [Usage](#usage)
   * [Example](#example)
@@ -39,6 +40,51 @@ A commandline or "*silent*" mode is available as well.
     * [Metadata](#metadata)
     * [Unused Go Files](#unused-go-files)
 
+
+## Quickstart: Setup & Run the Linux-Builder
+
+### Setup
+These steps need to be executed only initially and after updating the installer
+builder itself.
+
+1. [Install Go](https://golang.org/doc/install) v**1.11** or higher and make
+   sure `go` the executable is in `$PATH`. (Run `which go` to check.)
+1. `cd` into the local copy of this repository and run `make linux-builder.zip`.
+1. Copy the resulting `linux-builder.zip` archive to builder machine (if
+   different). The builder machine can run Linux or Windows.
+1. Extract anywhere
+
+### Run
+These steps need to be executed for every installer.
+
+1. Add necessary application files to the `data` subfolder
+1. Set `variables.version` (and possibly other variables) in
+   `resources`/`config.yml`
+1. Run `make` to create installer.
+   ```shell
+   cd ~/path/to/linux-builder
+   make
+   # or set version and filename directly on the commandline:
+   make VERSION=10.0 OUTPUT=Setup_ExampleApp_v1.1
+   ```
+1. The same on Windows:
+   ```cmd
+   cd /d D:\Data\linux-builder\
+   make.bat
+   :: or:
+   make.bat VERSION=10.0 OUTPUT=Setup_ExampleApp_v1.1
+   ```
+   If you set the variables in `resources`/`config.yml` before you can also
+   simply run `make.bat` by double-clicking.
+
+#### Speedup
+
+You can pre-compress files that are the same for several installers into zip
+archives and put them into the `data_compressed` folder. This can speed up the
+creation of a batch of mostly-similar installers.
+
+*Note:* The archive name `data.zip` is used by the builder, so don't use that
+specific filename.
 
 
 ## Requirements
