@@ -20,8 +20,8 @@ A commandline or "*silent*" mode is available as well.
 ## Contents
 
 * [Quickstart: Setup & Run the Linux-Builder](#quickstart-setup-run-the-linux-builder)
-* [Requirements](#requirements)
-* [Usage](#usage)
+* [Development Requirements](#development-requirements)
+* [Building the Project](#building-the-project)
   * [Example](#example)
 * [Testing](#testing)
 * [Customization](#customization)
@@ -87,7 +87,7 @@ creation of a batch of mostly-similar installers.
 specific filename.
 
 
-## Requirements
+## Development Requirements
 
 * Clone the repository anywhere<sup>[(1)](#anchor-1)</sup>:
 
@@ -115,7 +115,7 @@ installation*" on the installation page.
   [Glade](https://glade.gnome.org/) as well.
 
 
-## Usage
+## Building the Project
 
 This project creates an installer *builder* (altough it can create test installers
 directly) with which one can create installers for customers.
