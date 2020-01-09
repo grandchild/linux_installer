@@ -109,7 +109,8 @@ func osRunHookIfExists(scriptFile string, installPath string) error {
 	if _, err := os.Stat(scriptFile + ".sh"); os.IsNotExist(err) {
 		return nil
 	}
-	out, err := exec.Command("/bin/sh", scriptFile+".sh", installPath).Output()
+	err := os.Chmod(scriptFile+".sh", 0755)
+	out, err := exec.Command("/bin/sh", scriptFile+".sh", installPath).CombinedOutput()
 	log.Println("hook output:\n", string(out[:]))
 	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {
@@ -132,7 +133,7 @@ func osShowRawErrorDialog(message string) (err error) {
 		"--title", "error",
 		"--no-wrap",
 		"--text", message,
-	).Output()
+	).CombinedOutput()
 	return
 }
 
