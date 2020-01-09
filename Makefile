@@ -61,7 +61,7 @@ clean_data:
 	rm -rf "$(DATA_DIST_DIR)"
 
 clean_builder:
-	rm -rf "$(BUILDER_DIR)/{$(RES_DIR),$(DATA_DIST_DIR),$(DATA_SRC_DIR),$(BIN),$(RICE_EXE)}"
+	rm -rf "$(BUILDER_DIR)/"{"$(RES_DIR)","$(DATA_DIST_DIR)","$(DATA_SRC_DIR)","$(BIN)","$(RICE_EXE)"}
 	rm -f "$(BUILDER_ARCHIVE)"
 
 
