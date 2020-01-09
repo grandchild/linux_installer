@@ -2,6 +2,7 @@
 # build output
 linux_installer
 installer
+linux-builder.zip
 win/
 linux-builder/resources/
 linux-builder/data*/
