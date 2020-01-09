@@ -160,7 +160,7 @@ func (i *Installer) prepareDataFiles() error {
 	return err
 }
 
-// prepareHooks unpacks the hook script directory and sets a flag so repeated call to
+// prepareHooks unpacks the hook script directory and sets a flag so repeated calls to
 // this function do nothing.
 func (i *Installer) prepareHooks() error {
 	if i.hooksPrepared {
@@ -414,7 +414,10 @@ func (i *Installer) WaitForDone() {
 func (i *Installer) PreInstall() {
 	i.prepareHooks()
 	i.Status = &InstallStatus{S: "pre"}
-	err := osRunHookIfExists(filepath.Join(i.tempPath, "hooks", "pre-install"))
+	err := osRunHookIfExists(
+		filepath.Join(i.tempPath, "hooks", "pre-install"),
+		i.Target,
+	)
 	if err != nil {
 		i.err = err
 	}
@@ -423,13 +426,8 @@ func (i *Installer) PreInstall() {
 // PostInstall runs a post-install script & creates an uninstaller as well as an
 // optional launcher entry for the program.
 func (i *Installer) PostInstall(variablesList ...VariableMap) {
-	i.prepareHooks()
 	i.Status = &InstallStatus{S: "post"}
-	err := osRunHookIfExists(filepath.Join(i.tempPath, "hooks", "post-install"))
-	if err != nil {
-		i.err = err
-		return
-	}
+	var err error
 	uninstallerFileList := make([]string, 0, len(i.files)+1) // +1 for launcher shortcut
 	// reversed -> delete dir content before dir
 	for j := len(i.files) - 1; j >= 0; j-- {
@@ -455,6 +453,15 @@ func (i *Installer) PostInstall(variablesList ...VariableMap) {
 		if err != nil {
 			log.Println(err.Error())
 		}
+	}
+	i.prepareHooks()
+	err = osRunHookIfExists(
+		filepath.Join(i.tempPath, "hooks", "post-install"),
+		i.Target,
+	)
+	if err != nil {
+		i.err = err
+		return
 	}
 }
 

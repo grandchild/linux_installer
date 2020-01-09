@@ -101,13 +101,15 @@ func osCreateUninstaller(installedFiles []string, variables VariableMap) error {
 
 // osRunHookIfExists runs a script given its base name (no extension), if that script
 // does exist. The hook scripts are located in the resources/hooks/ directory.
+// installPath is the installation directory, and the script can expect it as its first
+// commandline argument.
 //
 // On Linux it loads the hook files that end in ".sh".
-func osRunHookIfExists(scriptFile string) error {
+func osRunHookIfExists(scriptFile string, installPath string) error {
 	if _, err := os.Stat(scriptFile + ".sh"); os.IsNotExist(err) {
 		return nil
 	}
-	out, err := exec.Command("/bin/sh", scriptFile+".sh").Output()
+	out, err := exec.Command("/bin/sh", scriptFile+".sh", installPath).Output()
 	log.Println("hook output:\n", string(out[:]))
 	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {

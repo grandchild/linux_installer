@@ -54,11 +54,11 @@ func osCreateUninstaller(uninstallerFileList []string, variables VariableMap) er
 	return nil
 }
 
-func osRunHookIfExists(scriptFile string) (err error) {
+func osRunHookIfExists(scriptFile string, installPath string) (err error) {
 	if _, err = os.Stat(scriptFile + ".bat"); os.IsNotExist(err) {
 		return
 	}
-	out, err := exec.Command(scriptFile + ".bat").Output()
+	out, err := exec.Command(scriptFile+".bat", installPath).Output()
 	log.Println("hook output:\n", string(out[:]))
 	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {
