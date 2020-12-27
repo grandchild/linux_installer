@@ -23,7 +23,7 @@ nonetheless. Imitates the look and feel of
 
 ## Contents
 
-* [Quickstart: Setup & Run the Linux-Builder](#quickstart-setup-run-the-linux-builder)
+* [Quickstart: Setup & Run the Linux-Builder](#quickstart-setup--run-the-linux-builder)
 * [Development Requirements](#development-requirements)
 * [Building the Project](#building-the-project)
   * [Example](#example)
@@ -43,7 +43,7 @@ nonetheless. Imitates the look and feel of
     * [Helper Go Files](#helper-go-files)
     * [Metadata](#metadata)
     * [Unused Go Files](#unused-go-files)
-
+* [License and Acknowledgments](#license-and-acknowledgments)
 
 ## Quickstart: Setup & Run the Linux-Builder
 
