@@ -14,8 +14,12 @@ nonetheless. Imitates the look and feel of
 [_Victoria_](https://unsplash.com/@pixeldebris) via [unsplash.com](unsplash.com))
 </sub></sub>
 
-A commandline or "*silent*" mode is available as well.
+## Features
 
+* Pre-/post-install script hooks
+* Automatic uninstaller creation
+* Commandline or *"silent"* mode
+* Cancel with full rollback during install process.
 
 ## Contents
 
