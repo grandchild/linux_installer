@@ -405,3 +405,16 @@ The reason for the existence of `main/main.go` is that a Go program's main funct
 to be placed inside a package called "main". But the installer package with most of the
 code should be called "installer", not "main" in order to behave more like an importable
 library. Thus the slightly awkward cage for main.
+
+
+## License and Acknowledgments
+
+This software has a [CC0](https://creativecommons.org/publicdomain/zero/1.0/) license.
+
+To the extent possible under law, all copyright and related or neighboring rights to
+this work are waived.
+
+
+This software was developed and tested for years at
+[Contecs engineering services GmbH](http://www.contecs-engineering.de/) who have
+graciously allowed publication as free and open source software. Thank you very much!
