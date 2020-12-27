@@ -16,6 +16,7 @@ nonetheless. Imitates the look and feel of
 
 ## Features
 
+* Application menu entry creation (_.desktop_-files)
 * Pre-/post-install script hooks
 * Automatic uninstaller creation
 * Commandline or *"silent"* mode
