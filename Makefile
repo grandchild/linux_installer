@@ -35,13 +35,13 @@ $(DATA_DIST_DIR)/data.zip: $(DATA_SRC_DIR)
 	rm -f "$(DATA_DIST_DIR)/data.zip"
 	cd "$(DATA_SRC_DIR)" ; $(ZIP_EXE) -r "../$(DATA_DIST_DIR)/data.zip" .
 
-dist: build $(DATA_DIST_DIR)/data.zip
+dist: build $(DATA_DIST_DIR)/data.zip rice_bin
 	rice_bin/rice append --exec "$(BIN)"
 
 run: dist
 	./"$(BIN)"
 
-$(BUILDER_DIR): build $(DATA_SRC_DIR)
+$(BUILDER_DIR): build $(DATA_SRC_DIR) rice_bin
 	cp -r "$(DATA_SRC_DIR)" "$(RES_DIR)" "$(BIN)" rice_bin/$(RICE_EXE)* "$(BUILDER_DIR)/"
 	chmod +x "$(BUILDER_DIR)/$(RICE_EXE)"
 
@@ -65,14 +65,11 @@ clean_builder:
 	rm -f "$(BUILDER_ARCHIVE)"
 
 
-# To update rice to the newest version run this target ("make rice_bin").
-#
-# The GOBIN-trick doesn't work for cross-compilation, so that one is created in
-# $GOPATH/bin as usual and then copied.
-rice_bin: .FORCE
+rice_bin:
+	mkdir -p rice_bin
 	go get github.com/GeertJohan/go.rice
 	GOBIN=`readlink -f rice_bin` go install github.com/GeertJohan/go.rice/rice
+	# The $GOBIN-trick doesn't work for cross-compilation, so that one is created
+	# in $GOPATH/bin as usual and then copied.
 	GOOS=windows go install github.com/GeertJohan/go.rice/rice
 	cp "$(GOPATH)/bin/windows_amd64/rice.exe" rice_bin/
-
-.FORCE: # targets with this requirement are always out of date
