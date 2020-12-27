@@ -48,6 +48,22 @@ nonetheless. Imitates the look and feel of
 
 ## Quickstart: Setup & Run the Linux-Builder
 
+### Overview
+
+This project creates an _installer builder_, which is used to create the actual
+installers. The installer builder comes in the shape of a zip archive
+containing:
+
+ - an empty `data/` source folder for your files
+ - the naked `linux_installer` binary
+ - all installer GUI files in `resources/` -- to customize and modify
+ - a `Makefile`/`make.bat` (for building on Linux/Windows respectively) to put
+   it all together
+
+The installer builder has no external dependencies (except for `make` on Linux,
+and `Powershell` on Windows), and can be run on a minimal dedicated build
+machine.
+
 ### Setup
 These steps need to be executed only initially and after updating the installer
 builder itself.
