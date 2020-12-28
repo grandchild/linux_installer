@@ -1,4 +1,5 @@
-// A simple installer builder for Linux systems.
+// Linux GUI installer for audiences that are used to Windows installers.
+// Imitates the look and feel of NSIS installers.
 //
 // This installer will bundle any files and folders inside the "data" directory, to be
 // installed via a GTK3-based GUI, or alternatively a commandline interface (referred to
