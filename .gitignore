@@ -11,6 +11,7 @@ linux-builder/rice
 linux-builder/rice.exe
 linux-builder/linux_installer
 resources/gui/gui.so
+rice_bin/
 
 # goland project files
 .idea/
