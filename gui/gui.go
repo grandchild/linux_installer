@@ -242,8 +242,8 @@ func NewGui(
 
 	css, err := gtk.CssProviderNew()
 	if err == nil {
-		gtkScreen, err := gui.win.GetScreen()
-		if err == nil {
+		gtkScreen := gui.win.GetScreen()
+		if gtkScreen != nil {
 			css.LoadFromData(config.GuiCss)
 			gtk.AddProviderForScreen(
 				gtkScreen, css, gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
