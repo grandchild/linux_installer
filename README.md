@@ -56,7 +56,7 @@ following to run the example installer:
 # Create source files folder
 mkdir data
 # Add a file of random 50MiB
-# (Use this or copy any other files you want to try out.Add a lot of files
+# (Use this or copy any other files you want to try out. Add a lot of files
 # if you want to look at the progress, the installer is quite fast!)
 dd if=/dev/urandom of=data/blob.data bs=1M count=50
 # Create and run the example installer
