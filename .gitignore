@@ -1,6 +1,7 @@
 
 # build output
 linux_installer
+linux_installer_dev
 installer
 linux-builder.zip
 linux-builder.tar.gz
