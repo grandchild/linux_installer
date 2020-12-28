@@ -44,6 +44,7 @@ the look and feel of [NSIS](https://nsis.sourceforge.io/Screenshots) installers.
     * [Layout](#layout)
     * [Behavior](#behavior)
 * [Hacking](#hacking)
+* [Troubleshooting](#troubleshooting)
 * [License and Acknowledgments](#license-and-acknowledgments)
 
 ## Quickstart: Run the Example-Installer
@@ -276,6 +277,27 @@ If a function for a key is empty, the key can be omitted completely.
 ## Hacking
 
 See [HACKING.md](HACKING.md).
+
+
+## Troubleshooting
+
+#### `libc.so.6: version GLIBC_... not found`
+
+The installer might fail to run on another machine with an error like this:
+
+```
+./linux_installer_dev: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.32' not found (required by ./linux_installer_dev)
+```
+
+The installer builder was linked on a machine with a newer libc than the one on the
+running system. The solution is to build on a system with the lowest libc version that
+you want to target. Generally this means to build the installer builder on the oldest
+Linux version that you are targeting.
+
+To check which version you are running, run `ldd --version`.
+
+(Note that this does not affect the machine on which you are packaging the actual
+installers. You can run the installer builder on any system.)
 
 
 ## License and Acknowledgments
