@@ -11,7 +11,7 @@ echo -n '{{.uninstall_question}} '
 read choice
 if [ "${choice:0:1}" != "n" ] ; then
     for f in ${uninstallFiles[@]}; do
-        if [ -f "$f" ]; then
+        if [ -f "$f" -o -L "$f" ]; then
             rm -f "$f"
         elif [ -d "$f" ]; then
             rmdir --ignore-fail-on-non-empty "$f"
