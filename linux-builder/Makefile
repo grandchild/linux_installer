@@ -26,7 +26,7 @@ RESOURCE_SRC_DIR = resources
 # The name of the folder containing the compressed data. Files from data will be
 # compressed into a data.zip file inside this folder, but you can add other pre-zipped
 # data files as well, so save on compression time for static files.
-# If you change this you have to  change it in rice.go as well.
+# If you change this you have to change it in rice.go as well.
 DATA_DIST_DIR = data_compressed
 
 # Name of the "zip" command (might be different on some systems)
