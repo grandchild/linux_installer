@@ -1,7 +1,5 @@
 
-SRC = *.go \
-	gui/*.go \
-	main/*.go
+SRC = $(wildcard *.go gui/*.go main/*.go)
 PKG = github.com/grandchild/linux_installer
 
 BIN = linux_installer
