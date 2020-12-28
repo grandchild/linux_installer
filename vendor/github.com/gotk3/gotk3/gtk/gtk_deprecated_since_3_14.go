@@ -1,4 +1,4 @@
-// +build gtk_3_6 gtk_3_8 gtk_3_10 gtk_3_12
+// +build gtk_3_6 gtk_3_8 gtk_3_10 gtk_3_12 gtk_deprecated
 
 package gtk
 
@@ -37,12 +37,17 @@ func init() {
  * deprecated since version 3.14 and should not be used in newly-written code
  */
 
-// ResizeGripIsVisible is a wrapper around
-// gtk_window_resize_grip_is_visible().
-func (v *Window) ResizeGripIsVisible() bool {
-	c := C.gtk_window_resize_grip_is_visible(v.native())
-	return gobool(c)
-}
+/*
+ * GtkTreeView
+ */
+
+// TODO:
+// gtk_tree_view_set_rules_hint().
+// gtk_tree_view_get_rules_hint().
+
+/*
+ * GtkWindow
+ */
 
 // SetHasResizeGrip is a wrapper around gtk_window_set_has_resize_grip().
 func (v *Window) SetHasResizeGrip(setting bool) {
@@ -55,10 +60,42 @@ func (v *Window) GetHasResizeGrip() bool {
 	return gobool(c)
 }
 
+// ResizeGripIsVisible is a wrapper around gtk_window_resize_grip_is_visible().
+func (v *Window) ResizeGripIsVisible() bool {
+	c := C.gtk_window_resize_grip_is_visible(v.native())
+	return gobool(c)
+}
+
+// GetResizeGripArea is a wrapper around gtk_window_get_resize_grip_area().
+func (v *Window) GetResizeGripArea() (*gdk.Rectangle, bool) {
+	var cRect *C.GdkRectangle
+	wasRetrieved := C.gtk_window_get_resize_grip_area(v.native(), cRect)
+	rect := gdk.WrapRectangle(uintptr(unsafe.Pointer(cRect)))
+	return rect, gobool(wasRetrieved)
+}
+
+/*
+ * GtkWidget
+ */
+
 // Reparent() is a wrapper around gtk_widget_reparent().
 func (v *Widget) Reparent(newParent IWidget) {
 	C.gtk_widget_reparent(v.native(), newParent.toWidget())
 }
+
+// SetDoubleBuffered is a wrapper around gtk_widget_set_double_buffered().
+func (v *Widget) SetDoubleBuffered(doubleBuffered bool) {
+	C.gtk_widget_set_double_buffered(v.native(), gbool(doubleBuffered))
+}
+
+// GetDoubleBuffered is a wrapper around gtk_widget_get_double_buffered().
+func (v *Widget) GetDoubleBuffered() bool {
+	c := C.gtk_widget_get_double_buffered(v.native())
+	return gobool(c)
+}
+
+// TODO:
+// gtk_widget_region_intersect().
 
 // GetPadding is a wrapper around gtk_alignment_get_padding().
 func (v *Alignment) GetPadding() (top, bottom, left, right uint) {
@@ -129,8 +166,7 @@ func (v *Button) GetAlignment() (xalign, yalign float32) {
 	return float32(x), float32(y)
 }
 
-// SetReallocateRedraws is a wrapper around
-// gtk_container_set_reallocate_redraws().
+// SetReallocateRedraws is a wrapper around gtk_container_set_reallocate_redraws().
 func (v *Container) SetReallocateRedraws(needsRedraws bool) {
 	C.gtk_container_set_reallocate_redraws(v.native(), gbool(needsRedraws))
 }
@@ -157,17 +193,6 @@ func (v *Misc) GetPadding() (xpad, ypad int) {
 // SetPadding is a wrapper around gtk_misc_set_padding().
 func (v *Misc) SetPadding(xPad, yPad int) {
 	C.gtk_misc_set_padding(v.native(), C.gint(xPad), C.gint(yPad))
-}
-
-// SetDoubleBuffered is a wrapper around gtk_widget_set_double_buffered().
-func (v *Widget) SetDoubleBuffered(doubleBuffered bool) {
-	C.gtk_widget_set_double_buffered(v.native(), gbool(doubleBuffered))
-}
-
-// GetDoubleBuffered is a wrapper around gtk_widget_get_double_buffered().
-func (v *Widget) GetDoubleBuffered() bool {
-	c := C.gtk_widget_get_double_buffered(v.native())
-	return gobool(c)
 }
 
 /*
@@ -430,7 +455,7 @@ func (v *StatusIcon) GetSize() int {
 
 // PopupAtStatusIcon() is a wrapper around gtk_menu_popup() specific to usage with GtkStatusIcon.
 // gomenu_popup() is defined in menu.go.h, this is a workaround to pass gtk_status_icon_position_menu as the GtkMenuPositionFunc.
-func (v *Menu) PopupAtStatusIcon(statusIcon *StatusIcon, button uint, activateTime uint32) {
+func (v *Menu) PopupAtStatusIcon(statusIcon *StatusIcon, button gdk.Button, activateTime uint32) {
 	C.gotk_menu_popup_at_status_icon(v.native(), statusIcon.native(), C.guint(button), C.guint32(activateTime))
 }
 

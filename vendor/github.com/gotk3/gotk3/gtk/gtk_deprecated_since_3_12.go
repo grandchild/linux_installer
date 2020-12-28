@@ -19,29 +19,24 @@
 // 3.10 or earlier.  To target an earlier build build, use the build tag
 // gtk_MAJOR_MINOR.  For example, to target GTK 3.8, run
 // 'go build -tags gtk_3_8'.
-// +build gtk_3_6 gtk_3_8 gtk_3_10
+// +build gtk_3_6 gtk_3_8 gtk_3_10 gtk_deprecated
 
 package gtk
 
 // #include <gtk/gtk.h>
 import "C"
-import (
-	"unsafe"
-
-	"github.com/gotk3/gotk3/glib"
-)
 
 /*
  * GtkDialog
  */
 
 // GetActionArea() is a wrapper around gtk_dialog_get_action_area().
-func (v *Dialog) GetActionArea() (*Widget, error) {
+func (v *Dialog) GetActionArea() (IWidget, error) {
 	c := C.gtk_dialog_get_action_area(v.native())
 	if c == nil {
 		return nil, nilPtrErr
 	}
-	return wrapWidget(glib.Take(unsafe.Pointer(c))), nil
+	return castWidget(c)
 }
 
 /*
@@ -49,12 +44,12 @@ func (v *Dialog) GetActionArea() (*Widget, error) {
  */
 
 // GetImage is a wrapper around gtk_message_dialog_get_image().
-func (v *MessageDialog) GetImage() (*Widget, error) {
+func (v *MessageDialog) GetImage() (IWidget, error) {
 	c := C.gtk_message_dialog_get_image(v.native())
 	if c == nil {
 		return nil, nilPtrErr
 	}
-	return wrapWidget(glib.Take(unsafe.Pointer(c))), nil
+	return castWidget(c)
 }
 
 // SetImage is a wrapper around gtk_message_dialog_set_image().
@@ -87,3 +82,14 @@ func (v *Widget) GetMarginRight() int {
 func (v *Widget) SetMarginRight(margin int) {
 	C.gtk_widget_set_margin_right(v.native(), C.gint(margin))
 }
+
+// TODO:
+// gtk_widget_get_root_window().
+
+/*
+ * GtkContainer
+ */
+
+// TODO:
+// gtk_container_get_resize_mode().
+// gtk_container_set_resize_mode().

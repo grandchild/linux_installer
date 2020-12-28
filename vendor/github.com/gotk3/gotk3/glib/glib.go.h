@@ -56,6 +56,12 @@ toGActionMap(void *p)
 	return (G_ACTION_MAP(p));
 }
 
+static GAsyncResult *
+toGAsyncResult(void *p)
+{
+	return (G_ASYNC_RESULT(p));
+}
+
 static GSimpleAction *
 toGSimpleAction(void *p)
 {
@@ -96,6 +102,35 @@ static GNotification *
 toGNotification(void *p)
 {
 	return (G_NOTIFICATION(p));
+}
+
+static GPermission *
+toGPermission(void *p)
+{
+	return (G_PERMISSION(p));
+}
+
+static GCancellable *
+toCancellable(void *p)
+{
+	return (G_CANCELLABLE(p));
+}
+
+static GIcon *
+toGIcon(void *p)
+{
+	return (G_ICON(p));
+}
+static GFileIcon *
+toGFileIcon(void *p)
+{
+	return (G_FILE_ICON(p));
+}
+
+static GFile *
+toGFile(void *p)
+{
+	return (G_FILE(p));
 }
 
 static GApplication *
@@ -170,6 +205,12 @@ _g_value_init(GType g_type)
 }
 
 static gboolean
+_g_type_is_value(GType g_type)
+{
+	return (G_TYPE_IS_VALUE(g_type));
+}
+
+static gboolean
 _g_is_value(GValue *val)
 {
 	return (G_IS_VALUE(val));
@@ -179,6 +220,12 @@ static GType
 _g_value_type(GValue *val)
 {
 	return (G_VALUE_TYPE(val));
+}
+
+static const gchar *
+_g_value_type_name(GValue *val)
+{
+	return (G_VALUE_TYPE_NAME(val));
 }
 
 static GType
@@ -255,5 +302,9 @@ static inline void set_string(char** strings, int n, char* str) {
 }
 
 static inline gchar** next_gcharptr(gchar** s) { return (s+1); }
+
+extern void goCompareDataFuncs (gconstpointer a,
+								gconstpointer b,
+								gpointer user_data);
 
 #endif

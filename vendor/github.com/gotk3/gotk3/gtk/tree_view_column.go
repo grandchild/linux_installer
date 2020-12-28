@@ -49,6 +49,15 @@ func TreeViewColumnNew() (*TreeViewColumn, error) {
 	return wrapTreeViewColumn(glib.Take(unsafe.Pointer(c))), nil
 }
 
+// TreeViewColumnNewWithArea is a wrapper around gtk_tree_view_column_new_with_area().
+func TreeViewColumnNewWithArea(area ICellArea) (*TreeViewColumn, error) {
+	c := C.gtk_tree_view_column_new_with_area(area.toCellArea())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	return wrapTreeViewColumn(glib.Take(unsafe.Pointer(c))), nil
+}
+
 // TreeViewColumnNewWithAttribute() is a wrapper around
 // gtk_tree_view_column_new_with_attributes() that only sets one
 // attribute for one column.
@@ -247,7 +256,6 @@ func (v *TreeViewColumn) GetXOffset() int {
 	return int(C.gtk_tree_view_column_get_x_offset(v.native()))
 }
 
-// GtkTreeViewColumn * 	gtk_tree_view_column_new_with_area ()
 // void 	gtk_tree_view_column_set_attributes ()
 // void 	gtk_tree_view_column_set_cell_data_func ()
 
@@ -274,17 +282,24 @@ func (v *TreeViewColumn) SetWidget(widget IWidget) {
 	C.gtk_tree_view_column_set_widget(v.native(), widget.toWidget())
 }
 
-// GetWidget() is a wrapper around gtk_tree_view_column_get_widget().
-func (v *TreeViewColumn) GetWidget() (*Widget, error) {
-	widget := C.gtk_tree_view_column_get_widget(v.native())
+// GetButton() is a wrapper around gtk_tree_view_column_get_button().
+func (v *TreeViewColumn) GetButton() (IWidget, error) {
+	widget := C.gtk_tree_view_column_get_button(v.native())
 	if widget == nil {
 		return nil, nilPtrErr
 	}
-	obj := glib.Take(unsafe.Pointer(widget))
-	return wrapWidget(obj), nil
+	return castWidget(widget)
 }
 
-// GtkWidget * 	gtk_tree_view_column_get_button ()
+// GetWidget() is a wrapper around gtk_tree_view_column_get_widget().
+func (v *TreeViewColumn) GetWidget() (IWidget, error) {
+	widget := C.gtk_tree_view_column_get_widget(v.native())
+	if widget == nil {
+		return nil, nil
+	}
+	return castWidget(widget)
+}
+
 // void 	gtk_tree_view_column_set_alignment ()
 // gfloat 	gtk_tree_view_column_get_alignment ()
 

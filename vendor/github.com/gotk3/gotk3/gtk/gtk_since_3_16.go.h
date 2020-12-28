@@ -16,6 +16,28 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#pragma once
+
+#include <stdlib.h>
+
+static GListModel *
+toGListModel(void *p)
+{
+	return (G_LIST_MODEL(p));
+}
+
+static GtkModelButton *
+toGtkModelButton(void *mb)
+{
+	return (GTK_MODEL_BUTTON(mb));
+}
+
+static GtkPopoverMenu *
+toGtkPopoverMenu(void *p)
+{
+	return (GTK_POPOVER_MENU(p));
+}
+
 static GtkStackSidebar *
 toGtkStackSidebar(void *p)
 {
@@ -26,4 +48,11 @@ static GtkGLArea *
 toGtkGLArea(void *p)
 {
   return (GTK_GL_AREA(p));
+}
+
+extern void goListBoxCreateWidgetFuncs (gpointer item,
+                                		gpointer user_data);
+
+static inline void _gtk_list_box_bind_model(GtkListBox *box, GListModel *model, gpointer user_data) {
+	gtk_list_box_bind_model(box, model, (GtkListBoxCreateWidgetFunc)(goListBoxCreateWidgetFuncs), user_data, NULL);
 }

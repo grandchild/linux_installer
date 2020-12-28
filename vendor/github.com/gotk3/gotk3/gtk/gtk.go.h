@@ -184,6 +184,12 @@ toGtkWindow(void *p)
 	return (GTK_WINDOW(p));
 }
 
+static GtkWindowGroup *
+toGtkWindowGroup(void *p)
+{
+	return (GTK_WINDOW_GROUP(p));
+}
+
 static GtkBox *
 toGtkBox(void *p)
 {
@@ -370,10 +376,22 @@ toGtkLinkButton(void *p)
 	return (GTK_LINK_BUTTON(p));
 }
 
+static GtkLockButton *
+toGtkLockButton(void *p)
+{
+	return (GTK_LOCK_BUTTON(p));
+}
+
 static GtkLayout *
 toGtkLayout(void *p)
 {
 	return (GTK_LAYOUT(p));
+}
+
+static GtkTreeModelSort *
+toGtkTreeModelSortable(void *p)
+{
+    return (GTK_TREE_MODEL_SORT(p));
 }
 
 static GtkListStore *
@@ -392,6 +410,12 @@ static GtkTextView *
 toGtkTextView(void *p)
 {
 	return (GTK_TEXT_VIEW(p));
+}
+
+static GtkTextMark *
+toGtkTextMark(void *p)
+{
+	return (GTK_TEXT_MARK(p));
 }
 
 static GtkTextTagTable *
@@ -424,10 +448,22 @@ toGtkCellRenderer(void *p)
 	return (GTK_CELL_RENDERER(p));
 }
 
+static GtkCellEditable *
+toGtkCellEditable(void *p)
+{
+	return (GTK_CELL_EDITABLE(p));
+}
+
 static GtkCellRendererPixbuf *
 toGtkCellRendererPixbuf(void *p)
 {
 	return (GTK_CELL_RENDERER_PIXBUF(p));
+}
+
+static GtkCellRendererProgress *
+toGtkCellRendererProgress(void *p)
+{
+    return (GTK_CELL_RENDERER_PROGRESS(p));
 }
 
 static GtkCellRendererText *
@@ -442,10 +478,46 @@ toGtkCellRendererToggle(void *p)
 	return (GTK_CELL_RENDERER_TOGGLE(p));
 }
 
+static GtkCellRendererCombo *
+toGtkCellRendererCombo(void *p)
+{
+	return (GTK_CELL_RENDERER_COMBO(p));
+}
+
+static GtkCellRendererAccel *
+toGtkCellRendererAccel(void *p)
+{
+	return (GTK_CELL_RENDERER_ACCEL(p));
+}
+
+static GtkCellRendererSpin *
+toGtkCellRendererSpin(void *p)
+{
+	return (GTK_CELL_RENDERER_SPIN(p));
+}
+
 static GtkCellLayout *
 toGtkCellLayout(void *p)
 {
 	return (GTK_CELL_LAYOUT(p));
+}
+
+static GtkCellArea *
+toGtkCellArea(void *p)
+{
+	return (GTK_CELL_AREA(p));
+}
+
+static GtkCellAreaContext *
+toGtkCellAreaContext(void *p)
+{
+	return (GTK_CELL_AREA_CONTEXT(p));
+}
+
+static GtkCellAreaBox *
+toGtkCellAreaBox(void *p)
+{
+	return (GTK_CELL_AREA_BOX(p));
 }
 
 static GtkOrientable *
@@ -476,6 +548,12 @@ static GtkTreeSelection *
 toGtkTreeSelection(void *p)
 {
 	return (GTK_TREE_SELECTION(p));
+}
+
+static GtkTreeModelSort *
+toGtkTreeModelSort(void *p)
+{
+	return (GTK_TREE_MODEL_SORT(p));
 }
 
 static GtkTreeSortable *
@@ -706,6 +784,12 @@ toGtkToolButton(void *p)
 	return (GTK_TOOL_BUTTON(p));
 }
 
+static GtkToggleToolButton *
+toGtkToggleToolButton(void *p)
+{
+	return (GTK_TOGGLE_TOOL_BUTTON(p));
+}
+
 static GtkSeparatorToolItem *
 toGtkSeparatorToolItem(void *p)
 {
@@ -754,6 +838,24 @@ toGdkPixbuf(void *p)
 	return (GDK_PIXBUF(p));
 }
 
+static GdkScreen *
+toGdkScreen(void *p)
+{
+	return (GDK_SCREEN(p));
+}
+
+static GdkDevice *
+toGdkDevice(void *p)
+{
+	return (GDK_DEVICE(p));
+}
+
+static GObject *
+toGObject(void *p)
+{
+	return (G_OBJECT(p));
+}
+
 static GType *
 alloc_types(int n) {
 	return ((GType *)g_new0(GType, n));
@@ -763,6 +865,13 @@ static void
 set_type(GType *types, int n, GType t)
 {
 	types[n] = t;
+}
+
+// _gtk_test_init is a wrapper to use gtk_test_init directly from go.
+// The variadic part on gtk_test_init is not used at the moment, according to the documentation.
+static void _gtk_test_init(int *argcp, char ***argvp)
+{
+	gtk_test_init(argcp, argvp);
 }
 
 static GtkTreeViewColumn *
@@ -914,4 +1023,58 @@ static inline void _gtk_print_run_page_setup_dialog_async(GtkWindow *parent, Gtk
 	GtkPrintSettings *settings, gpointer data) {
 	gtk_print_run_page_setup_dialog_async(parent, setup, settings,
 		(GtkPageSetupDoneFunc)(goPageSetupDone), data);
+}
+
+extern gboolean goTreeModelFilterFuncs (GtkTreeModel *model, GtkTreeIter *iter, gpointer data);
+
+static inline void _gtk_tree_model_filter_set_visible_func(GtkTreeModelFilter *filter, gpointer user_data) {
+    gtk_tree_model_filter_set_visible_func(filter, (GtkTreeModelFilterVisibleFunc)(goTreeModelFilterFuncs), user_data, NULL);
+}
+
+static inline void _gtk_text_buffer_insert_with_tag_by_name(GtkTextBuffer* buffer, GtkTextIter* iter, const gchar* text, gint len, const gchar* first_tag_name) {
+	gtk_text_buffer_insert_with_tags_by_name(buffer, iter, text, len, first_tag_name, NULL);
+}
+
+static inline void _gtk_text_buffer_insert_with_tag(GtkTextBuffer* buffer, GtkTextIter* iter, const gchar* text, gint len, GtkTextTag* tag) {
+	gtk_text_buffer_insert_with_tags(buffer, iter, text, len, tag, NULL);
+}
+
+extern gint goTreeSortableSortFuncs(GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer data);
+
+static inline void _gtk_tree_sortable_set_sort_func(GtkTreeSortable *sortable, gint sort_column_id, gpointer user_data) {
+    gtk_tree_sortable_set_sort_func(sortable, sort_column_id, (GtkTreeIterCompareFunc)(goTreeSortableSortFuncs), user_data, NULL);
+}
+
+static inline void _gtk_tree_sortable_set_default_sort_func(GtkTreeSortable *sortable, gpointer user_data) {
+    gtk_tree_sortable_set_default_sort_func(sortable, (GtkTreeIterCompareFunc)(goTreeSortableSortFuncs), user_data, NULL);
+}
+
+static GtkWidget *
+_gtk_dialog_new_with_buttons(const gchar    *title,
+                             GtkWindow      *parent,
+                             GtkDialogFlags  flags,
+                             const gchar    *first_button_text) {
+	GtkWidget		*w;
+
+	w = gtk_dialog_new_with_buttons(title, parent, flags, first_button_text, NULL);
+	return (w);
+}
+
+extern gint goTreeModelForeachFunc(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data);
+
+static inline void _gtk_tree_model_foreach(GtkTreeModel *model, gpointer user_data) {
+    gtk_tree_model_foreach(model, (GtkTreeModelForeachFunc)(goTreeModelForeachFunc), user_data);
+
+}
+
+extern void goTreeSelectionForeachFunc(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data);
+
+static inline void _gtk_tree_selection_selected_foreach(GtkTreeSelection *selection, gpointer user_data) {
+    gtk_tree_selection_selected_foreach(selection, (GtkTreeSelectionForeachFunc)(goTreeSelectionForeachFunc), user_data);
+}
+
+extern gboolean goTreeSelectionFunc(GtkTreeSelection *selection, GtkTreeModel *model, GtkTreePath *path, gboolean selected, gpointer data);
+
+static inline void _gtk_tree_selection_set_select_function(GtkTreeSelection *selection, gpointer user_data) {
+    gtk_tree_selection_set_select_function(selection, (GtkTreeSelectionFunc)(goTreeSelectionFunc), user_data, NULL);
 }

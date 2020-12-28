@@ -870,9 +870,15 @@ func (po *PrintOperation) SetCustomTabLabel(label string) {
 }
 
 // Run() is a wrapper around gtk_print_operation_run().
-func (po *PrintOperation) Run(action PrintOperationAction, parent *Window) (PrintOperationResult, error) {
+func (po *PrintOperation) Run(action PrintOperationAction, parent IWindow) (PrintOperationResult, error) {
 	var err *C.GError = nil
-	c := C.gtk_print_operation_run(po.native(), C.GtkPrintOperationAction(action), parent.native(), &err)
+
+	var w *C.GtkWindow = nil
+	if parent != nil {
+		w = parent.toWindow()
+	}
+
+	c := C.gtk_print_operation_run(po.native(), C.GtkPrintOperationAction(action), w, &err)
 	res := PrintOperationResult(c)
 	if res == PRINT_OPERATION_RESULT_ERROR {
 		defer C.g_error_free(err)
@@ -948,17 +954,23 @@ func (po *PrintOperation) GetEmbedPageSetup() bool {
 }
 
 // PrintRunPageSetupDialog() is a wrapper around gtk_print_run_page_setup_dialog().
-func PrintRunPageSetupDialog(parent *Window, pageSetup *PageSetup, settings *PrintSettings) *PageSetup {
-	c := C.gtk_print_run_page_setup_dialog(parent.native(), pageSetup.native(), settings.native())
+func PrintRunPageSetupDialog(parent IWindow, pageSetup *PageSetup, settings *PrintSettings) *PageSetup {
+
+	var w *C.GtkWindow = nil
+	if parent != nil {
+		w = parent.toWindow()
+	}
+
+	c := C.gtk_print_run_page_setup_dialog(w, pageSetup.native(), settings.native())
 	obj := glib.Take(unsafe.Pointer(c))
 	return wrapPageSetup(obj)
 }
 
-type PageSetupDoneCallback func(setup *PageSetup, userData uintptr)
+type PageSetupDoneCallback func(setup *PageSetup, userData ...interface{})
 
 type pageSetupDoneCallbackData struct {
 	fn   PageSetupDoneCallback
-	data uintptr
+	data []interface{}
 }
 
 var (
@@ -973,8 +985,8 @@ var (
 )
 
 // PrintRunPageSetupDialogAsync() is a wrapper around gtk_print_run_page_setup_dialog_async().
-func PrintRunPageSetupDialogAsync(parent *Window, setup *PageSetup,
-	settings *PrintSettings, cb PageSetupDoneCallback, data uintptr) {
+func PrintRunPageSetupDialogAsync(parent IWindow, setup *PageSetup,
+	settings *PrintSettings, cb PageSetupDoneCallback, data ...interface{}) {
 
 	pageSetupDoneCallbackRegistry.Lock()
 	id := pageSetupDoneCallbackRegistry.next
@@ -983,8 +995,15 @@ func PrintRunPageSetupDialogAsync(parent *Window, setup *PageSetup,
 		pageSetupDoneCallbackData{fn: cb, data: data}
 	pageSetupDoneCallbackRegistry.Unlock()
 
-	C._gtk_print_run_page_setup_dialog_async(parent.native(), setup.native(),
+	var w *C.GtkWindow = nil
+	if parent != nil {
+		w = parent.toWindow()
+	}
+
+	C._gtk_print_run_page_setup_dialog_async(w, setup.native(),
 		settings.native(), C.gpointer(uintptr(id)))
+
+	// This callback is cleaned up as soon as it has been called by GTK.
 }
 
 /*
@@ -1160,11 +1179,11 @@ func (ps *PrintSettings) Unset(key string) {
 	C.gtk_print_settings_unset(ps.native(), (*C.gchar)(cstr))
 }
 
-type PrintSettingsCallback func(key, value string, userData uintptr)
+type PrintSettingsCallback func(key, value string, userData ...interface{})
 
 type printSettingsCallbackData struct {
 	fn       PrintSettingsCallback
-	userData uintptr
+	userData []interface{}
 }
 
 var (
@@ -1179,7 +1198,7 @@ var (
 )
 
 // Foreach() is a wrapper around gtk_print_settings_foreach().
-func (ps *PrintSettings) ForEach(cb PrintSettingsCallback, userData uintptr) {
+func (ps *PrintSettings) ForEach(cb PrintSettingsCallback, userData ...interface{}) {
 	printSettingsCallbackRegistry.Lock()
 	id := printSettingsCallbackRegistry.next
 	printSettingsCallbackRegistry.next++
@@ -1188,6 +1207,11 @@ func (ps *PrintSettings) ForEach(cb PrintSettingsCallback, userData uintptr) {
 	printSettingsCallbackRegistry.Unlock()
 
 	C._gtk_print_settings_foreach(ps.native(), C.gpointer(uintptr(id)))
+
+	// Clean up callback immediately as we only need it for the duration of this Foreach call
+	printSettingsCallbackRegistry.Lock()
+	delete(printSettingsCallbackRegistry.m, id)
+	printSettingsCallbackRegistry.Unlock()
 }
 
 // GetBool() is a wrapper around gtk_print_settings_get_bool().

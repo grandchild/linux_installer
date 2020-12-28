@@ -14,6 +14,35 @@ import (
 	"github.com/gotk3/gotk3/glib"
 )
 
+func init() {
+	tm := []glib.TypeMarshaler{
+		// Enums
+		{glib.Type(C.gtk_popover_constraint_get_type()), marshalPopoverConstraint},
+	}
+	glib.RegisterGValueMarshalers(tm)
+}
+
+/*
+ * Constants
+ */
+
+// PopoverConstraint is a representation of GTK's GtkPopoverConstraint.
+type PopoverConstraint int
+
+const (
+	POPOVER_CONSTRAINT_NONE   PopoverConstraint = C.GTK_POPOVER_CONSTRAINT_NONE
+	POPOVER_CONSTRAINT_WINDOW PopoverConstraint = C.GTK_POPOVER_CONSTRAINT_WINDOW
+)
+
+func marshalPopoverConstraint(p uintptr) (interface{}, error) {
+	c := C.g_value_get_enum((*C.GValue)(unsafe.Pointer(p)))
+	return PopoverConstraint(c), nil
+}
+
+const (
+	STATE_FLAG_DROP_ACTIVE StateFlags = C.GTK_STATE_FLAG_DROP_ACTIVE
+)
+
 /*
  * GtkNativeDialog
  */
@@ -52,7 +81,7 @@ func (v *NativeDialog) SetModal(modal bool) {
 	C.gtk_native_dialog_set_modal(v.native(), gbool(modal))
 }
 
-// GetModal() is a wrapper around gtk_native_dialog_get_modal().
+// GetModal is a wrapper around gtk_native_dialog_get_modal().
 func (v *NativeDialog) GetModal() bool {
 	c := C.gtk_native_dialog_get_modal(v.native())
 	return gobool(c)
@@ -65,12 +94,12 @@ func (v *NativeDialog) SetTitle(title string) {
 	C.gtk_native_dialog_set_title(v.native(), (*C.char)(cstr))
 }
 
-// GetTitle() is a wrapper around gtk_native_dialog_get_title().
+// GetTitle is a wrapper around gtk_native_dialog_get_title().
 func (v *NativeDialog) GetTitle() (string, error) {
 	return stringReturn((*C.gchar)(C.gtk_native_dialog_get_title(v.native())))
 }
 
-// SetTransientFor() is a wrapper around gtk_native_dialog_set_transient_for().
+// SetTransientFor is a wrapper around gtk_native_dialog_set_transient_for().
 func (v *NativeDialog) SetTransientFor(parent IWindow) {
 	var pw *C.GtkWindow = nil
 	if parent != nil {
@@ -79,7 +108,7 @@ func (v *NativeDialog) SetTransientFor(parent IWindow) {
 	C.gtk_native_dialog_set_transient_for(v.native(), pw)
 }
 
-// GetTransientFor() is a wrapper around gtk_native_dialog_get_transient_for().
+// GetTransientFor is a wrapper around gtk_native_dialog_get_transient_for().
 func (v *NativeDialog) GetTransientFor() (*Window, error) {
 	c := C.gtk_native_dialog_get_transient_for(v.native())
 	if c == nil {
@@ -131,20 +160,25 @@ func wrapFileChooserNativeDialog(obj *glib.Object) *FileChooserNativeDialog {
 }
 
 // FileChooserNativeDialogNew is a wrapper around gtk_file_chooser_native_new().
-func FileChooserNativeDialogNew(
-	title string,
-	parent *Window,
-	action FileChooserAction,
-	accept_label string,
-	cancel_label string) (*FileChooserNativeDialog, error) {
+func FileChooserNativeDialogNew(title string, parent IWindow, action FileChooserAction,
+	accept_label string, cancel_label string) (*FileChooserNativeDialog, error) {
+
 	c_title := C.CString(title)
 	defer C.free(unsafe.Pointer(c_title))
+
 	c_accept_label := C.CString(accept_label)
 	defer C.free(unsafe.Pointer(c_accept_label))
+
 	c_cancel_label := C.CString(cancel_label)
 	defer C.free(unsafe.Pointer(c_cancel_label))
+
+	var w *C.GtkWindow = nil
+	if parent != nil {
+		w = parent.toWindow()
+	}
+
 	c := C.gtk_file_chooser_native_new(
-		(*C.gchar)(c_title), parent.native(), C.GtkFileChooserAction(action),
+		(*C.gchar)(c_title), w, C.GtkFileChooserAction(action),
 		(*C.gchar)(c_accept_label), (*C.gchar)(c_cancel_label))
 	if c == nil {
 		return nil, nilPtrErr
@@ -156,13 +190,18 @@ func FileChooserNativeDialogNew(
 /*
  * FileChooserNative
  */
-func OpenFileChooserNative(title string, parent_window *Window) *string {
+func OpenFileChooserNative(title string, parent IWindow) *string {
 	c_title := C.CString(title)
 
 	var native *C.GtkFileChooserNative
 
+	var w *C.GtkWindow = nil
+	if parent != nil {
+		w = parent.toWindow()
+	}
+
 	native = C.gtk_file_chooser_native_new((*C.gchar)(c_title),
-		parent_window.native(),
+		w,
 		C.GtkFileChooserAction(FILE_CHOOSER_ACTION_OPEN),
 		(*C.gchar)(C.CString("_Open")),
 		(*C.gchar)(C.CString("_Cancel")))
@@ -189,7 +228,7 @@ func (v *FileChooserNativeDialog) SetAcceptLabel(accept_label string) {
 	C.gtk_file_chooser_native_set_accept_label(v.native(), (*C.char)(cstr))
 }
 
-// GetAcceptLabel() is a wrapper around gtk_file_chooser_native_get_accept_label().
+// GetAcceptLabel is a wrapper around gtk_file_chooser_native_get_accept_label().
 func (v *FileChooserNativeDialog) GetAcceptLabel() (string, error) {
 	return stringReturn((*C.gchar)(C.gtk_file_chooser_native_get_accept_label(v.native())))
 }
@@ -201,7 +240,36 @@ func (v *FileChooserNativeDialog) SetCancelLabel(cancel_label string) {
 	C.gtk_file_chooser_native_set_cancel_label(v.native(), (*C.char)(cstr))
 }
 
-// GetCancelLabel() is a wrapper around gtk_file_chooser_native_get_cancel_label().
+// GetCancelLabel is a wrapper around gtk_file_chooser_native_get_cancel_label().
 func (v *FileChooserNativeDialog) GetCancelLabel() (string, error) {
 	return stringReturn((*C.gchar)(C.gtk_file_chooser_native_get_cancel_label(v.native())))
+}
+
+/*
+ * GtkTextView
+ */
+
+// TODO:
+// gtk_text_view_reset_cursor_blink().
+
+/*
+ * GtkExpander
+ */
+
+// TODO:
+// gtk_expander_set_spacing().
+// gtk_expander_get_spacing().
+
+/*
+ * GtkPopover
+ */
+
+// SetConstrainTo is a wrapper gtk_popover_set_constrain_to().
+func (v *Popover) SetConstrainTo(constrain PopoverConstraint) {
+	C.gtk_popover_set_constrain_to(v.native(), C.GtkPopoverConstraint(constrain))
+}
+
+// GetConstrainTo is a wrapper gtk_popover_get_constrain_to().
+func (v *Popover) GetConstrainTo() PopoverConstraint {
+	return PopoverConstraint(C.gtk_popover_get_constrain_to(v.native()))
 }

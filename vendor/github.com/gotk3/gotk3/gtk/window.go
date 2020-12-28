@@ -1,5 +1,4 @@
 // Same copyright and license as the rest of the files in this project
-// This file contains accelerator related functions and structures
 
 package gtk
 
@@ -8,6 +7,7 @@ package gtk
 import "C"
 import (
 	"errors"
+	"runtime"
 	"unsafe"
 
 	"github.com/gotk3/gotk3/gdk"
@@ -17,6 +17,8 @@ import (
 /*
  * GtkWindow
  */
+
+// gtk_window_set_has_user_ref_count is NOT included, see GTK documentation for why that is.
 
 // Window is a representation of GTK's GtkWindow.
 type Window struct {
@@ -28,6 +30,7 @@ type Window struct {
 // functions that wrap around a C GTK function taking a GtkWindow.
 type IWindow interface {
 	toWindow() *C.GtkWindow
+	ToWindow() *Window
 }
 
 // native returns a pointer to the underlying GtkWindow.
@@ -44,6 +47,12 @@ func (v *Window) toWindow() *C.GtkWindow {
 		return nil
 	}
 	return v.native()
+}
+
+// ToWindow is a helper getter, e.g.: it returns *gtk.ApplicationWindow as a *gtk.Window.
+// In other cases, where you have a gtk.IWindow, use the type assertion.
+func (v *Window) ToWindow() *Window {
+	return v
 }
 
 func marshalWindow(p uintptr) (interface{}, error) {
@@ -117,22 +126,25 @@ func WindowSetDefaultIcon(icon *gdk.Pixbuf) {
 	C.gtk_window_set_default_icon(iconPtr)
 }
 
-// TODO(jrick) GdkGeometry GdkWindowHints.
-/*
-func (v *Window) SetGeometryHints() {
+// SetGeometryHints is a wrapper around gtk_window_set_geometry_hints().
+func (v *Window) SetGeometryHints(geometryWidget IWidget, geometry gdk.Geometry, geometryMask gdk.WindowHints) {
+	var gW *C.GtkWidget = nil
+	if geometryWidget != nil {
+		gW = geometryWidget.toWidget()
+	}
+	C.gtk_window_set_geometry_hints(v.native(), gW, nativeGdkGeometry(geometry), C.GdkWindowHints(geometryMask))
 }
-*/
 
 // SetGravity is a wrapper around gtk_window_set_gravity().
-func (v *Window) SetGravity(gravity gdk.GdkGravity) {
+func (v *Window) SetGravity(gravity gdk.Gravity) {
 	C.gtk_window_set_gravity(v.native(), C.GdkGravity(gravity))
 }
 
-// TODO(jrick) GdkGravity.
-/*
-func (v *Window) GetGravity() {
+// GetGravity is a wrapper around gtk_window_get_gravity().
+func (v *Window) GetGravity() gdk.Gravity {
+	c := C.gtk_window_get_gravity(v.native())
+	return gdk.Gravity(c)
 }
-*/
 
 // SetPosition is a wrapper around gtk_window_set_position().
 func (v *Window) SetPosition(position WindowPosition) {
@@ -146,6 +158,15 @@ func (v *Window) SetTransientFor(parent IWindow) {
 		pw = parent.toWindow()
 	}
 	C.gtk_window_set_transient_for(v.native(), pw)
+}
+
+// SetAttachedTo is a wrapper around gtk_window_set_attached_to().
+func (v *Window) SetAttachedTo(attachWidget IWidget) {
+	var aW *C.GtkWidget = nil
+	if attachWidget != nil {
+		aW = attachWidget.toWidget()
+	}
+	C.gtk_window_set_attached_to(v.native(), aW)
 }
 
 // SetDestroyWithParent is a wrapper around
@@ -174,12 +195,12 @@ func (v *Window) HasToplevelFocus() bool {
 }
 
 // GetFocus is a wrapper around gtk_window_get_focus().
-func (v *Window) GetFocus() (*Widget, error) {
+func (v *Window) GetFocus() (IWidget, error) {
 	c := C.gtk_window_get_focus(v.native())
 	if c == nil {
-		return nil, nilPtrErr
+		return nil, nil
 	}
-	return wrapWidget(glib.Take(unsafe.Pointer(c))), nil
+	return castWidget(c)
 }
 
 // SetFocus is a wrapper around gtk_window_set_focus().
@@ -188,16 +209,17 @@ func (v *Window) SetFocus(w *Widget) {
 }
 
 // GetDefaultWidget is a wrapper around gtk_window_get_default_widget().
-func (v *Window) GetDefaultWidget() *Widget {
+// See SetDefault() for the setter.
+func (v *Window) GetDefaultWidget() (IWidget, error) {
 	c := C.gtk_window_get_default_widget(v.native())
 	if c == nil {
-		return nil
+		return nil, nil
 	}
-	obj := glib.Take(unsafe.Pointer(c))
-	return wrapWidget(obj)
+	return castWidget(c)
 }
 
 // SetDefault is a wrapper around gtk_window_set_default().
+// See GetDefaultWidget() for the getter.
 func (v *Window) SetDefault(widget IWidget) {
 	C.gtk_window_set_default(v.native(), widget.toWidget())
 }
@@ -358,11 +380,9 @@ func (v *Window) GetHideTitlebarWhenMaximized() bool {
 func (v *Window) GetIcon() (*gdk.Pixbuf, error) {
 	c := C.gtk_window_get_icon(v.native())
 	if c == nil {
-		return nil, nilPtrErr
+		return nil, nil
 	}
-
-	p := &gdk.Pixbuf{glib.Take(unsafe.Pointer(c))}
-	return p, nil
+	return &gdk.Pixbuf{glib.Take(unsafe.Pointer(c))}, nil
 }
 
 // GetIconName is a wrapper around gtk_window_get_icon_name().
@@ -377,7 +397,7 @@ func (v *Window) GetModal() bool {
 }
 
 // GetPosition is a wrapper around gtk_window_get_position().
-func (v *Window) GetPosition() (root_x, root_y int) {
+func (v *Window) GetPosition() (int, int) {
 	var x, y C.gint
 	C.gtk_window_get_position(v.native(), &x, &y)
 	return int(x), int(y)
@@ -411,18 +431,18 @@ func (v *Window) GetTitle() (string, error) {
 func (v *Window) GetTransientFor() (*Window, error) {
 	c := C.gtk_window_get_transient_for(v.native())
 	if c == nil {
-		return nil, nilPtrErr
+		return nil, nil
 	}
 	return wrapWindow(glib.Take(unsafe.Pointer(c))), nil
 }
 
 // GetAttachedTo is a wrapper around gtk_window_get_attached_to().
-func (v *Window) GetAttachedTo() (*Widget, error) {
+func (v *Window) GetAttachedTo() (IWidget, error) {
 	c := C.gtk_window_get_attached_to(v.native())
 	if c == nil {
-		return nil, nilPtrErr
+		return nil, nil
 	}
-	return wrapWidget(glib.Take(unsafe.Pointer(c))), nil
+	return castWidget(c)
 }
 
 // GetTypeHint is a wrapper around gtk_window_get_type_hint().
@@ -439,7 +459,7 @@ func (v *Window) GetSkipTaskbarHint() bool {
 
 // GetSkipPagerHint is a wrapper around gtk_window_get_skip_pager_hint().
 func (v *Window) GetSkipPagerHint() bool {
-	c := C.gtk_window_get_skip_taskbar_hint(v.native())
+	c := C.gtk_window_get_skip_pager_hint(v.native())
 	return gobool(c)
 }
 
@@ -459,6 +479,12 @@ func (v *Window) GetAcceptFocus() bool {
 func (v *Window) GetFocusOnMap() bool {
 	c := C.gtk_window_get_focus_on_map(v.native())
 	return gobool(c)
+}
+
+// GetWindowType is a wrapper around gtk_window_get_window_type().
+func (v *Window) GetWindowType() WindowType {
+	c := C.gtk_window_get_window_type(v.native())
+	return WindowType(c)
 }
 
 // HasGroup is a wrapper around gtk_window_has_group().
@@ -517,14 +543,11 @@ func (v *Window) SetIconName(name string) {
 	C.gtk_window_set_icon_name(v.native(), (*C.gchar)(cstr))
 }
 
-// SetAutoStartupNotification is a wrapper around
+// WindowSetAutoStartupNotification is a wrapper around
 // gtk_window_set_auto_startup_notification().
-// This doesn't seem write.  Might need to rethink?
-/*
-func (v *Window) SetAutoStartupNotification(setting bool) {
+func WindowSetAutoStartupNotification(setting bool) {
 	C.gtk_window_set_auto_startup_notification(gbool(setting))
 }
-*/
 
 // GetMnemonicsVisible is a wrapper around
 // gtk_window_get_mnemonics_visible().
@@ -534,7 +557,7 @@ func (v *Window) GetMnemonicsVisible() bool {
 }
 
 // SetMnemonicsVisible is a wrapper around
-// gtk_window_get_mnemonics_visible().
+// gtk_window_set_mnemonics_visible().
 func (v *Window) SetMnemonicsVisible(setting bool) {
 	C.gtk_window_set_mnemonics_visible(v.native(), gbool(setting))
 }
@@ -554,9 +577,8 @@ func (v *Window) SetFocusVisible(setting bool) {
 func (v *Window) GetApplication() (*Application, error) {
 	c := C.gtk_window_get_application(v.native())
 	if c == nil {
-		return nil, nilPtrErr
+		return nil, nil
 	}
-
 	return wrapApplication(glib.Take(unsafe.Pointer(c))), nil
 }
 
@@ -598,17 +620,104 @@ func (v *Window) SetMnemonicModifier(mods gdk.ModifierType) {
 	C.gtk_window_set_mnemonic_modifier(v.native(), C.GdkModifierType(mods))
 }
 
-// TODO gtk_window_begin_move_drag().
-// TODO gtk_window_begin_resize_drag().
-// TODO gtk_window_get_default_icon_list().
-// TODO gtk_window_get_group().
-// TODO gtk_window_get_icon_list().
-// TODO gtk_window_get_window_type().
-// TODO gtk_window_list_toplevels().
-// TODO gtk_window_parse_geometry().
-// TODO gtk_window_propagate_key_event().
-// TODO gtk_window_set_attached_to().
-// TODO gtk_window_set_default_icon_list().
-// TODO gtk_window_set_icon_list().
-// TODO gtk_window_set_screen().
-// TODO gtk_window_get_resize_grip_area().
+// SetScreen is a wrapper around gtk_window_set_screen().
+func (v *Window) SetScreen(screen *gdk.Screen) {
+	C.gtk_window_set_screen(v.native(), C.toGdkScreen(unsafe.Pointer(screen.Native())))
+}
+
+// GetScreen is a wrapper around gtk_window_get_screen().
+func (v *Window) GetScreen() *gdk.Screen {
+	c := C.gtk_window_get_screen(v.native())
+	return &gdk.Screen{glib.Take(unsafe.Pointer(c))}
+}
+
+// PropagateKeyEvent is a wrapper around gtk_window_propagate_key_event().
+func (v *Window) PropagateKeyEvent(event *gdk.EventKey) bool {
+	c := C.gtk_window_propagate_key_event(v.native(), (*C.GdkEventKey)(unsafe.Pointer(event.Native())))
+	return gobool(c)
+}
+
+// WindowListToplevels is a wrapper around gtk_window_list_toplevels().
+// Returned list is wrapped to return *gtk.Window elements.
+// TODO: Use IWindow and wrap to correct type
+func WindowListToplevels() *glib.List {
+	clist := C.gtk_window_list_toplevels()
+	if clist == nil {
+		return nil
+	}
+	glist := glib.WrapList(uintptr(unsafe.Pointer(clist)))
+	glist.DataWrapper(func(ptr unsafe.Pointer) interface{} {
+		return wrapWindow(glib.Take(ptr))
+	})
+	runtime.SetFinalizer(glist, func(l *glib.List) {
+		l.Free()
+	})
+	return glist
+}
+
+// WindowGetDefaultIconList is a wrapper around gtk_window_get_default_icon_list().
+// Returned list is wrapped to return *gdk.Pixbuf elements.
+func WindowGetDefaultIconList() *glib.List {
+	clist := C.gtk_window_get_default_icon_list()
+	if clist == nil {
+		return nil
+	}
+	glist := glib.WrapList(uintptr(unsafe.Pointer(clist)))
+	glist.DataWrapper(func(ptr unsafe.Pointer) interface{} {
+		return &gdk.Pixbuf{glib.Take(ptr)}
+	})
+	runtime.SetFinalizer(glist, func(l *glib.List) {
+		l.Free()
+	})
+	return glist
+}
+
+// GetIconList is a wrapper around gtk_window_get_icon_list().
+// Returned list is wrapped to return *gdk.Pixbuf elements.
+func (v *Window) GetIconList() *glib.List {
+	clist := C.gtk_window_get_icon_list(v.native())
+	if clist == nil {
+		return nil
+	}
+	glist := glib.WrapList(uintptr(unsafe.Pointer(clist)))
+	glist.DataWrapper(func(ptr unsafe.Pointer) interface{} {
+		return &gdk.Pixbuf{glib.Take(ptr)}
+	})
+	runtime.SetFinalizer(glist, func(l *glib.List) {
+		l.Free()
+	})
+	return glist
+}
+
+// WindowSetDefaultIconList is a wrapper around gtk_window_set_default_icon_list().
+// List should only contain *gdk.Pixbuf elements!
+func WindowSetDefaultIconList(list *glib.List) {
+	native := (*C.struct__GList)(unsafe.Pointer(list.Native()))
+	C.gtk_window_set_default_icon_list(native)
+}
+
+// SetIconList is a wrapper around gtk_window_set_icon_list().
+// List should only contain *gdk.Pixbuf elements!
+func (v *Window) SetIconList(list *glib.List) {
+	native := (*C.struct__GList)(unsafe.Pointer(list.Native()))
+	C.gtk_window_set_icon_list(v.native(), native)
+}
+
+// BeginResizeDrag is a wrapper around gtk_window_begin_resize_drag().
+func (v *Window) BeginResizeDrag(edge gdk.WindowEdge, button gdk.Button, rootX, rootY int, timestamp uint32) {
+	C.gtk_window_begin_resize_drag(v.native(), C.GdkWindowEdge(edge), C.gint(button), C.gint(rootX), C.gint(rootY), C.guint32(timestamp))
+}
+
+// BeginMoveDrag is a wrapper around gtk_window_begin_move_drag().
+func (v *Window) BeginMoveDrag(button gdk.Button, rootX, rootY int, timestamp uint32) {
+	C.gtk_window_begin_move_drag(v.native(), C.gint(button), C.gint(rootX), C.gint(rootY), C.guint32(timestamp))
+}
+
+// GetGroup is a wrapper around gtk_window_get_group().
+func (v *Window) GetGroup() *WindowGroup {
+	c := C.gtk_window_get_group(v.native())
+	if c == nil {
+		return nil
+	}
+	return wrapWindowGroup(glib.Take(unsafe.Pointer(c)))
+}

@@ -87,16 +87,6 @@ func GLAreaNew() (*GLArea, error) {
 	return wrapGLArea(obj), nil
 }
 
-// GetUseES is a wrapper around gtk_gl_area_get_use_es().
-func (v *GLArea) GetUseES() bool {
-	return gobool(C.gtk_gl_area_get_use_es(v.native()))
-}
-
-// SetUseES is a wrapper around gtk_gl_area_set_use_es().
-func (v *GLArea) SetUseES(es bool) {
-	C.gtk_gl_area_set_use_es(v.native(), gbool(es))
-}
- 
 // MajorVersion is a representation of OpenGL major version.
 type MajorVersion int
 
@@ -107,15 +97,20 @@ type MinorVersion int
 func (v *GLArea) GetRequiredVersion() (MajorVersion, MinorVersion) {
 	var major, minor int
 	C.gtk_gl_area_get_required_version(v.native(),
-		(*C.int)(unsafe.Pointer(&major)), (*C.int)(unsafe.Pointer(&minor)))
+		(*C.gint)(unsafe.Pointer(&major)), (*C.gint)(unsafe.Pointer(&minor)))
 
 	return MajorVersion(major), MinorVersion(minor)
 }
 
 // SetRequiredVersion is a wrapper around gtk_gl_area_set_required_version().
 func (v *GLArea) SetRequiredVersion(major, minor int) {
-	C.gtk_gl_area_set_required_version(v.native(), (C.int)(major), (C.int)(minor))
+	C.gtk_gl_area_set_required_version(v.native(), (C.gint)(major), (C.gint)(minor))
 }
+
+// TODO:
+// void gtk_gl_area_set_error (GtkGLArea *area, const GError *error);
+// gtk_gl_area_set_has_alpha().
+// gtk_gl_area_get_has_alpha().
 
 // HasDepthBuffer is a wrapper around gtk_gl_area_get_has_depth_buffer().
 func (v *GLArea) HasDepthBuffer() bool {
@@ -142,7 +137,7 @@ func (v *GLArea) GetAutoRender() bool {
 	return gobool(C.gtk_gl_area_get_auto_render(v.native()))
 }
 
-// SetAutoRender is a wrapper around gtk_gl_area_set_has_stencil_buffer().
+// SetAutoRender is a wrapper around gtk_gl_area_set_auto_render().
 func (v *GLArea) SetAutoRender(autoRender bool) {
 	C.gtk_gl_area_set_auto_render(v.native(), gbool(autoRender))
 }
@@ -182,5 +177,3 @@ func (v *GLArea) GetError() error {
 	}
 	return nil
 }
-
-// void gtk_gl_area_set_error (GtkGLArea *area, const GError *error);

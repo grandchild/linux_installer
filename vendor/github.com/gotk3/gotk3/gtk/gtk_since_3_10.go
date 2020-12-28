@@ -11,11 +11,13 @@ package gtk
 // #include "gtk_since_3_10.go.h"
 import "C"
 import (
+	"errors"
 	"sync"
 	"unsafe"
 
 	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/glib"
+	"github.com/gotk3/gotk3/pango"
 )
 
 func init() {
@@ -56,6 +58,11 @@ const (
 	ALIGN_BASELINE Align = C.GTK_ALIGN_BASELINE
 )
 
+// ImageType
+const (
+	IMAGE_SURFACE ImageType = C.GTK_IMAGE_SURFACE
+)
+
 // RevealerTransitionType is a representation of GTK's GtkRevealerTransitionType.
 type RevealerTransitionType int
 
@@ -93,6 +100,57 @@ func marshalStackTransitionType(p uintptr) (interface{}, error) {
 }
 
 /*
+ * GtkWidget
+ */
+
+// TODO:
+// gtk_widget_get_composite_name().
+
+/*
+ * GtkImage
+ */
+
+// TODO:
+// gtk_image_new_from_surface().
+// gtk_image_set_from_surface().
+
+/*
+ * GtkIconTheme
+ */
+
+// HasIcon is a wrapper around gtk_icon_theme_load_icon_for_scale().
+func (v *IconTheme) LoadIconForScale(iconName string, size, scale int, flags IconLookupFlags) (*gdk.Pixbuf, error) {
+	cstr := C.CString(iconName)
+	defer C.free(unsafe.Pointer(cstr))
+
+	var err *C.GError = nil
+	c := C.gtk_icon_theme_load_icon_for_scale(v.Theme, (*C.gchar)(cstr), C.gint(size), C.gint(scale), C.GtkIconLookupFlags(flags), &err)
+	if c == nil {
+		defer C.g_error_free(err)
+		return nil, errors.New(goString(err.message))
+	}
+	return &gdk.Pixbuf{glib.Take(unsafe.Pointer(c))}, nil
+}
+
+/*
+ * GtkEntry
+ */
+
+// GetTabs is a wrapper around gtk_entry_get_tabs().
+func (v *Entry) GetTabs() (*pango.TabArray, error) {
+	c := C.gtk_entry_get_tabs(v.native())
+	if c == nil {
+		return nil, nilPtrErr
+	}
+	return pango.WrapTabArray(uintptr(unsafe.Pointer(c))), nil
+}
+
+// SetTabs is a wrapper around gtk_entry_set_tabs().
+func (v *Entry) SetTabs(tabs *pango.TabArray) {
+	C.gtk_entry_set_tabs(v.native(), (*C.PangoTabArray)(unsafe.Pointer(tabs.Native())))
+}
+
+/*
  * GtkButton
  */
 
@@ -109,23 +167,38 @@ func ButtonNewFromIconName(iconName string, size IconSize) (*Button, error) {
 }
 
 /*
+ * GtkBox
+ */
+
+// TODO:
+// gtk_box_get_baseline_position().
+// gtk_box_set_baseline_position().
+
+/*
  * GtkGrid
  */
 
-// RemoveRow() is a wrapper around gtk_grid_remove_row().
+// RemoveRow is a wrapper around gtk_grid_remove_row().
 func (v *Grid) RemoveRow(position int) {
 	C.gtk_grid_remove_row(v.native(), C.gint(position))
 }
 
-// RemoveColumn() is a wrapper around gtk_grid_remove_column().
+// RemoveColumn is a wrapper around gtk_grid_remove_column().
 func (v *Grid) RemoveColumn(position int) {
 	C.gtk_grid_remove_column(v.native(), C.gint(position))
 }
+
+// TODO:
+// gtk_grid_get_baseline_row().
+// gtk_grid_set_baseline_row().
+// gtk_grid_get_row_baseline_position().
+// gtk_grid_set_row_baseline_position().
 
 /*
  * GtkHeaderBar
  */
 
+// HeaderBar is a representation of GtkHeaderBar
 type HeaderBar struct {
 	Container
 }
@@ -190,12 +263,12 @@ func (v *HeaderBar) SetCustomTitle(titleWidget IWidget) {
 }
 
 // GetCustomTitle is a wrapper around gtk_header_bar_get_custom_title().
-func (v *HeaderBar) GetCustomTitle() (*Widget, error) {
+func (v *HeaderBar) GetCustomTitle() (IWidget, error) {
 	c := C.gtk_header_bar_get_custom_title(v.native())
 	if c == nil {
-		return nil, nilPtrErr
+		return nil, nil
 	}
-	return wrapWidget(glib.Take(unsafe.Pointer(c))), nil
+	return castWidget(c)
 }
 
 // PackStart is a wrapper around gtk_header_bar_pack_start().
@@ -223,13 +296,13 @@ func (v *HeaderBar) GetShowCloseButton() bool {
  * GtkLabel
  */
 
-// GetLines() is a wrapper around gtk_label_get_lines().
+// GetLines is a wrapper around gtk_label_get_lines().
 func (v *Label) GetLines() int {
 	c := C.gtk_label_get_lines(v.native())
 	return int(c)
 }
 
-// SetLines() is a wrapper around gtk_label_set_lines().
+// SetLines is a wrapper around gtk_label_set_lines().
 func (v *Label) SetLines(lines int) {
 	C.gtk_label_set_lines(v.native(), C.gint(lines))
 }
@@ -367,11 +440,12 @@ func (v *ListBox) InvalidateSort() {
 	C.gtk_list_box_invalidate_sort(v.native())
 }
 
-type ListBoxFilterFunc func(row *ListBoxRow, userData uintptr) bool
+// ListBoxFilterFunc is a representation of GtkListBoxFilterFunc
+type ListBoxFilterFunc func(row *ListBoxRow, userData ...interface{}) bool
 
 type listBoxFilterFuncData struct {
 	fn       ListBoxFilterFunc
-	userData uintptr
+	userData []interface{}
 }
 
 var (
@@ -385,7 +459,9 @@ var (
 	}
 )
 
-func (v *ListBox) SetFilterFunc(fn ListBoxFilterFunc, userData uintptr) {
+// SetFilterFunc is a wrapper around gtk_list_box_set_filter_func
+func (v *ListBox) SetFilterFunc(fn ListBoxFilterFunc, userData ...interface{}) {
+	// TODO: figure out a way to determine when we can clean up
 	listBoxFilterFuncRegistry.Lock()
 	id := listBoxFilterFuncRegistry.next
 	listBoxFilterFuncRegistry.next++
@@ -395,12 +471,76 @@ func (v *ListBox) SetFilterFunc(fn ListBoxFilterFunc, userData uintptr) {
 	C._gtk_list_box_set_filter_func(v.native(), C.gpointer(uintptr(id)))
 }
 
-// TODO: SetHeaderFunc
-// TODO: SetSortFunc
+// ListBoxHeaderFunc is a representation of GtkListBoxUpdateHeaderFunc
+type ListBoxHeaderFunc func(row *ListBoxRow, before *ListBoxRow, userData ...interface{})
+
+type listBoxHeaderFuncData struct {
+	fn       ListBoxHeaderFunc
+	userData []interface{}
+}
+
+var (
+	listBoxHeaderFuncRegistry = struct {
+		sync.RWMutex
+		next int
+		m    map[int]listBoxHeaderFuncData
+	}{
+		next: 1,
+		m:    make(map[int]listBoxHeaderFuncData),
+	}
+)
+
+// SetHeaderFunc is a wrapper around gtk_list_box_set_header_func
+func (v *ListBox) SetHeaderFunc(fn ListBoxHeaderFunc, userData ...interface{}) {
+	// TODO: figure out a way to determine when we can clean up
+	listBoxHeaderFuncRegistry.Lock()
+	id := listBoxHeaderFuncRegistry.next
+	listBoxHeaderFuncRegistry.next++
+	listBoxHeaderFuncRegistry.m[id] = listBoxHeaderFuncData{fn: fn, userData: userData}
+	listBoxHeaderFuncRegistry.Unlock()
+
+	C._gtk_list_box_set_header_func(v.native(), C.gpointer(uintptr(id)))
+}
+
+// ListBoxSortFunc is a representation of GtkListBoxSortFunc
+type ListBoxSortFunc func(row1 *ListBoxRow, row2 *ListBoxRow, userData ...interface{}) int
+
+type listBoxSortFuncData struct {
+	fn       ListBoxSortFunc
+	userData []interface{}
+}
+
+var (
+	listBoxSortFuncRegistry = struct {
+		sync.RWMutex
+		next int
+		m    map[int]listBoxSortFuncData
+	}{
+		next: 1,
+		m:    make(map[int]listBoxSortFuncData),
+	}
+)
+
+// SetSortFunc is a wrapper around gtk_list_box_set_sort_func
+func (v *ListBox) SetSortFunc(fn ListBoxSortFunc, userData ...interface{}) {
+	// TODO: figure out a way to determine when we can clean up
+	listBoxSortFuncRegistry.Lock()
+	id := listBoxSortFuncRegistry.next
+	listBoxSortFuncRegistry.next++
+	listBoxSortFuncRegistry.m[id] = listBoxSortFuncData{fn: fn, userData: userData}
+	listBoxSortFuncRegistry.Unlock()
+
+	C._gtk_list_box_set_sort_func(v.native(), C.gpointer(uintptr(id)))
+}
 
 // DragHighlightRow is a wrapper around gtk_list_box_drag_highlight_row()
 func (v *ListBox) DragHighlightRow(row *ListBoxRow) {
 	C.gtk_list_box_drag_highlight_row(v.native(), row.native())
+}
+
+// DragUnhighlightRow is a wrapper around gtk_list_box_drag_unhighlight_row().
+func (v *ListBox) DragUnhighlightRow() {
+	C.gtk_list_box_drag_unhighlight_row(v.native())
 }
 
 /*
@@ -431,6 +571,7 @@ func wrapListBoxRow(obj *glib.Object) *ListBoxRow {
 	return &ListBoxRow{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}
 }
 
+// ListBoxRowNew is a wrapper around gtk_list_box_row_new().
 func ListBoxRowNew() (*ListBoxRow, error) {
 	c := C.gtk_list_box_row_new()
 	if c == nil {
@@ -445,15 +586,15 @@ func (v *ListBoxRow) Changed() {
 }
 
 // GetHeader is a wrapper around gtk_list_box_row_get_header().
-func (v *ListBoxRow) GetHeader() *Widget {
+func (v *ListBoxRow) GetHeader() (IWidget, error) {
 	c := C.gtk_list_box_row_get_header(v.native())
 	if c == nil {
-		return nil
+		return nil, nil
 	}
-	return wrapWidget(glib.Take(unsafe.Pointer(c)))
+	return castWidget(c)
 }
 
-// SetHeader is a wrapper around gtk_list_box_row_get_header().
+// SetHeader is a wrapper around gtk_list_box_row_set_header().
 func (v *ListBoxRow) SetHeader(header IWidget) {
 	C.gtk_list_box_row_set_header(v.native(), header.toWidget())
 }
@@ -463,6 +604,24 @@ func (v *ListBoxRow) GetIndex() int {
 	c := C.gtk_list_box_row_get_index(v.native())
 	return int(c)
 }
+
+/*
+ * GtkPlacesSidebar
+ */
+
+// TODO:
+// gtk_places_sidebar_new().
+// gtk_places_sidebar_set_open_flags().
+// gtk_places_sidebar_get_open_flags().
+// gtk_places_sidebar_set_location().
+// gtk_places_sidebar_get_location().
+// gtk_places_sidebar_set_show_desktop().
+// gtk_places_sidebar_get_show_desktop().
+// gtk_places_sidebar_add_shortcut().
+// gtk_places_sidebar_remove_shortcut().
+// gtk_places_sidebar_list_shortcuts().
+// gtk_places_sidebar_get_nth_bookmark().
+// enum GtkPlacesOpenFlags
 
 /*
  * GtkRevealer
@@ -671,12 +830,12 @@ func (v *Stack) SetVisibleChild(child IWidget) {
 }
 
 // GetVisibleChild is a wrapper around gtk_stack_get_visible_child().
-func (v *Stack) GetVisibleChild() *Widget {
+func (v *Stack) GetVisibleChild() (IWidget, error) {
 	c := C.gtk_stack_get_visible_child(v.native())
 	if c == nil {
-		return nil
+		return nil, nil
 	}
-	return wrapWidget(glib.Take(unsafe.Pointer(c)))
+	return castWidget(c)
 }
 
 // SetVisibleChildName is a wrapper around gtk_stack_set_visible_child_name().
@@ -732,3 +891,56 @@ func (v *Stack) GetTransitionType() StackTransitionType {
 	c := C.gtk_stack_get_transition_type(v.native())
 	return StackTransitionType(c)
 }
+
+/*
+ * GtkBuilder
+ */
+
+// BuilderNewFromFile is a wrapper around gtk_builder_new_from_file().
+func BuilderNewFromFile(filePath string) (*Builder, error) {
+	cstr := C.CString(filePath)
+	defer C.free(unsafe.Pointer(cstr))
+
+	c := C.gtk_builder_new_from_file((*C.gchar)(cstr))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+
+	obj := glib.Take(unsafe.Pointer(c))
+	return &Builder{obj}, nil
+}
+
+// BuilderNewFromResource is a wrapper around gtk_builder_new_from_resource().
+func BuilderNewFromResource(resourcePath string) (*Builder, error) {
+	cstr := C.CString(resourcePath)
+	defer C.free(unsafe.Pointer(cstr))
+
+	c := C.gtk_builder_new_from_resource((*C.gchar)(cstr))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+
+	obj := glib.Take(unsafe.Pointer(c))
+	return &Builder{obj}, nil
+}
+
+// BuilderNewFromString is a wrapper around gtk_builder_new_from_string().
+func BuilderNewFromString(resource string) (*Builder, error) {
+	cstr := C.CString(resource)
+	defer C.free(unsafe.Pointer(cstr))
+
+	c := C.gtk_builder_new_from_string((*C.gchar)(cstr), C.gssize(len(resource)))
+	if c == nil {
+		return nil, nilPtrErr
+	}
+
+	obj := glib.Take(unsafe.Pointer(c))
+	return &Builder{obj}, nil
+}
+
+// TODO:
+// gtk_builder_add_callback_symbol
+// gtk_builder_add_callback_symbols
+// gtk_builder_lookup_callback_symbol
+// gtk_builder_set_application
+// gtk_builder_get_application

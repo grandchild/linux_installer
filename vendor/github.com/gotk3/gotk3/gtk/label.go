@@ -42,7 +42,8 @@ func wrapLabel(obj *glib.Object) *Label {
 	return &Label{Widget{glib.InitiallyUnowned{obj}}}
 }
 
-func WidgetToLabel(widget *Widget) (interface{}, error) {
+// WidgetToLabel is a convience func that casts the given *Widget into a *Label.
+func WidgetToLabel(widget *Widget) (*Label, error) {
 	obj := glib.Take(unsafe.Pointer(widget.GObject))
 	return wrapLabel(obj), nil
 }
@@ -65,6 +66,11 @@ func (v *Label) SetText(str string) {
 	defer C.free(unsafe.Pointer(cstr))
 	C.gtk_label_set_text(v.native(), (*C.gchar)(cstr))
 }
+
+// TODO:
+// gtk_label_set_text_with_mnemonic().
+// gtk_label_set_attributes().
+// gtk_label_get_attributes().
 
 // SetMarkup is a wrapper around gtk_label_set_markup().
 func (v *Label) SetMarkup(str string) {
@@ -135,6 +141,12 @@ func (v *Label) SetLineWrap(wrap bool) {
 func (v *Label) SetLineWrapMode(wrapMode pango.WrapMode) {
 	C.gtk_label_set_line_wrap_mode(v.native(), C.PangoWrapMode(wrapMode))
 }
+
+// TODO:
+// gtk_label_get_line_wrap_mode().
+// gtk_label_get_layout_offsets().
+// gtk_label_get_layout().
+// gtk_label_get_mnemonic_widget().
 
 // GetSelectable is a wrapper around gtk_label_get_selectable().
 func (v *Label) GetSelectable() bool {

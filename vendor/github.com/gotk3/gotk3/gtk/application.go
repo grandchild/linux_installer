@@ -65,13 +65,13 @@ func ApplicationNew(appId string, flags glib.ApplicationFlags) (*Application, er
 }
 
 // AddWindow is a wrapper around gtk_application_add_window().
-func (v *Application) AddWindow(w *Window) {
-	C.gtk_application_add_window(v.native(), w.native())
+func (v *Application) AddWindow(w IWindow) {
+	C.gtk_application_add_window(v.native(), w.toWindow())
 }
 
 // RemoveWindow is a wrapper around gtk_application_remove_window().
-func (v *Application) RemoveWindow(w *Window) {
-	C.gtk_application_remove_window(v.native(), w.native())
+func (v *Application) RemoveWindow(w IWindow) {
+	C.gtk_application_remove_window(v.native(), w.toWindow())
 }
 
 // GetWindowByID is a wrapper around gtk_application_get_window_by_id().
@@ -133,11 +133,17 @@ func (v *Application) IsInhibited(flags ApplicationInhibitFlags) bool {
 }
 
 // Inhibited is a wrapper around gtk_application_inhibit().
-func (v *Application) Inhibited(w *Window, flags ApplicationInhibitFlags, reason string) uint {
+func (v *Application) Inhibited(window IWindow, flags ApplicationInhibitFlags, reason string) uint {
+	
 	cstr1 := (*C.gchar)(C.CString(reason))
 	defer C.free(unsafe.Pointer(cstr1))
 
-	return uint(C.gtk_application_inhibit(v.native(), w.native(), C.GtkApplicationInhibitFlags(flags), cstr1))
+	var w *C.GtkWindow = nil
+	if window != nil {
+		w = window.toWindow()
+	}
+
+	return uint(C.gtk_application_inhibit(v.native(), w, C.GtkApplicationInhibitFlags(flags), cstr1))
 }
 
 // void 	gtk_application_add_accelerator () // deprecated and uses a gvariant paramater
@@ -146,13 +152,17 @@ func (v *Application) Inhibited(w *Window, flags ApplicationInhibitFlags, reason
 // GetWindows is a wrapper around gtk_application_get_windows().
 // Returned list is wrapped to return *gtk.Window elements.
 func (v *Application) GetWindows() *glib.List {
-	glist := C.gtk_application_get_windows(v.native())
-	list := glib.WrapList(uintptr(unsafe.Pointer(glist)))
-	list.DataWrapper(func(ptr unsafe.Pointer) interface{} {
+	clist := C.gtk_application_get_windows(v.native())
+	if clist == nil {
+		return nil
+	}
+
+	glist := glib.WrapList(uintptr(unsafe.Pointer(clist)))
+	glist.DataWrapper(func(ptr unsafe.Pointer) interface{} {
 		return wrapWindow(glib.Take(ptr))
 	})
-	runtime.SetFinalizer(list, func(l *glib.List) {
+	runtime.SetFinalizer(glist, func(l *glib.List) {
 		l.Free()
 	})
-	return list
+	return glist
 }

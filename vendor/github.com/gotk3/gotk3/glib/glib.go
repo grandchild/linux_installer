@@ -62,7 +62,7 @@ type closureContext struct {
 }
 
 var (
-	errNilPtr = errors.New("cgo returned unexpected nil pointer")
+	nilPtrErr = errors.New("cgo returned unexpected nil pointer")
 
 	closures = struct {
 		sync.RWMutex
@@ -106,6 +106,11 @@ const (
 	TYPE_VARIANT   Type = C.G_TYPE_VARIANT
 )
 
+// IsValue checks whether the passed in type can be used for g_value_init().
+func (t Type) IsValue() bool {
+	return gobool(C._g_type_is_value(C.GType(t)))
+}
+
 // Name is a wrapper around g_type_name().
 func (t Type) Name() string {
 	return C.GoString((*C.char)(C.g_type_name(C.GType(t))))
@@ -120,6 +125,35 @@ func (t Type) Depth() uint {
 func (t Type) Parent() Type {
 	return Type(C.g_type_parent(C.GType(t)))
 }
+
+// IsA is a wrapper around g_type_is_a().
+func (t Type) IsA(isAType Type) bool {
+	return gobool(C.g_type_is_a(C.GType(t), C.GType(isAType)))
+}
+
+// TypeFromName is a wrapper around g_type_from_name
+func TypeFromName(typeName string) Type {
+	cstr := (*C.gchar)(C.CString(typeName))
+	defer C.free(unsafe.Pointer(cstr))
+	return Type(C.g_type_from_name(cstr))
+}
+
+//TypeNextBase is a wrapper around g_type_next_base
+func TypeNextBase(leafType, rootType Type) Type {
+	return Type(C.g_type_next_base(C.GType(leafType), C.GType(rootType)))
+}
+
+// SettingsBindFlags is a representation of GLib's GSettingsBindFlags.
+type SettingsBindFlags int
+
+const (
+	SETTINGS_BIND_DEFAULT        SettingsBindFlags = C.G_SETTINGS_BIND_DEFAULT
+	SETTINGS_BIND_GET            SettingsBindFlags = C.G_SETTINGS_BIND_GET
+	SETTINGS_BIND_SET            SettingsBindFlags = C.G_SETTINGS_BIND_SET
+	SETTINGS_BIND_NO_SENSITIVITY SettingsBindFlags = C.G_SETTINGS_BIND_NO_SENSITIVITY
+	SETTINGS_BIND_GET_NO_CHANGES SettingsBindFlags = C.G_SETTINGS_BIND_GET_NO_CHANGES
+	SETTINGS_BIND_INVERT_BOOLEAN SettingsBindFlags = C.G_SETTINGS_BIND_INVERT_BOOLEAN
+)
 
 // UserDirectory is a representation of GLib's GUserDirectory.
 type UserDirectory int
@@ -201,6 +235,23 @@ func goMarshal(closure *C.GClosure, retValue *C.GValue,
 				"no suitable Go value for arg %d: %v\n", i, err)
 			return
 		}
+		// Parameters that are descendants of GObject come wrapped in another GObject.
+		// For C applications, the default marshaller (g_cclosure_marshal_VOID__VOID in
+		// gmarshal.c in the GTK glib library) 'peeks' into the enclosing object and
+		// passes the wrapped object to the handler. Use the *Object.goValue function
+		// to emulate that for Go signal handlers.
+		switch objVal := val.(type) {
+		case *Object:
+			innerVal, err := objVal.goValue()
+			if err != nil {
+				// print warning and leave val unchanged to preserve old
+				// behavior
+				fmt.Fprintf(os.Stderr,
+					"warning: no suitable Go value from object for arg %d: %v\n", i, err)
+			} else {
+				val = innerVal
+			}
+		}
 		rv := reflect.ValueOf(val)
 		args = append(args, rv.Convert(cc.rf.Type().In(i)))
 	}
@@ -255,7 +306,7 @@ func IdleAdd(f interface{}, args ...interface{}) (SourceHandle, error) {
 	// Create an idle source func to be added to the main loop context.
 	idleSrc := C.g_idle_source_new()
 	if idleSrc == nil {
-		return 0, errNilPtr
+		return 0, nilPtrErr
 	}
 	return sourceAttach(idleSrc, rf, args...)
 }
@@ -277,7 +328,7 @@ func TimeoutAdd(timeout uint, f interface{}, args ...interface{}) (SourceHandle,
 	// Create a timeout source func to be added to the main loop context.
 	timeoutSrc := C.g_timeout_source_new(C.guint(timeout))
 	if timeoutSrc == nil {
-		return 0, errNilPtr
+		return 0, nilPtrErr
 	}
 
 	return sourceAttach(timeoutSrc, rf, args...)
@@ -286,7 +337,7 @@ func TimeoutAdd(timeout uint, f interface{}, args ...interface{}) (SourceHandle,
 // sourceAttach attaches a source to the default main loop context.
 func sourceAttach(src *C.struct__GSource, rf reflect.Value, args ...interface{}) (SourceHandle, error) {
 	if src == nil {
-		return 0, errNilPtr
+		return 0, nilPtrErr
 	}
 
 	// rf must be a func with no parameters.
@@ -311,6 +362,35 @@ func sourceAttach(src *C.struct__GSource, rf reflect.Value, args ...interface{})
 	// context.
 	cid := C.g_source_attach(src, nil)
 	return SourceHandle(cid), nil
+}
+
+// Destroy is a wrapper around g_source_destroy()
+func (v *Source) Destroy() {
+	C.g_source_destroy(v.native())
+}
+
+// IsDestroyed is a wrapper around g_source_is_destroyed()
+func (v *Source) IsDestroyed() bool {
+	return gobool(C.g_source_is_destroyed(v.native()))
+}
+
+// Unref is a wrapper around g_source_unref()
+func (v *Source) Unref() {
+	C.g_source_unref(v.native())
+}
+
+// Ref is a wrapper around g_source_ref()
+func (v *Source) Ref() *Source {
+	c := C.g_source_ref(v.native())
+	if c == nil {
+		return nil
+	}
+	return (*Source)(c)
+}
+
+// SourceRemove is a wrapper around g_source_remove()
+func SourceRemove(src SourceHandle) bool {
+	return gobool(C.g_source_remove(C.guint(src)))
 }
 
 /*
@@ -353,7 +433,7 @@ func GetUserRuntimeDir() string {
 func GetUserSpecialDir(directory UserDirectory) (string, error) {
 	c := C.g_get_user_special_dir(C.GUserDirectory(directory))
 	if c == nil {
-		return "", errNilPtr
+		return "", nilPtrErr
 	}
 	return C.GoString((*C.char)(c)), nil
 }
@@ -398,6 +478,26 @@ func (v *Object) native() *C.GObject {
 	}
 	p := unsafe.Pointer(v.GObject)
 	return C.toGObject(p)
+}
+
+// goValue converts a *Object to a Go type (e.g. *Object => *gtk.Entry).
+// It is used in goMarshal to convert generic GObject parameters to
+// signal handlers to the actual types expected by the signal handler.
+func (v *Object) goValue() (interface{}, error) {
+	objType := Type(C._g_type_from_instance(C.gpointer(v.native())))
+	f, err := gValueMarshalers.lookupType(objType)
+	if err != nil {
+		return nil, err
+	}
+
+	// The marshalers expect Values, not Objects
+	val, err := ValueInit(objType)
+	if err != nil {
+		return nil, err
+	}
+	val.SetInstance(uintptr(unsafe.Pointer(v.GObject)))
+	rv, err := f(uintptr(unsafe.Pointer(val.native())))
+	return rv, err
 }
 
 // Take wraps a unsafe.Pointer as a glib.Object, taking ownership of it.
@@ -828,8 +928,18 @@ func (v *Value) native() *C.GValue {
 }
 
 // Native returns a pointer to the underlying GValue.
-func (v *Value) Native() unsafe.Pointer {
-	return unsafe.Pointer(v.native())
+func (v *Value) Native() uintptr {
+	return uintptr(unsafe.Pointer(v.native()))
+}
+
+// IsValue checks if value is a valid and initialized GValue structure.
+func (v *Value) IsValue() bool {
+	return gobool(C._g_is_value(v.native()))
+}
+
+// TypeName gets the type name of value.
+func (v *Value) TypeName() string {
+	return C.GoString((*C.char)(C._g_value_type_name(v.native())))
 }
 
 // ValueAlloc allocates a Value and sets a runtime finalizer to call
@@ -838,7 +948,7 @@ func (v *Value) Native() unsafe.Pointer {
 func ValueAlloc() (*Value, error) {
 	c := C._g_value_alloc()
 	if c == nil {
-		return nil, errNilPtr
+		return nil, nilPtrErr
 	}
 
 	v := &Value{c}
@@ -847,7 +957,8 @@ func ValueAlloc() (*Value, error) {
 	//We need to double check before unsetting, to prevent:
 	//`g_value_unset: assertion 'G_IS_VALUE (value)' failed`
 	runtime.SetFinalizer(v, func(f *Value) {
-		if t, _, err := f.Type(); err != nil || t == TYPE_INVALID || t == TYPE_NONE {
+
+		if !f.IsValue() {
 			C.g_free(C.gpointer(f.native()))
 			return
 		}
@@ -865,7 +976,7 @@ func ValueAlloc() (*Value, error) {
 func ValueInit(t Type) (*Value, error) {
 	c := C._g_value_init(C.GType(t))
 	if c == nil {
-		return nil, errNilPtr
+		return nil, nilPtrErr
 	}
 
 	v := &Value{c}
@@ -888,7 +999,7 @@ func (v *Value) unset() {
 // the g_value_get_gtype() function.  GetType() returns TYPE_INVALID if v
 // does not hold a Type, or otherwise returns the Type of v.
 func (v *Value) Type() (actual Type, fundamental Type, err error) {
-	if !gobool(C._g_is_value(v.native())) {
+	if !v.IsValue() {
 		return actual, fundamental, errors.New("invalid GValue")
 	}
 	cActual := C._g_value_type(v.native())
@@ -1055,8 +1166,8 @@ type TypeMarshaler struct {
 }
 
 // RegisterGValueMarshalers adds marshalers for several types to the
-// internal marshalers map.  Once registered, calling GoValue on any
-// Value witha registered type will return the data returned by the
+// internal marshalers map. Once registered, calling GoValue on any
+// Value with a registered type will return the data returned by the
 // marshaler.
 func RegisterGValueMarshalers(tm []TypeMarshaler) {
 	gValueMarshalers.register(tm)
@@ -1106,6 +1217,13 @@ func (m marshalMap) lookup(v *Value) (GValueMarshaler, error) {
 		return f, nil
 	}
 	if f, ok := m[fundamental]; ok {
+		return f, nil
+	}
+	return nil, errors.New("missing marshaler for type")
+}
+
+func (m marshalMap) lookupType(t Type) (GValueMarshaler, error) {
+	if f, ok := m[Type(t)]; ok {
 		return f, nil
 	}
 	return nil, errors.New("missing marshaler for type")
@@ -1304,7 +1422,7 @@ func (v *Value) GetPointer() unsafe.Pointer {
 func (v *Value) GetString() (string, error) {
 	c := C.g_value_get_string(v.native())
 	if c == nil {
-		return "", errNilPtr
+		return "", nilPtrErr
 	}
 	return C.GoString((*C.char)(c)), nil
 }

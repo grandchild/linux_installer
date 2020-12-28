@@ -69,6 +69,20 @@ func AcceleratorSetDefaultModMask(mods gdk.ModifierType) {
 }
 
 /*
+ * GtkAccelLabel
+ */
+
+// TODO:
+// gtk_accel_label_new().
+// gtk_accel_label_set_accel_closure().
+// gtk_accel_label_get_accel_widget().
+// gtk_accel_label_set_accel_widget().
+// gtk_accel_label_get_accel_width().
+// gtk_accel_label_set_accel(). since GTK 3.6
+// gtk_accel_label_get_accel(). since GTK 3.12
+// gtk_accel_label_refetch().
+
+/*
  * GtkAccelGroup
  */
 
@@ -191,6 +205,9 @@ func AccelGroupsFromObject(obj *glib.Object) *glib.SList {
 	if res == nil {
 		return nil
 	}
+
+	// TODO: call DataWrapper on SList and wrap them to gtk.AccelGroup
+
 	return (*glib.SList)(unsafe.Pointer(res))
 }
 
@@ -417,7 +434,7 @@ func (v *Window) AddAccelGroup(accelGroup *AccelGroup) {
 	C.gtk_window_add_accel_group(v.native(), accelGroup.native())
 }
 
-// RemoveAccelGroup() is a wrapper around gtk_window_add_accel_group().
+// RemoveAccelGroup() is a wrapper around gtk_window_remove_accel_group().
 func (v *Window) RemoveAccelGroup(accelGroup *AccelGroup) {
 	C.gtk_window_remove_accel_group(v.native(), accelGroup.native())
 }
@@ -432,4 +449,10 @@ func (v *Window) RemoveAccelGroup(accelGroup *AccelGroup) {
 // TODO: gtk_accel_map_foreach  - can't be done without a function type
 
 // TODO: gtk_accel_map_load_scanner
-// TODO: gtk_widget_list_accel_closures
+
+/*
+ * GtkWidget
+ */
+
+// TODO:
+// gtk_widget_list_accel_closures
