@@ -74,7 +74,7 @@ installers. The installer builder comes in the shape of a zip archive containing
  - the naked `linux_installer` binary
    - _"naked"_ means "only the installer logic", your payload(s) will be appended to
      this file later to create the full installer.
- - all installer GUI files in `resources/` -- to customize and modify
+ - all installer GUI files in `resources/` — to customize and modify
  - a `Makefile`/`make.bat` (for building on Linux/Windows respectively) to put
    it all together
 
@@ -94,8 +94,8 @@ installation*" on the installation page.
   * `make`
   * `zip`
 
-* On RPM-based systems (Centos, Ubuntu, etc) the following dev-packages need to be
-  installed as well:
+* On Debian- or RedHat-based systems (e.g. Centos, Ubuntu, etc) the following
+  dev-packages need to be installed as well:
   * `libgtk-3-dev`
   * `libglib2.0-dev`
 
