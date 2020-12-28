@@ -23,7 +23,7 @@ default: build $(DATA_DIST_DIR)/data.zip
 builder: clean $(BUILDER_ARCHIVE)
 
 
-build: $(SRC) $(RES_DIR)/gui/gui.so
+build: $(SRC)
 	go build -v $(GO_MOD_FLAGS) -o "$(BIN)" "$(PKG)/main"
 
 $(RES_DIR)/gui/gui.so: $(SRC)
@@ -34,14 +34,14 @@ $(DATA_DIST_DIR)/data.zip: $(DATA_SRC_DIR)
 	rm -f "$(DATA_DIST_DIR)/data.zip"
 	cd "$(DATA_SRC_DIR)" ; $(ZIP_EXE) -r "../$(DATA_DIST_DIR)/data.zip" .
 
-dist: build $(DATA_DIST_DIR)/data.zip rice_bin
+dist: build $(RES_DIR)/gui/gui.so $(DATA_DIST_DIR)/data.zip rice_bin
 	cp "$(BIN)" "$(BIN_DEV)"
 	rice_bin/rice append --exec "$(BIN_DEV)"
 
 run: dist
 	./"$(BIN_DEV)"
 
-$(BUILDER_DIR): build $(DATA_SRC_DIR) rice_bin
+$(BUILDER_DIR): build $(RES_DIR)/gui/gui.so $(DATA_SRC_DIR) rice_bin
 	cp -r "$(DATA_SRC_DIR)" "$(RES_DIR)" "$(BIN)" rice_bin/$(RICE_EXE)* "$(BUILDER_DIR)/"
 	chmod +x "$(BUILDER_DIR)/$(RICE_EXE)"
 
