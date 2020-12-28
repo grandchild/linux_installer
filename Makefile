@@ -34,11 +34,11 @@ $(DATA_DIST_DIR)/data.zip: $(DATA_SRC_DIR)
 	rm -f "$(DATA_DIST_DIR)/data.zip"
 	cd "$(DATA_SRC_DIR)" ; "$(ZIP_EXE)" -r "../$(DATA_DIST_DIR)/data.zip" .
 
-dist: build $(RES_DIR)/gui/gui.so $(DATA_DIST_DIR)/data.zip rice_bin
+dev: build $(RES_DIR)/gui/gui.so $(DATA_DIST_DIR)/data.zip rice_bin
 	cp "$(BIN)" "$(BIN_DEV)"
 	rice_bin/rice append --exec "$(BIN_DEV)"
 
-run: dist
+run: dev
 	./"$(BIN_DEV)"
 
 $(BUILDER_DIR): build $(RES_DIR)/gui/gui.so $(DATA_SRC_DIR) rice_bin
