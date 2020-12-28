@@ -93,6 +93,9 @@ installation*" on the installation page.
 * The `make` & `zip` commands, simply install their packages:
   * `make`
   * `zip`
+  
+  <sub>(Technically, BSD-Make works just as well as GNU-Make, so if you have `bmake`
+  that'll work too). </sub>
 
 * On Debian- or RedHat-based systems (e.g. Centos, Ubuntu, etc) the following
   dev-packages need to be installed as well:
