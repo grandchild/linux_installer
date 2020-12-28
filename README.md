@@ -6,7 +6,9 @@ https://creativecommons.org/publicdomain/zero/1.0/)
 
 Linux GUI installer for audiences that are used to Windows installers. When all you
 would _really_ need is `unzip`, but want a nice user experience nonetheless. Imitates
-the look and feel of [NSIS](https://nsis.sourceforge.io/Screenshots) installers.
+the look and feel of [NSIS](https://nsis.sourceforge.io/Screenshots), or rather
+[Wizard97](https://docs.microsoft.com/en-us/windows/win32/controls/wizards)-type
+installers.
 
 ![Screenshot](.doc/screenshot_welcome.png)
 
