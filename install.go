@@ -338,8 +338,8 @@ func (i *Installer) NextFile() *InstallFile {
 	return nil
 }
 
-// SetProgressFunction takes a function which receives an InstallStatus, and sets it to
-// be called whenever the function
+// SetProgressFunction takes a function which receives an InstallStatus, and calls it
+// every time right before the installer starts to copy a file or directory.
 func (i *Installer) SetProgressFunction(function func(InstallStatus)) {
 	i.progressFunction = function
 }
