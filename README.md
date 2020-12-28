@@ -24,7 +24,8 @@ nonetheless. Imitates the look and feel of
 
 ## Contents
 
-* [Quickstart: Setup & Run the Linux-Builder](#quickstart-setup--run-the-linux-builder)
+* [Quickstart: Run the Example-Installer](#quickstart-run-the-Example-installer)
+* [Setup & Run the Linux-Builder](#setup--run-the-linux-builder)
 * [Development Requirements](#development-requirements)
 * [Building the Project](#building-the-project)
   * [Example](#example)
@@ -46,7 +47,21 @@ nonetheless. Imitates the look and feel of
     * [Unused Go Files](#unused-go-files)
 * [License and Acknowledgments](#license-and-acknowledgments)
 
-## Quickstart: Setup & Run the Linux-Builder
+## Quickstart: Run the Example-Installer
+
+If you have _Go_ installed, go to the repository folder and do the following to run the
+example installer:
+
+```shell
+# Create source files folder
+mkdir data
+# Add a file of random 50MiB (use this or copy any other files you want to try out)
+dd if=/dev/urandom of=data/blob.data bs=1M count=50
+# Create and run the example installer
+make run
+```
+
+## Setup & Run the Linux-Builder
 
 ### Overview
 
