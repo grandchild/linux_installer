@@ -55,7 +55,7 @@ $(DATA_SRC_DIR):
 
 clean: clean_data clean_builder
 	rm -f "$(RES_DIR)/gui/gui.so"
-	rm -f "$(BIN)"
+	rm -f "$(BIN)" "$(BIN_DEV)"
 
 clean_data:
 	rm -rf "$(DATA_DIST_DIR)"
