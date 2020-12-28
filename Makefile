@@ -5,6 +5,7 @@ SRC = *.go \
 PKG = github.com/grandchild/linux_installer
 
 BIN = linux_installer
+BIN_DEV = linux_installer_dev
 RES_DIR = resources
 DATA_SRC_DIR = data
 DATA_DIST_DIR = data_compressed
@@ -36,10 +37,11 @@ $(DATA_DIST_DIR)/data.zip: $(DATA_SRC_DIR)
 	cd "$(DATA_SRC_DIR)" ; $(ZIP_EXE) -r "../$(DATA_DIST_DIR)/data.zip" .
 
 dist: build $(DATA_DIST_DIR)/data.zip rice_bin
-	rice_bin/rice append --exec "$(BIN)"
+	cp "$(BIN)" "$(BIN_DEV)"
+	rice_bin/rice append --exec "$(BIN_DEV)"
 
 run: dist
-	./"$(BIN)"
+	./"$(BIN_DEV)"
 
 $(BUILDER_DIR): build $(DATA_SRC_DIR) rice_bin
 	cp -r "$(DATA_SRC_DIR)" "$(RES_DIR)" "$(BIN)" rice_bin/$(RICE_EXE)* "$(BUILDER_DIR)/"
