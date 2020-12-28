@@ -32,7 +32,7 @@ $(RES_DIR)/gui/gui.so: $(SRC)
 $(DATA_DIST_DIR)/data.zip: $(DATA_SRC_DIR)
 	mkdir -p "$(DATA_DIST_DIR)"
 	rm -f "$(DATA_DIST_DIR)/data.zip"
-	cd "$(DATA_SRC_DIR)" ; $(ZIP_EXE) -r "../$(DATA_DIST_DIR)/data.zip" .
+	cd "$(DATA_SRC_DIR)" ; "$(ZIP_EXE)" -r "../$(DATA_DIST_DIR)/data.zip" .
 
 dist: build $(RES_DIR)/gui/gui.so $(DATA_DIST_DIR)/data.zip rice_bin
 	cp "$(BIN)" "$(BIN_DEV)"
@@ -47,7 +47,7 @@ $(BUILDER_DIR): build $(RES_DIR)/gui/gui.so $(DATA_SRC_DIR) rice_bin
 
 $(BUILDER_ARCHIVE): $(BUILDER_DIR)
 	chmod -R g+w "$(BUILDER_DIR)"
-	zip -r "$(BUILDER_ARCHIVE)" "$(BUILDER_DIR)"
+	"$(ZIP_EXE)" -r "$(BUILDER_ARCHIVE)" "$(BUILDER_DIR)"
 
 
 $(DATA_SRC_DIR):
