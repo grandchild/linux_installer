@@ -25,14 +25,11 @@ nonetheless. Imitates the look and feel of
 ## Contents
 
 * [Quickstart: Run the Example-Installer](#quickstart-run-the-example-installer)
-* [Setup & Run the Linux-Builder](#setup--run-the-linux-builder)
+* [Setup & Build a Linux Installer](#setup--build-a-linux-installer)
   * [Overview](#overview)
+  * [Requirements](#requirements)
   * [Setup](#setup)
-  * [Run](#run)
-* [Development Setup](#development-setup)
-* [Building the Project](#building-the-project)
-  * [Example](#example)
-* [Testing](#testing)
+  * [Build](#build)
 * [Customization](#customization)
   * [Images](#images)
   * [Installer Style & Layout](#installer-style-layout)
@@ -63,13 +60,12 @@ make run
 # (The GTK Go-wrapper will take a while to build on the first run. Grab a coffee...)
 ```
 
-## Setup & Run the Linux-Builder
+## Setup & Build a Linux Installer
 
 ### Overview
 
 This project creates an _installer builder_, which is used to create the actual
-installers. The installer builder comes in the shape of a zip archive
-containing:
+installers. The installer builder comes in the shape of a zip archive containing:
 
  - an empty `data/` source folder for your files
  - the naked `linux_installer` binary
@@ -77,22 +73,44 @@ containing:
  - a `Makefile`/`make.bat` (for building on Linux/Windows respectively) to put
    it all together
 
-The installer builder has no external dependencies (except for `make` on Linux,
-and `Powershell` on Windows), and can be run on a minimal dedicated build
-machine.
+The installer builder has no external dependencies (except for `make` on Linux, and
+`Powershell` on Windows), and can be run on a minimal dedicated build machine.
+
+### Requirements
+
+* A working Go *1.11* (or higher) installation, see the
+[official installation instructions](https://golang.org/doc/install) for information on
+how to install Go on your system
+
+* Make sure your installation works, by following the instructions "*Test your
+installation*" on the installation page.
+
+* The `make` & `zip` commands, simply install their packages:
+  * `make`
+  * `zip`
+
+* On RPM-based systems (Centos, Ubuntu, etc) the following dev-packages need to be
+  installed as well:
+  * `libgtk-3-dev`
+  * `libglib2.0-dev`
+
+* If you want to edit the installer GUI layout you should install
+  [Glade](https://glade.gnome.org/) as well.
 
 ### Setup
-These steps need to be executed only initially and after updating the installer
-builder itself.
 
-1. [Install Go](https://golang.org/doc/install) v**1.11** or higher and make
-   sure `go` the executable is in `$PATH`. (Run `which go` to check.)
+These steps need to be executed only initially and after updating the installer builder
+itself.
+
+1. [Install Go](https://golang.org/doc/install) v**1.11** or higher and make sure `go`
+   the executable is in `$PATH`. (Run `which go` to check.)
 1. `cd` into the local copy of this repository and run `make linux-builder.zip`.
-1. Copy the resulting `linux-builder.zip` archive to builder machine (if
-   different). The builder machine can run Linux or Windows.
-1. Extract anywhere
+1. Copy the resulting `linux-builder.zip` archive to builder machine (if different). The
+   builder machine can run Linux or Windows.
+1. Extract anywhere.
 
-### Run
+### Build
+
 These steps need to be executed in the extracted builder directory, and for every
 installer.
 
@@ -118,85 +136,12 @@ installer.
 
 #### Speed-Up Installer Creation
 
-You can pre-compress files that are the same for several installers into zip
-archives and put them into the `data_compressed` folder. This can speed up the
-creation of a batch of mostly-similar installers.
+You can pre-compress files that are the same for several installers into zip archives
+and put them into the `data_compressed` folder. This can speed up the creation of a
+batch of mostly-similar installers.
 
-*Note:* The archive name `data.zip` is used by the builder, so don't use that
-specific filename.
-
-
-## Development Setup
-
-* Clone the repository anywhere (*except* for `~/go/src/github.com/grandchild/linux_installer`):
-
-```bash
-    git clone https://github.com/grandchild/linux-installer.git
-```
-
-* A working Go *1.11* (or higher) installation, see the
-[official installation instructions](https://golang.org/doc/install) for information on
-how to install Go on your system
-
-* Make sure your installation works, by following the instructions "*Test your
-installation*" on the installation page.
-
-* The `make` & `zip` commands, simply install their packages:
-  * `make`
-  * `zip`
-
-* On RPM-based systems (Centos, Ubuntu, etc) the following dev-packages need to be
-  installed as well:
-  * `libgtk-3-dev`
-  * `libglib2.0-dev`
-
-* If you want to edit the installer GUI layout you should install
-  [Glade](https://glade.gnome.org/) as well.
-
-
-## Building the Project
-
-This project creates an installer *builder* (although it can create test installers
-directly) with which one can create installers for customers.
-
-To create the installer builder follow these steps:
-
-1. In the repository root directory run:<br/>
-  `make clean linux-builder.zip`
-
-1. Copy the resulting `linux-builder.zip` onto the computer you want to create
-  installers with (you can *create* Linux installers on *Windows* as well).
-
-1. Extract the `linux-builder.zip` in a location of your choice.
-
-1. Add all required files and folders to the contained `data` folder.
-
-1. Edit `resources/config.yml` with any information needed (The version number can be
-  set now, or in the next step).
-
-1. Inside the "*linux-builder/*" directory run:<br/>
-  `make OUTPUT=<Your installer name here> VERSION=<Your program version here>`
-
-### Example
-
-A command like:
-
-```bash
-    make OUTPUT=Setup_ExampleApp_v1.1
-```
-
-would create a new file *Setup.bin* which installs the software and shows version 1.1 in
-the UI.
-
-
-## Testing
-
-To simply build and test an installer in the main project, add some files to the `data/`
-directory and then run:
-
-```bash
-    make clean run
-```
+*Note:* The archive name `data.zip` is used by the builder, so don't use that specific
+filename.
 
 
 ## Customization
