@@ -37,7 +37,7 @@ To read documentation for a specific item, e.g. the `installFile()` and the
 
 The code's entry point is the `main()` function in `main/main.go`, which simply calls
 the actual main function which is `run.go`'s `Run()`
-function[<sup>(2)</sup>](#1).
+function[<sup>(1)</sup>](#1).
 
 All GUI code is placed in its own "main" package, inside the `gui/` folder, because it
 is compiled separately as a [Go plugin](https://golang.org/pkg/plugin/) (a Go-specific
