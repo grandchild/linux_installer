@@ -24,9 +24,12 @@ nonetheless. Imitates the look and feel of
 
 ## Contents
 
-* [Quickstart: Run the Example-Installer](#quickstart-run-the-Example-installer)
+* [Quickstart: Run the Example-Installer](#quickstart-run-the-example-installer)
 * [Setup & Run the Linux-Builder](#setup--run-the-linux-builder)
-* [Development Requirements](#development-requirements)
+  * [Overview](#overview)
+  * [Setup](#setup)
+  * [Run](#run)
+* [Development Setup](#development-setup)
 * [Building the Project](#building-the-project)
   * [Example](#example)
 * [Testing](#testing)
@@ -44,16 +47,20 @@ nonetheless. Imitates the look and feel of
 
 ## Quickstart: Run the Example-Installer
 
-If you have _Go_ installed, go to the repository folder and do the following to run the
-example installer:
+If you have _Go_, _make_, _zip_ and _GTK_ (and, if on a Debian/RedHat distro,
+`libgtk-3-dev` & `libglib2.0-dev`) installed, go to the repository folder and do the
+following to run the example installer:
 
 ```shell
 # Create source files folder
 mkdir data
-# Add a file of random 50MiB (use this or copy any other files you want to try out)
+# Add a file of random 50MiB
+# (Use this or copy any other files you want to try out.Add a lot of files
+# if you want to look at the progress, the installer is quite fast!)
 dd if=/dev/urandom of=data/blob.data bs=1M count=50
 # Create and run the example installer
 make run
+# (The GTK Go-wrapper will take a while to build on the first run. Grab a coffee...)
 ```
 
 ## Setup & Run the Linux-Builder
@@ -86,7 +93,8 @@ builder itself.
 1. Extract anywhere
 
 ### Run
-These steps need to be executed for every installer.
+These steps need to be executed in the extracted builder directory, and for every
+installer.
 
 1. Add necessary application files to the `data` subfolder
 1. Set `variables.version` (and possibly other variables) in
@@ -108,7 +116,7 @@ These steps need to be executed for every installer.
    If you set the variables in `resources`/`config.yml` before you can also
    simply run `make.bat` by double-clicking.
 
-#### Speedup
+#### Speed-Up Installer Creation
 
 You can pre-compress files that are the same for several installers into zip
 archives and put them into the `data_compressed` folder. This can speed up the
@@ -118,9 +126,9 @@ creation of a batch of mostly-similar installers.
 specific filename.
 
 
-## Development Requirements
+## Development Setup
 
-* Clone the repository anywhere<sup>[(1)](#1)</sup>:
+* Clone the repository anywhere (*except* for `~/go/src/github.com/grandchild/linux_installer`):
 
 ```bash
     git clone https://github.com/grandchild/linux-installer.git
@@ -142,13 +150,13 @@ installation*" on the installation page.
   * `libgtk-3-dev`
   * `libglib2.0-dev`
 
-* If you want to edit the installer GUI layout you need to install
+* If you want to edit the installer GUI layout you should install
   [Glade](https://glade.gnome.org/) as well.
 
 
 ## Building the Project
 
-This project creates an installer *builder* (altough it can create test installers
+This project creates an installer *builder* (although it can create test installers
 directly) with which one can create installers for customers.
 
 To create the installer builder follow these steps:
@@ -310,15 +318,10 @@ bit earlier in `gui/gui.go`. Refer to that for details.
 
 If a function for a key is empty, the key can be omitted completely.
 
+
 ## Hacking
 
 See [HACKING.md](HACKING.md).
-
-
----
-
-#### (1)
-Specifically *not* in `~/go/src/github.com/grandchild/linux_installer`!
 
 
 ## License and Acknowledgments
