@@ -4,5 +4,6 @@
 // installed via a GTK3-based GUI, or alternatively a commandline interface (referred to
 // as a "silent" install).
 //
-// See the README.md for usage and code structure overview.
+// See the README.md for usage info and customization instructions and see
+// HACKING.md for a code structure overview.
 package linux_installer
