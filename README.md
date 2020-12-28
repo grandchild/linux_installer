@@ -23,7 +23,8 @@ the look and feel of [NSIS](https://nsis.sourceforge.io/Screenshots) installers.
 * Pre-/post-install script hooks
 * Automatic uninstaller creation
 * Commandline or *"silent"* mode
-* Cancel with full rollback during install process.
+* Cancel with full rollback during install process
+* Run application after finish
 
 ## Contents
 
