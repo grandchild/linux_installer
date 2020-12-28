@@ -1,7 +1,13 @@
+# github.com/GeertJohan/go.incremental v1.0.0
+github.com/GeertJohan/go.incremental
 # github.com/GeertJohan/go.rice v1.0.2
 ## explicit
 github.com/GeertJohan/go.rice
 github.com/GeertJohan/go.rice/embedded
+github.com/GeertJohan/go.rice/rice
+# github.com/akavel/rsrc v0.8.0
+github.com/akavel/rsrc/binutil
+github.com/akavel/rsrc/coff
 # github.com/cloudfoundry/jibber_jabber v0.0.0-20151120183258-bcc4c8345a21
 ## explicit
 github.com/cloudfoundry/jibber_jabber
@@ -14,6 +20,14 @@ github.com/gotk3/gotk3/gdk
 github.com/gotk3/gotk3/glib
 github.com/gotk3/gotk3/gtk
 github.com/gotk3/gotk3/pango
+# github.com/jessevdk/go-flags v1.4.0
+github.com/jessevdk/go-flags
+# github.com/nkovacs/streamquote v1.0.0
+github.com/nkovacs/streamquote
+# github.com/valyala/bytebufferpool v1.0.0
+github.com/valyala/bytebufferpool
+# github.com/valyala/fasttemplate v1.0.1
+github.com/valyala/fasttemplate
 # golang.org/x/sys v0.0.0-20201223074533-0d417f636930
 ## explicit
 golang.org/x/sys/internal/unsafeheader
