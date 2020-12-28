@@ -276,6 +276,8 @@ This software has a [CC0](https://creativecommons.org/publicdomain/zero/1.0/) li
 To the extent possible under law, all copyright and related or neighboring rights to
 this work are waived.
 
+(And yes, this means commercial use is explicitly allowed.)
+
 
 This software was developed and tested for years at
 [Contecs engineering services GmbH](http://www.contecs-engineering.de/) who have
