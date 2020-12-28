@@ -3,7 +3,7 @@ module github.com/grandchild/linux_installer
 go 1.12
 
 require (
-	github.com/GeertJohan/go.rice v1.0.0
+	github.com/GeertJohan/go.rice v1.0.2
 	github.com/cloudfoundry/jibber_jabber v0.0.0-20151120183258-bcc4c8345a21
 	github.com/gotk3/gotk3 v0.0.0-20190317050849-ac288f33fb79
 	github.com/onsi/ginkgo v1.8.0 // indirect
