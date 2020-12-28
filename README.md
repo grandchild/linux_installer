@@ -1,5 +1,9 @@
 # Linux Installer
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/grandchild/linux_installer.svg)](https://pkg.go.dev/github.com/grandchild/linux_installer)
+[![License](https://img.shields.io/github/license/grandchild/linux_installer.svg)](
+https://creativecommons.org/publicdomain/zero/1.0/)
+
 A GTK3-based GUI installer for an audience that's used to Windows installers.
 When all you would _really_ need is `unzip`, but want a nice user experience
 nonetheless. Imitates the look and feel of
