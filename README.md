@@ -301,6 +301,16 @@ To check which version you are running, run `ldd --version`.
 (Note that this does not affect the machine on which you are packaging the actual
 installers. You can run the installer builder on any system.)
 
+#### make-run error `cp: cannot stat .../windows_amd64/rice.exe`
+
+```
+cp: cannot stat '~/go/bin/windows_amd64/rice.exe': No such file or directory
+make: *** [Makefile:75: rice_bin] Error 1
+```
+
+This is quite a weird bug, that only happens the first time `make run` is invoked.
+The solution is to call `make run` again. It will work this time.
+
 
 ## License and Acknowledgments
 

@@ -69,7 +69,9 @@ rice_bin:
 	mkdir -p rice_bin
 	go get github.com/GeertJohan/go.rice
 	GOBIN=`readlink -f rice_bin` go install github.com/GeertJohan/go.rice/rice
-	# The $GOBIN-trick doesn't work for cross-compilation, so that one is created
-	# in $GOPATH/bin as usual and then copied.
+	# The GOBIN-trick doesn't work for cross-compilation, so that one is created
+	# in GOPATH/bin as usual and then copied.
 	GOOS=windows go install github.com/GeertJohan/go.rice/rice
 	cp "$(GOPATH)/bin/windows_amd64/rice.exe" rice_bin/
+	# This last cp fails on some systems (filesystems?) when this target is called for
+	# the first time. Happened on live-iso-systems.
