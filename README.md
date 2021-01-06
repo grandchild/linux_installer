@@ -51,19 +51,21 @@ installers.
 
 ## Quickstart: Run the Example-Installer
 
-If you have _Go_, _make_, _zip_ and _GTK_ (and, if on a Debian/RedHat distro,
-`libgtk-3-dev` & `libglib2.0-dev`) installed, go to the repository folder and do the
-following to run the example installer:
+If you have [all required packages](#requirements) installed, go to the repository
+folder and do the following to run the example installer:
 
 ```shell
 # Create source files folder
 mkdir data
+
 # Add a file of random 50MiB
-# (Use this or copy any other files you want to try out. Add a lot of files
-# if you want to look at the progress, the installer is quite fast!)
 dd if=/dev/urandom of=data/blob.data bs=1M count=50
+# (Use the above, or copy some other files you want to try out. Add a lot of files
+# if you want to look at the progress, the installer is quite fast!)
+
 # Create and run the example installer
 make run
+
 # (The GTK Go-wrapper will take a while to build on the first run. Grab a coffee...)
 ```
 
@@ -87,24 +89,37 @@ The installer builder has no external dependencies (except for `make` on Linux, 
 
 ### Requirements
 
-* A working Go *1.11* (or higher) installation, see the
-[official installation instructions](https://golang.org/doc/install) for information on
-how to install Go on your system
+* The following dependencies need to be installed to build:
 
-* Make sure your installation works, by following the instructions "*Test your
-installation*" on the installation page.
+  `go` `gcc` `gtk3` `make` `pkg-config` `zip`
 
-* The `make` & `zip` commands, simply install their packages:
-  * `make`
-  * `zip`
-  
-  <sub>(Technically, BSD-Make works just as well as GNU-Make, so if you have `bmake`
-  that'll work too). </sub>
+  <sup>(Technically, BSD-Make works just as well as GNU-Make, so if you have `bmake`
+  that'll work too).</sup>
 
-* On Debian- or RedHat-based systems (e.g. Centos, Ubuntu, etc) the following
-  dev-packages need to be installed as well:
-  * `libgtk-3-dev`
-  * `libglib2.0-dev`
+  Prepared install commands for popular distributions are below:
+
+  <details><summary><em>Archlinux / Manjaro</em></summary>
+
+    `sudo pacman -S --needed go gcc gtk3 make pkg-config zip`
+  </details>
+
+  <details><summary><em>Debian / Ubuntu</em></summary>
+
+    `sudo apt install golang-go gcc libgtk-3-dev libglib2.0-dev make pkg-config zip`
+  </details>
+
+  <details><summary><em>Gentoo</em></summary>
+
+    `sudo emerge dev-lang/go x11-libs/gtk+:3 dev-libs/glib dev-util/pkgconfig app-arch/zip`
+  </details>
+
+  <details><summary><em>Fedora / RedHat</em></summary>
+
+    `sudo dnf install golang gcc gtk3-devel make pkgconf zip`
+  </details>
+
+* If you're new to Go, verify that your installation works by running `go version`. It
+  should print the installed Go version.
 
 * If you want to edit the installer GUI layout you should install
   [Glade](https://glade.gnome.org/) as well.
@@ -114,8 +129,7 @@ installation*" on the installation page.
 These steps need to be executed only initially and after updating the installer builder
 itself.
 
-1. [Install Go](https://golang.org/doc/install) v**1.11** or higher and make sure `go`
-   the executable is in `$PATH`. (Run `which go` to check.)
+1. [Install all dependencies](#requirements).
 1. `cd` into the local copy of this repository and run `make linux-builder.zip`.
 1. Copy the resulting `linux-builder.zip` archive to builder machine (if different). The
    builder machine can run Linux or Windows.
