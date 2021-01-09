@@ -79,6 +79,7 @@ cli_help_acceptlicense: >-
   Die Lizenzvereinbarung annehmen -- dieser Parameter ist zwingend für eine stille
   Installation
 cli_help_nolauncher: Keine Verknüpfung im {{.applauncher}} hinzufügen.
+cli_help_run_installed: "{{.product}} nach erfolgreicher Installation direkt ausführen."
 cli_help_lang: "Wählen Sie die Installationssprache aus, als 2-Buchstaben-Code. Möglichkeiten:"
 
 silent_installing: Installieren...

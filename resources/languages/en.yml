@@ -75,6 +75,7 @@ cli_help_showlicense: Show the license and quit
 cli_help_acceptlicense: >-
   Accept the license agreement -- this flag is mandatory for silent installs
 cli_help_nolauncher: Don't a create shortcut in the {{.applauncher}}.
+cli_help_run_installed: Run {{.product}} after a successful installation.
 cli_help_lang: "Choose the installation language, with a two-letter code. Choices are:"
 
 silent_installing: Installing...

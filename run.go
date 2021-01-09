@@ -23,10 +23,12 @@ const (
 // GUI or commandline mode.
 //
 // Commandline parameters are:
-//   -target          // Target directory to install to
-//   -show-license    // Print the software license and exit
-//   -accept-license  // Accept the license, needed to install the software in commandline mode.
-//   -lang            // Choose install language. This also affects the GUI mode.
+//   -target   // Target directory to install to
+//   -license  // Print the software license and exit
+//   -accept   // Accept the license. (This flag is only available if
+//             // "must_accept_license_on_cli" is set in the config file.)
+//   -lang     // Choose install language. This also affects the GUI mode.
+//   -run      // Run installed application after successful install.
 //
 // Giving any commandline parameters other than -lang will trigger commandline, or
 // "silent" mode. -target and -accept-license are necessary to run commandline install.
@@ -52,6 +54,7 @@ func Run() int {
 		acceptLicense = flag.Bool("accept", false, translator.Get("cli_help_acceptlicense"))
 	}
 	noLauncher := flag.Bool("no-launcher", false, translator.Get("cli_help_nolauncher"))
+	runInstalled := flag.Bool("run", false, translator.Get("cli_help_run_installed"))
 	lang := flag.String("lang", "", translator.Get("cli_help_lang")+" "+strings.Join(translator.GetLanguages(), ", "))
 	flag.Parse()
 
@@ -74,9 +77,8 @@ func Run() int {
 		return 2
 	}
 
-	if *noLauncher {
-		config.NoLauncher = true
-	}
+	config.NoLauncher = *noLauncher
+	config.RunInstalled = *runInstalled
 
 	if len(*target) > 0 {
 		if (config.MustAcceptLicenseOnCli && *acceptLicense) || !config.MustAcceptLicenseOnCli {
@@ -168,6 +170,9 @@ func RunCliInstall(
 		)
 		fmt.Println(clearLineVT100 + installer.SizeString())
 		fmt.Println(translator.Get("silent_done"))
+		if config.RunInstalled {
+			installer.ExecInstalled()
+		}
 	}
 }
 

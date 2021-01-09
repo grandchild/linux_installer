@@ -19,6 +19,9 @@ const configFilename = "config.yml"
 //
 // NoLauncher is a flag from the command line that suppresses launcher shortcut
 // creation.
+//
+// RunInstalled is a flag from the command line that runs the installed application
+// after installation completes successfully.
 type Config struct {
 	Variables              VariableMap `yaml:"variables,omitempty"`
 	MustAcceptLicenseOnCli bool        `yaml:"must_accept_license_on_cli"`
@@ -26,7 +29,8 @@ type Config struct {
 	GuiCss                 string      `yaml:"gui_css,omitempty"`
 
 	// commandline config options
-	NoLauncher bool
+	NoLauncher   bool
+	RunInstalled bool
 }
 
 // NewConfig returns a Config object containing the settings from resources/config.yml.
