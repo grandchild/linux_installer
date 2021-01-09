@@ -31,8 +31,10 @@ const (
 //   -run      // Run installed application after successful install.
 //
 // Giving any commandline parameters other than -lang will trigger commandline, or
-// "silent" mode. -target and -accept-license are necessary to run commandline install.
-// -lang will also set the default GUI language.
+// "silent" mode. -target (and -accept if configured) are necessary to run commandline
+// install.
+// -lang will also set the default GUI language. It cannot, however, set the language of
+// the -help output.
 func Run() int {
 	logfile := startLogging(logFilename)
 	defer logfile.Close()
@@ -109,8 +111,8 @@ func Run() int {
 // When the GUI fails to load it will try a last-ditch effort to show an error dialog
 // with Zenity (which comes with e.g. RedHat/Centos 6). Beyond that there is no way to
 // interact with the user graphically, and it will simply log the error, and print usage
-// help to the command line. (Which of course, will only be visible if started via
-// command-line and not via double-click.)
+// help to the terminal. (Which of course, will only be visible if started via
+// commandline and not via double-click.)
 func RunGuiInstall(
 	installerTempPath string, translator *Translator, config *Config,
 ) (err error) {
@@ -130,7 +132,7 @@ func RunGuiInstall(
 	return
 }
 
-// RunCliInstall runs a "silent" installation, on the command line with no further user
+// RunCliInstall runs a "silent" installation, in the terminal with no further user
 // interaction.
 func RunCliInstall(
 	installerTempPath, target string, translator *Translator, config *Config,
@@ -177,7 +179,7 @@ func RunCliInstall(
 	}
 }
 
-// RunTuiInstall starts a terminal curses-based UI (currently disabled).
+// RunTuiInstall would start a terminal curses-based UI (unfinished and disabled).
 func RunTuiInstall(installerTempPath string, translator *Translator) (err error) {
 	// 	tui, err := NewTui(installerTempPath, translator)
 	// 	if err != nil {
