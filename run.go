@@ -47,7 +47,10 @@ func Run() int {
 
 	target := flag.String("target", "", translator.Get("cli_help_target"))
 	showLicense := flag.Bool("license", false, translator.Get("cli_help_showlicense"))
-	acceptLicense := flag.Bool("accept", false, translator.Get("cli_help_acceptlicense"))
+	var acceptLicense *bool
+	if config.MustAcceptLicenseOnCli {
+		acceptLicense = flag.Bool("accept", false, translator.Get("cli_help_acceptlicense"))
+	}
 	noLauncher := flag.Bool("no-launcher", false, translator.Get("cli_help_nolauncher"))
 	lang := flag.String("lang", "", translator.Get("cli_help_lang")+" "+strings.Join(translator.GetLanguages(), ", "))
 	flag.Parse()
@@ -76,7 +79,7 @@ func Run() int {
 	}
 
 	if len(*target) > 0 {
-		if *acceptLicense {
+		if (config.MustAcceptLicenseOnCli && *acceptLicense) || !config.MustAcceptLicenseOnCli {
 			RunCliInstall(installerTempPath, *target, translator, config)
 		} else {
 			fmt.Println(translator.Get("err_cli_mustacceptlicense"))

@@ -74,7 +74,7 @@ cli_help_nogui: Installation via Kommandozeile statt der GUI
 cli_help_target: >-
   Installationsverzeichnis -- Wenn Sie außerdem per '-accept' der Lizenzvereinbarung
   zustimmen, löst dies eine stille Installation ohne weitere Fragen aus
-cli_help_showlicense: Die Lizenzvereinbarung anzeigen und beenden
+cli_help_showlicense: Die Lizenz anzeigen und beenden
 cli_help_acceptlicense: >-
   Die Lizenzvereinbarung annehmen -- dieser Parameter ist zwingend für eine stille
   Installation
@@ -115,8 +115,8 @@ osx_app_launcher: Dock
 ### Errors
 err_couldnt_open_install_path_dialog: Konnte den Pfad-Dialog nicht öffnen
 err_cli_mustacceptlicense: >
-  Sie müssen die Lizenzvereinbarung mit dem '-accept-license'-Flag akzeptieren um eine
-  stille Installation durchführen zu können.
+  Sie müssen die Lizenzvereinbarung mit dem '-accept'-Flag akzeptieren um eine stille
+  Installation durchführen zu können.
 err_gui_startup_failed: >
   Der graphische Installer konnte nicht gestartet werden. Die Installation per
   Kommandozeile akzeptiert folgende Parameter

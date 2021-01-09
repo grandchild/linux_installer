@@ -71,7 +71,7 @@ cli_help_nogui: Install via command line instead of the GUI
 cli_help_target: >-
   Install directory -- if you agree to the license as well, via -accept, this will
   trigger a silent installation without further questions
-cli_help_showlicense: Show the license agreement and quit
+cli_help_showlicense: Show the license and quit
 cli_help_acceptlicense: >-
   Accept the license agreement -- this flag is mandatory for silent installs
 cli_help_nolauncher: Don't a create shortcut in the {{.applauncher}}.
@@ -110,8 +110,8 @@ osx_app_launcher: Dock
 ### Errors
 err_couldnt_open_install_path_dialog: Couldn't open path dialog window
 err_cli_mustacceptlicense: >
-  You must accept the license with the '-accept-license' flag in order to perform a
-  silent installation.
+  You must accept the license with the '-accept' flag in order to perform a silent
+  installation.
 err_gui_startup_failed: >
   The graphical installer failed to start. The installation via command line uses the
   following parameters
