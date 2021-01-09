@@ -41,6 +41,9 @@ dev: build $(RES_DIR)/gui/gui.so $(DATA_DIST_DIR)/data.zip rice_bin
 run: dev
 	./"$(BIN_DEV)"
 
+runcli: dev
+	./"$(BIN_DEV)" -target ./DevInstallation -accept
+
 $(BUILDER_DIR): build $(RES_DIR)/gui/gui.so $(DATA_SRC_DIR) rice_bin
 	cp -r "$(DATA_SRC_DIR)" "$(RES_DIR)" "$(BIN)" rice_bin/$(RICE_EXE)* "$(BUILDER_DIR)/"
 	chmod +x "$(BUILDER_DIR)/$(RICE_EXE)"
