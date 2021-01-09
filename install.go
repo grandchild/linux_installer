@@ -465,9 +465,11 @@ func (i *Installer) PostInstall(variablesList ...VariableMap) {
 	}
 }
 
-// ExecInstalled runs the start command set in the config file. On Linux, this function
-// replaces the installer process and never returns.
+// ExecInstalled changes into the installer target directory, runs the start command set
+// in the config file. This function replaces (or, on Windows, terminates) the installer
+// process and never returns.
 func (i *Installer) ExecInstalled() {
+	os.Chdir(i.Target)
 	osExecVE(filepath.Join(i.Target, i.config.Variables["start_command"]), []string{})
 }
 
