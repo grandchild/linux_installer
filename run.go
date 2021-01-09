@@ -71,10 +71,11 @@ func Run() int {
 		)
 		if err != nil {
 			fmt.Println(err)
+			return 2
 		} else {
 			fmt.Print(licenseFile)
+			return 0
 		}
-		return 2
 	}
 
 	config.NoLauncher = *noLauncher
