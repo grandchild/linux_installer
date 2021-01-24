@@ -1,6 +1,6 @@
 # HOWTO:
 # To package an installer, fill the "data" folder with the complete set of files, add
-# other static zip files (if any) into "data_compressed", and finally run
+# other static zip files (if any) into "data-compressed", and finally run
 #
 #   make VERSION=1.1 OUTPUT=Setup_ExampleApp_v1.1
 #
@@ -13,7 +13,7 @@
 # or something similar.
 OUTPUT=Setup
 # The raw installer's filename (created by the parent linux-installer project)
-INPUT=linux_installer
+INPUT=linux-installer
 
 # Always set version explicitly! This is supposed to be a noticably wrong default.
 VERSION=0.0
@@ -27,7 +27,7 @@ RESOURCE_SRC_DIR = resources
 # compressed into a data.zip file inside this folder, but you can add other pre-zipped
 # data files as well, so save on compression time for static files.
 # If you change this you have to change it in rice.go as well.
-DATA_DIST_DIR = data_compressed
+DATA_DIST_DIR = data-compressed
 
 # Name of the "zip" command (might be different on some systems)
 ZIP_EXE = zip

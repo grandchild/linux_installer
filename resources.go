@@ -31,7 +31,7 @@ func openBoxes() {
 	if err != nil {
 		panic(err)
 	}
-	dataBox, err = rice.FindBox("data_compressed")
+	dataBox, err = rice.FindBox("data-compressed")
 	if err != nil {
 		panic(err)
 	}

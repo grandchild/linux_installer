@@ -1,7 +1,7 @@
 
 # build output
-linux_installer
-linux_installer_dev
+linux-installer
+linux-installer-dev
 installer
 linux-builder.zip
 linux-builder.tar.gz
@@ -10,16 +10,16 @@ linux-builder/resources/
 linux-builder/data*/
 linux-builder/rice
 linux-builder/rice.exe
-linux-builder/linux_installer
+linux-builder/linux-installer
 resources/gui/gui.so
-rice_bin/
+rice-bin/
 
 # goland project files
 .idea/
 
 # any test data
 data/*
-data_compressed/*
+data-compressed/*
 
 # test log
 /installer.log

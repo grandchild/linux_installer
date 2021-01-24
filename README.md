@@ -77,7 +77,7 @@ This project creates an _installer builder_, which is used to create the actual
 installers. The installer builder comes in the shape of a zip archive containing:
 
  - an empty `data/` source folder for your files
- - the naked `linux_installer` binary
+ - the naked `linux-installer` binary
    - _"naked"_ means "only the installer logic", your payload(s) will be appended to
      this file later to create the full installer.
  - all installer GUI files in `resources/` — to customize and modify
@@ -302,7 +302,7 @@ See [HACKING.md](HACKING.md).
 The installer might fail to run on another machine with an error like this:
 
 ```
-./linux_installer_dev: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.32' not found (required by ./linux_installer_dev)
+./linux-installer-dev: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.32' not found (required by ./linux-installer-dev)
 ```
 
 The installer builder was linked on a machine with a newer libc than the one on the

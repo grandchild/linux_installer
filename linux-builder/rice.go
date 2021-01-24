@@ -10,5 +10,5 @@ func boxes() {
 	// If you change, add or remove directories here, have them changed in
 	// the installer base project's resources.go file as well!
 	rice.FindBox("resources")
-	rice.FindBox("data_compressed")
+	rice.FindBox("data-compressed")
 }

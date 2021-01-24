@@ -2,13 +2,14 @@
 SRC = $(wildcard *.go gui/*.go main/*.go)
 PKG = github.com/grandchild/linux_installer
 
-BIN = linux_installer
-BIN_DEV = linux_installer_dev
+BIN = linux-installer
+BIN_DEV = linux-installer-dev
 RES_DIR = resources
 DATA_SRC_DIR = data
-DATA_DIST_DIR = data_compressed
+DATA_DIST_DIR = data-compressed
 BUILDER_DIR = linux-builder
 BUILDER_ARCHIVE = $(BUILDER_DIR).zip
+RICE_BIN_DIR = rice-bin
 
 ZIP_EXE = zip
 RICE_EXE = rice
@@ -34,9 +35,9 @@ $(DATA_DIST_DIR)/data.zip: $(DATA_SRC_DIR)
 	rm -f "$(DATA_DIST_DIR)/data.zip"
 	cd "$(DATA_SRC_DIR)" ; "$(ZIP_EXE)" -r "../$(DATA_DIST_DIR)/data.zip" .
 
-dev: build $(RES_DIR)/gui/gui.so $(DATA_DIST_DIR)/data.zip rice_bin
+dev: build $(RES_DIR)/gui/gui.so $(DATA_DIST_DIR)/data.zip $(RICE_BIN_DIR)
 	cp "$(BIN)" "$(BIN_DEV)"
-	rice_bin/rice append --exec "$(BIN_DEV)"
+	$(RICE_BIN_DIR)/rice append --exec "$(BIN_DEV)"
 
 run: dev
 	./"$(BIN_DEV)"
@@ -44,8 +45,8 @@ run: dev
 runcli: dev
 	./"$(BIN_DEV)" -target ./DevInstallation -accept
 
-$(BUILDER_DIR): build $(RES_DIR)/gui/gui.so $(DATA_SRC_DIR) rice_bin
-	cp -r "$(DATA_SRC_DIR)" "$(RES_DIR)" "$(BIN)" rice_bin/$(RICE_EXE)* "$(BUILDER_DIR)/"
+$(BUILDER_DIR): build $(RES_DIR)/gui/gui.so $(DATA_SRC_DIR) $(RICE_BIN_DIR)
+	cp -r "$(DATA_SRC_DIR)" "$(RES_DIR)" "$(BIN)" "$(RICE_BIN_DIR)/$(RICE_EXE)"* "$(BUILDER_DIR)/"
 	chmod +x "$(BUILDER_DIR)/$(RICE_EXE)"
 
 $(BUILDER_ARCHIVE): $(BUILDER_DIR)
@@ -56,25 +57,25 @@ $(BUILDER_ARCHIVE): $(BUILDER_DIR)
 $(DATA_SRC_DIR):
 	mkdir "$@"
 
-clean: clean_data clean_builder
+clean: clean-data clean-builder
 	rm -f "$(RES_DIR)/gui/gui.so"
 	rm -f "$(BIN)" "$(BIN_DEV)"
 
-clean_data:
+clean-data:
 	rm -rf "$(DATA_DIST_DIR)"
 
-clean_builder:
+clean-builder:
 	rm -rf "$(BUILDER_DIR)/"{"$(RES_DIR)","$(DATA_DIST_DIR)","$(DATA_SRC_DIR)","$(BIN)","$(RICE_EXE)"}
 	rm -f "$(BUILDER_ARCHIVE)"
 
 
-rice_bin:
-	mkdir -p rice_bin
+$(RICE_BIN_DIR):
+	mkdir -p "$(RICE_BIN_DIR)"
 	go get github.com/GeertJohan/go.rice
-	GOBIN=`readlink -f rice_bin` go install github.com/GeertJohan/go.rice/rice
+	GOBIN=`readlink -f "$(RICE_BIN_DIR)"` go install github.com/GeertJohan/go.rice/rice
 	# The GOBIN-trick doesn't work for cross-compilation, so that one is created
 	# in GOPATH/bin as usual and then copied.
 	GOOS=windows go install github.com/GeertJohan/go.rice/rice
-	cp "$(GOPATH)/bin/windows_amd64/rice.exe" rice_bin/
+	cp "$(GOPATH)/bin/windows_amd64/rice.exe" $(RICE_BIN_DIR)/
 	# This last cp fails on some systems (filesystems?) when this target is called for
 	# the first time. Happened on live-iso-systems.
