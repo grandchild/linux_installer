@@ -22,9 +22,7 @@ if [ "${choice:0:1}" != "n" ] ; then
     rmdir "{{.installDir}}" 2>/dev/null
     if [ "$?" == "0" ] ; then
         echo "{{.uninstall_success}}"
-        sleep 5
     else
         echo "{{.uninstall_failure}}"
-        read
     fi
 fi
