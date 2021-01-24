@@ -22,7 +22,7 @@ data/*
 data-compressed/*
 
 # test log
-/installer.log
+installer.log
 
 
 # The rest created by https://www.gitignore.io/api/go,linux,windows
