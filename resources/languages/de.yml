@@ -134,4 +134,4 @@ err_gui_startup_internal_error: |
   Installers aufgetreten. Bitte kontaktieren Sie den
   {{.company_short}}-Support und senden die
   installer.log-Datei mit wenn Sie können:
-      {{.company_email}}
+      {{.company_contact}}
