@@ -20,8 +20,7 @@ GO_MOD_FLAGS = -mod=vendor
 
 
 default: build $(DATA_DIST_DIR)/data.zip
-
-builder: clean $(BUILDER_ARCHIVE)
+builder: $(BUILDER_ARCHIVE)
 
 
 build: $(SRC)
