@@ -64,6 +64,7 @@ type (
 		progressBar      *gtk.Entry
 		quitDialog       *gtk.Dialog
 		licenseBuf       *gtk.TextBuffer
+		runInstalled     *gtk.CheckButton
 		curScreen        int
 		screenNames      []string
 		screens          []Screen
@@ -172,9 +173,12 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 				g.quitButton.SetSensitive(false)
 				g.backButton.SetSensitive(false)
 				g.nextButton.SetLabel(g.t("button_exit"))
+				if !g.installer.StartCommandAvailable() {
+					g.runInstalled.SetSensitive(false)
+				}
 			},
 			after: func() {
-				if getCheckButton(g.builder, "success-run-checkbox").GetActive() {
+				if g.runInstalled.GetActive() {
 					g.installer.ExecInstalled()
 				}
 				gtk.MainQuit()
@@ -215,21 +219,22 @@ func NewGui(
 		return err
 	}
 	gui = &Gui{
-		installer:   installer,
-		builder:     builder,
-		win:         getWindow(builder, "installer-frame"),
-		content:     getStack(builder, "content"),
-		backButton:  getButton(builder, "button-back"),
-		nextButton:  getButton(builder, "button-next"),
-		quitButton:  getButton(builder, "button-quit"),
-		dirPathEdit: getEntry(builder, "path-entry"),
-		progressBar: getEntry(builder, "progress-bar"),
-		quitDialog:  getDialog(builder, "quit-dialog"),
-		licenseBuf:  getTextBuffer(builder, "license-buf"),
-		screens:     make([]Screen, 0, len(screenHandlers(nil))),
-		curScreen:   0,
-		translator:  translator,
-		config:      config,
+		installer:    installer,
+		builder:      builder,
+		win:          getWindow(builder, "installer-frame"),
+		content:      getStack(builder, "content"),
+		backButton:   getButton(builder, "button-back"),
+		nextButton:   getButton(builder, "button-next"),
+		quitButton:   getButton(builder, "button-quit"),
+		dirPathEdit:  getEntry(builder, "path-entry"),
+		progressBar:  getEntry(builder, "progress-bar"),
+		quitDialog:   getDialog(builder, "quit-dialog"),
+		licenseBuf:   getTextBuffer(builder, "license-buf"),
+		runInstalled: getCheckButton(builder, "success-run-checkbox"),
+		screens:      make([]Screen, 0, len(screenHandlers(nil))),
+		curScreen:    0,
+		translator:   translator,
+		config:       config,
 	}
 	gui.builder.ConnectSignals(guiEventHandler(gui))
 	for signal, handler := range internalEventHandler(gui) {

@@ -437,7 +437,7 @@ func (i *Installer) PostInstall(variablesList ...VariableMap) {
 	}
 	variablesList = append(variablesList, VariableMap{"installDir": i.Target})
 	variables := MergeVariables(variablesList...)
-	if i.CreateLauncher {
+	if i.StartCommandAvailable() && i.CreateLauncher {
 		launcherFile, err := osCreateLauncherEntry(variables)
 		if err == nil {
 			uninstallerFileList = append(uninstallerFileList, launcherFile)
@@ -465,10 +465,21 @@ func (i *Installer) PostInstall(variablesList ...VariableMap) {
 	}
 }
 
+// StartCommandAvailable is queried when deciding whether to install an application-
+// launcher entry, or whether to enable running the application after a successful
+// installation.
+func (i *Installer) StartCommandAvailable() bool {
+	start_command, ok := i.config.Variables["start_command"]
+	return !ok && start_command != ""
+}
+
 // ExecInstalled changes into the installer target directory, runs the start command set
 // in the config file. This function replaces (or, on Windows, terminates) the installer
 // process and never returns.
 func (i *Installer) ExecInstalled() {
+	if i.StartCommandAvailable() {
+		return
+	}
 	os.Chdir(i.Target)
 	osExecVE(filepath.Join(i.Target, i.config.Variables["start_command"]), []string{})
 }
