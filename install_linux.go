@@ -26,8 +26,7 @@ Type=Application
 Icon={{.installDir}}/{{.icon_file}}
 Exec={{.installDir}}/{{.start_command}}
 Comment={{.tagline}}
-Categories=Simulation;Engineering;Science;
-Terminal=true
+Terminal={{.show_terminal_during_app_run}}
 `
 )
 

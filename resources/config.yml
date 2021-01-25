@@ -11,6 +11,7 @@ variables:
   icon_file: ExampleApp.png
 
 must_accept_license: true
+show_terminal_during_app_run: false
 
 default_install_dir_name: '{{.product | replace " " "" }}{{ index (.version | split ".") 0 }}'
 
