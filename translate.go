@@ -33,6 +33,9 @@ func NewTranslatorVar(variables VariableMap) *Translator {
 	languageFiles := MustGetResourceFiltered(
 		"languages", regexp.MustCompile(`\.ya?ml$`),
 	)
+	if len(languageFiles) == 0 {
+		return nil
+	}
 	languages := make(map[string]VariableMap)
 	for filename, content := range languageFiles {
 		languageTagRegex := regexp.MustCompile(`.*/([^/]+)\.ya?ml`)
@@ -53,7 +56,13 @@ func NewTranslatorVar(variables VariableMap) *Translator {
 	if err != nil {
 		err = t.SetLanguage(DefaultLanguage)
 		if err != nil {
-			return nil
+			for languageTag := range t.langStrings {
+				err = t.SetLanguage(languageTag)
+				if err != nil {
+					return nil
+				}
+				break
+			}
 		}
 	}
 	return &t
