@@ -46,6 +46,10 @@ func Run() int {
 	}
 	config.Variables["installerName"] = os.Args[0]
 	translator := NewTranslatorVar(config.Variables)
+	if translator == nil {
+		log.Println("No language files available")
+		return 5
+	}
 	installerTempPath := filepath.Join(os.TempDir(), "linux_installer")
 	defer os.RemoveAll(installerTempPath)
 
