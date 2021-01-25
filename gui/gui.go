@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -216,9 +217,11 @@ func NewGui(
 	if err != nil {
 		return err
 	}
-	builder, err := gtk.BuilderNewFromFile(
-		filepath.Join(installerTempPath, "gui", "gui.glade"),
-	)
+	gladeFile := filepath.Join(installerTempPath, "gui", "gui.glade")
+	if _, err = os.Stat(gladeFile); os.IsNotExist(err) {
+		return err
+	}
+	builder, err := gtk.BuilderNewFromFile(gladeFile)
 	if err != nil {
 		return err
 	}
