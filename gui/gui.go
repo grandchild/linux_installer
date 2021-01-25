@@ -72,6 +72,7 @@ type (
 		screens          []Screen
 		screenChangeLock sync.Mutex
 		translator       *linux_installer.Translator
+		isTranslated     bool
 		config           *linux_installer.Config
 		widgetLabelRegex *regexp.Regexp
 	}
@@ -124,7 +125,7 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 				g.setLanguageOptions("language-choose")
 			},
 			after: func() {
-				g.setLanguage("language-choose")
+				g.setLanguageFromChooser("language-choose")
 			},
 		},
 		{
@@ -458,14 +459,19 @@ func (g *Gui) setLanguageOptions(chooserId string) error {
 	return nil
 }
 
-// setLanguage gets the currently selected language in the dropdown selection, and
-// applies it to all texts throughout the GUI, on all screens.
-func (g *Gui) setLanguage(chooserId string) error {
+// setLanguageFromChooser gets the currently selected language in the dropdown
+// selection, and applies to all GUI elements.
+func (g *Gui) setLanguageFromChooser(chooserId string) error {
 	comboBox := getComboBoxText(g.builder, chooserId)
 	if comboBox == nil {
 		return errors.New(fmt.Sprintf("No Dropdown '%s'", chooserId))
 	}
-	err := g.translator.SetLanguage(comboBox.GetActiveID())
+	return g.setLanguage(comboBox.GetActiveID())
+}
+
+// setLanguage translates all translatable labels throughout the GUI, on all screens.
+func (g *Gui) setLanguage(lang string) error {
+	err := g.translator.SetLanguage(lang)
 	if err != nil {
 		return err
 	}
@@ -474,6 +480,8 @@ func (g *Gui) setLanguage(chooserId string) error {
 		screen.widget.GetChildren().Foreach(g.translateAllLabels)
 	}
 	g.translateAllLabels(getBox(g.builder, "quit-dialog-box"))
+	g.isTranslated = true
+	// consider GUI translated, even if something goes wrong with the license files.
 	return g.setLicenseText()
 }
 
