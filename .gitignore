@@ -14,6 +14,13 @@ linux-builder/linux-installer
 resources/gui/gui.so
 rice-bin/
 
+.release/linux-installer
+.release/resources/gui/gui.go
+.release/resources/gui/gui.glade
+.release/resources/languages
+.release/resources/uninstaller
+.release/rice.go
+
 # goland project files
 .idea/
 

@@ -7,6 +7,7 @@ BIN_DEV = linux-installer-dev
 RES_DIR = resources
 DATA_SRC_DIR = data
 DATA_DIST_DIR = data-compressed
+RELEASE_DIST_DIR = .release
 BUILDER_DIR = linux-builder
 BUILDER_ARCHIVE = $(BUILDER_DIR).zip
 RICE_BIN_DIR = rice-bin
@@ -14,9 +15,12 @@ RICE_BIN_DIR = rice-bin
 ZIP_EXE = zip
 RICE_EXE = rice
 
-GOPATH ?= ~/go
+GOPATH ?= $(HOME)/go
 
 GO_MOD_FLAGS = -mod=vendor
+
+GTK_VERSION ?= 3.12
+GOTK3_BUILD_TAGS = $(if $(GTK_VERSION),-tags gtk_$(subst .,_,$(GTK_VERSION)))
 
 
 default: build $(DATA_DIST_DIR)/data.zip
@@ -27,7 +31,8 @@ build: $(SRC)
 	go build -v $(GO_MOD_FLAGS) -o "$(BIN)" "$(PKG)/main"
 
 $(RES_DIR)/gui/gui.so: $(SRC)
-	go build -v $(GO_MOD_FLAGS) -buildmode=plugin -o "$(RES_DIR)/gui/gui.so" "$(PKG)/gui"
+	go build -v $(GO_MOD_FLAGS) $(GOTK3_BUILD_TAGS) -buildmode=plugin \
+		-o "$(RES_DIR)/gui/gui.so" "$(PKG)/gui"
 
 $(DATA_DIST_DIR)/data.zip: $(DATA_SRC_DIR)
 	mkdir -p "$(DATA_DIST_DIR)"
@@ -45,18 +50,31 @@ runcli: dev
 	./"$(BIN_DEV)" -target ./DevInstallation -accept
 
 $(BUILDER_DIR): build $(RES_DIR)/gui/gui.so $(DATA_SRC_DIR) $(RICE_BIN_DIR)
-	cp -r "$(DATA_SRC_DIR)" "$(RES_DIR)" "$(BIN)" "$(RICE_BIN_DIR)/$(RICE_EXE)"* "$(BUILDER_DIR)/"
+	cp -r "$(DATA_SRC_DIR)" "$(RES_DIR)" "$(BIN)" "$(RICE_BIN_DIR)/$(RICE_EXE)"* \
+		"$(BUILDER_DIR)/"
 	chmod +x "$(BUILDER_DIR)/$(RICE_EXE)"
 
 $(BUILDER_ARCHIVE): $(BUILDER_DIR)
 	chmod -R g+w "$(BUILDER_DIR)"
 	"$(ZIP_EXE)" -r "$(BUILDER_ARCHIVE)" "$(BUILDER_DIR)"
 
+self-installer: clean-builder $(BUILDER_DIR)
+	cp "$(BIN)" "$(RELEASE_DIST_DIR)/"
+	mkdir -p "$(RELEASE_DIST_DIR)/$(DATA_DIST_DIR)/"
+	cd "$(BUILDER_DIR)" ; \
+		"$(ZIP_EXE)" -r "../$(RELEASE_DIST_DIR)/$(DATA_DIST_DIR)/$(BUILDER_ARCHIVE)" *
+	cp "$(RES_DIR)/gui/gui.so" "$(RES_DIR)/gui/gui.glade" \
+		"$(RELEASE_DIST_DIR)/$(RES_DIR)/gui/"
+	cp -r "$(RES_DIR)/languages" "$(RES_DIR)/uninstaller" \
+		"$(RELEASE_DIST_DIR)/$(RES_DIR)/"
+	cp "$(BUILDER_DIR)/rice.go" "$(RELEASE_DIST_DIR)/rice.go"
+	cd "$(RELEASE_DIST_DIR)" ; \
+		"../$(RICE_BIN_DIR)/rice" append --exec "$(BIN)"
 
 $(DATA_SRC_DIR):
 	mkdir "$@"
 
-clean: clean-data clean-builder
+clean: clean-data clean-builder clean-self-installer
 	rm -f "$(RES_DIR)/gui/gui.so"
 	rm -f "$(BIN)" "$(BIN_DEV)"
 
@@ -64,8 +82,21 @@ clean-data:
 	rm -rf "$(DATA_DIST_DIR)"
 
 clean-builder:
-	rm -rf "$(BUILDER_DIR)/"{"$(RES_DIR)","$(DATA_DIST_DIR)","$(DATA_SRC_DIR)","$(BIN)","$(RICE_EXE)"}
-	rm -f "$(BUILDER_ARCHIVE)"
+	rm -rf \
+		"$(BUILDER_DIR)/$(RES_DIR)" \
+		"$(BUILDER_DIR)/$(DATA_DIST_DIR)" \
+		"$(BUILDER_DIR)/$(DATA_SRC_DIR)" \
+		"$(BUILDER_DIR)/$(BIN)" \
+		"$(BUILDER_DIR)/$(RICE_EXE)" \
+		"$(BUILDER_ARCHIVE)"
+
+clean-self-installer:
+	rm -rf \
+		"$(RELEASE_DIST_DIR)/$(DATA_DIST_DIR)" \
+		"$(RELEASE_DIST_DIR)/$(RES_DIR)/gui/gui.so" \
+		"$(RELEASE_DIST_DIR)/$(RES_DIR)/gui/gui.glade" \
+		"$(RELEASE_DIST_DIR)/$(RES_DIR)/languages" \
+		"$(RELEASE_DIST_DIR)/$(RES_DIR)/uninstaller" \
 
 
 $(RICE_BIN_DIR):
@@ -76,5 +107,3 @@ $(RICE_BIN_DIR):
 	# in GOPATH/bin as usual and then copied.
 	GOOS=windows go install github.com/GeertJohan/go.rice/rice
 	cp "$(GOPATH)/bin/windows_amd64/rice.exe" $(RICE_BIN_DIR)/
-	# This last cp fails on some systems (filesystems?) when this target is called for
-	# the first time. Happened on live-iso-systems.
