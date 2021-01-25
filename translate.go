@@ -30,10 +30,13 @@ func NewTranslator() *Translator {
 // NewTranslatorVar returns a Translator with a variable lookup. It scans for any yaml
 // files inside the languages folder in the resources box.
 func NewTranslatorVar(variables VariableMap) *Translator {
-	languageFiles := MustGetResourceFiltered("languages", regexp.MustCompile(`\.ya?ml$`))
+	languageFiles := MustGetResourceFiltered(
+		"languages", regexp.MustCompile(`\.ya?ml$`),
+	)
 	languages := make(map[string]VariableMap)
 	for filename, content := range languageFiles {
-		languageTag := regexp.MustCompile(`.*/([^/]+)\.ya?ml`).ReplaceAllString(filename, "$1")
+		languageTagRegex := regexp.MustCompile(`.*/([^/]+)\.ya?ml`)
+		languageTag := languageTagRegex.ReplaceAllString(filename, "$1")
 		langStrings := make(VariableMap)
 		err := yaml.Unmarshal([]byte(content), langStrings)
 		if err != nil {
@@ -144,7 +147,9 @@ func (t *Translator) getLocale() string {
 
 // Expand expands template variables in the given str (if any) with the translator's
 // current language's strings.
-func (t *Translator) Expand(str string) (expanded string) { return t.expand(str, t.language) }
+func (t *Translator) Expand(str string) (expanded string) {
+	return t.expand(str, t.language)
+}
 
 // expand expands template variables in the given str (if any) with the translator's
 // strings for the given language. If the language is not available in the translator,
@@ -157,7 +162,9 @@ func (t *Translator) expand(str, language string) (expanded string) {
 	if _, ok := t.langStrings[DefaultLanguage]; !ok {
 		return ""
 	}
-	return ExpandVariables(str, MergeVariables(t.Variables, t.langStrings[availableLanguage]))
+	return ExpandVariables(
+		str, MergeVariables(t.Variables, t.langStrings[availableLanguage]),
+	)
 }
 
 // getRaw returns a localized string for a given string key in a given language, without
