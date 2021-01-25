@@ -469,12 +469,35 @@ func (g *Gui) setLanguage(chooserId string) error {
 		screen.widget.GetChildren().Foreach(g.translateAllLabels)
 	}
 	g.translateAllLabels(getBox(g.builder, "quit-dialog-box"))
+	return g.setLicenseText()
+}
 
-	licenseFile := fmt.Sprintf("licenses/license_%s.txt", g.translator.GetLanguage())
-	licenseText, err := linux_installer.GetResource(licenseFile)
-	if err != nil {
-		log.Println(fmt.Sprintf("License file not found: %s", licenseFile))
-		return err
+func (g *Gui) setLicenseText() error {
+	licenseFiles, err := linux_installer.GetResourceFiltered(
+		"licenses", regexp.MustCompile(`.+\.txt`),
+	)
+	if err != nil || len(licenseFiles) == 0 {
+		log.Println("No license files found")
+		return errors.New("No license files found")
+	}
+	licenseFilename := fmt.Sprintf(
+		"licenses/license_%s.txt", g.translator.GetLanguage())
+	fallbackLicenseFilename := fmt.Sprintf(
+		"licenses/license_%s.txt", linux_installer.DefaultLanguage)
+	licenseText, available := licenseFiles[licenseFilename]
+	if !available {
+		log.Println(fmt.Sprintf("No license file: %s", licenseFilename))
+		licenseText, available = licenseFiles[fallbackLicenseFilename]
+		if !available {
+			log.Println(fmt.Sprintf("No license file: %s", fallbackLicenseFilename))
+			for file, text := range licenseFiles {
+				log.Println(fmt.Sprintf("Fallback to: %s", file))
+				licenseText = text
+				break
+			}
+		} else {
+			log.Println(fmt.Sprintf("Fallback to: %s", fallbackLicenseFilename))
+		}
 	}
 	g.licenseBuf.SetText(licenseText)
 	return nil
