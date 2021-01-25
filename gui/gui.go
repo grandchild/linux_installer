@@ -72,6 +72,7 @@ type (
 		screenChangeLock sync.Mutex
 		translator       *linux_installer.Translator
 		config           *linux_installer.Config
+		widgetLabelRegex *regexp.Regexp
 	}
 )
 
@@ -222,21 +223,22 @@ func NewGui(
 		return err
 	}
 	gui = &Gui{
-		installer:    installer,
-		builder:      builder,
-		win:          getWindow(builder, "installer-frame"),
-		content:      getStack(builder, "content"),
-		backButton:   getButton(builder, "button-back"),
-		nextButton:   getButton(builder, "button-next"),
-		quitButton:   getButton(builder, "button-quit"),
-		dirPathEdit:  getEntry(builder, "path-entry"),
-		progressBar:  getEntry(builder, "progress-bar"),
-		quitDialog:   getDialog(builder, "quit-dialog"),
-		licenseBuf:   getTextBuffer(builder, "license-buf"),
-		runInstalled: getCheckButton(builder, "success-run-checkbox"),
-		curScreen:    0,
-		translator:   translator,
-		config:       config,
+		installer:        installer,
+		builder:          builder,
+		win:              getWindow(builder, "installer-frame"),
+		content:          getStack(builder, "content"),
+		backButton:       getButton(builder, "button-back"),
+		nextButton:       getButton(builder, "button-next"),
+		quitButton:       getButton(builder, "button-quit"),
+		dirPathEdit:      getEntry(builder, "path-entry"),
+		progressBar:      getEntry(builder, "progress-bar"),
+		quitDialog:       getDialog(builder, "quit-dialog"),
+		licenseBuf:       getTextBuffer(builder, "license-buf"),
+		runInstalled:     getCheckButton(builder, "success-run-checkbox"),
+		curScreen:        0,
+		translator:       translator,
+		config:           config,
+		widgetLabelRegex: regexp.MustCompile(`\$[a-zA-Z0-9_]+\$`),
 	}
 	gui.builder.ConnectSignals(guiEventHandler(gui))
 	for signal, handler := range internalEventHandler(gui) {
@@ -531,7 +533,7 @@ func (g *Gui) translateAllLabels(item interface{}) {
 // translateLabel searches for a variable (surrounded by "$" like "$variable$") in the
 // label's text and replaces it with the variable's string value from the translator.
 func (g *Gui) translateLabel(label *gtk.Label) {
-	variable := regexp.MustCompile(`\$[a-zA-Z0-9_]+\$`).FindString(label.GetLabel())
+	variable := g.widgetLabelRegex.FindString(label.GetLabel())
 	if len(variable) > 2 {
 		label.SetLabel(g.t(variable[1 : len(variable)-1]))
 	}
@@ -544,7 +546,7 @@ func (g *Gui) translateButton(button *gtk.Button) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	variable := regexp.MustCompile(`\$[a-zA-Z0-9_]+\$`).FindString(buttonLabel)
+	variable := g.widgetLabelRegex.FindString(buttonLabel)
 	if len(variable) > 2 {
 		button.SetLabel(g.t(variable[1 : len(variable)-1]))
 	}
