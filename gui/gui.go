@@ -115,7 +115,8 @@ func internalEventHandler(g *Gui) (handler EventHandler) {
 func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 	return []ScreenHandler{
 		{
-			name: "language",
+			name:     "language",
+			disabled: len(g.translator.GetLanguages()) <= 1,
 			before: func() {
 				g.backButton.SetSensitive(false)
 				g.setLabel(
@@ -131,6 +132,9 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 		{
 			name: "welcome",
 			before: func() {
+				if !g.isTranslated {
+					g.setLanguage(g.translator.GetLanguage())
+				}
 				g.backButton.SetSensitive(false)
 			},
 		},
