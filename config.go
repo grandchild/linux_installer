@@ -23,10 +23,10 @@ const configFilename = "config.yml"
 // RunInstalled is a flag from the command line that runs the installed application
 // after installation completes successfully.
 type Config struct {
-	Variables              VariableMap `yaml:"variables,omitempty"`
-	MustAcceptLicenseOnCli bool        `yaml:"must_accept_license_on_cli"`
-	DefaultInstallDirName  string      `yaml:"default_install_dir_name"`
-	GuiCss                 string      `yaml:"gui_css,omitempty"`
+	Variables             VariableMap `yaml:"variables,omitempty"`
+	MustAcceptLicense     bool        `yaml:"must_accept_license"`
+	DefaultInstallDirName string      `yaml:"default_install_dir_name"`
+	GuiCss                string      `yaml:"gui_css,omitempty"`
 
 	// commandline config options
 	NoLauncher   bool

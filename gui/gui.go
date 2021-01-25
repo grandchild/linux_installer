@@ -23,8 +23,8 @@ type (
 	// EventHandler defines a function to be called when a certain event, identified by
 	// a string key, is emitted from the GTK GUI or manually.
 	EventHandler map[string]interface{}
-	// ScreenHandler is a name and a set of functions that corresponds to a specific
-	// screen in the installer process.
+	// ScreenHandler is a name, a disabled flag (screen is not shown if disabled) and a
+	// set of functions that corresponds to a specific screen in the installer process.
 	//
 	// before() is called immediately after the screen is presented, and allows
 	// initializing some GUI elements or running other setup code.
@@ -38,10 +38,11 @@ type (
 	// aborted. Useful for staying on the same screen, while the undo operation is in
 	// progress.
 	ScreenHandler struct {
-		name   string
-		before func()
-		after  func()
-		undo   func() bool // if undo returns false, then screen switching is canceled.
+		name     string
+		disabled bool
+		before   func()
+		after    func()
+		undo     func() bool // if undo returns false, then screen switching is canceled.
 	}
 	// Screen is a single step in the installer, such as the license screen, or
 	// selecting the installation path. It also contains its handler configuration.
@@ -131,7 +132,8 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 			},
 		},
 		{
-			name: "license",
+			name:     "license",
+			disabled: !g.config.MustAcceptLicense,
 			before: func() {
 				g.nextButton.SetLabel(g.t("button_license_accept"))
 			},
@@ -231,7 +233,6 @@ func NewGui(
 		quitDialog:   getDialog(builder, "quit-dialog"),
 		licenseBuf:   getTextBuffer(builder, "license-buf"),
 		runInstalled: getCheckButton(builder, "success-run-checkbox"),
-		screens:      make([]Screen, 0, len(screenHandlers(nil))),
 		curScreen:    0,
 		translator:   translator,
 		config:       config,
@@ -265,7 +266,7 @@ func NewGui(
 			},
 		)
 	}
-	gui.showScreen(0)
+	gui.gotoScreen(0)
 	return err
 }
 
@@ -303,8 +304,8 @@ func (g *Gui) setScreenElementDefaults() {
 	g.quitButton.SetLabel(g.t("button_quit"))
 }
 
-func (g *Gui) prevScreen() { g.showScreen(g.curScreen - 1) }
-func (g *Gui) nextScreen() { g.showScreen(g.curScreen + 1) }
+func (g *Gui) prevScreen() { g.gotoScreen(g.curScreen - 1) }
+func (g *Gui) nextScreen() { g.gotoScreen(g.curScreen + 1) }
 
 // showNamedScreen looks up and shows a specific screen by its name. If no screen by
 // that name is found, then nothing happens.
@@ -317,34 +318,49 @@ func (g *Gui) showNamedScreen(name string) {
 		}
 	}
 	if screenNum >= 0 {
-		g.showScreen(screenNum)
+		g.gotoScreen(screenNum)
 	}
 }
 
-// showScreen changes the screen and calls all available screen handler functions. The
-// num parameter is automatically clamped to the available screen indexes.
-func (g *Gui) showScreen(num int) {
+func (g *Gui) gotoScreen(num int) {
 	if num >= 0 && num < len(g.screens) {
 		g.screenChangeLock.Lock()
 		defer g.screenChangeLock.Unlock()
-		if num != g.curScreen && g.screens[g.curScreen].handler.after != nil {
-			g.screens[g.curScreen].handler.after()
-		}
-		if num < g.curScreen && g.screens[g.curScreen].handler.undo != nil {
-			res := g.screens[g.curScreen].handler.undo()
-			if !res {
-				return
-			}
-		}
-		g.curScreen = num
-		g.content.SetVisibleChild(g.screens[g.curScreen].widget)
-		g.setScreenElementDefaults()
-		if g.screens[g.curScreen].handler.before != nil {
-			g.screens[g.curScreen].handler.before()
-		}
+		g.changeScreen(num)
 	} else {
-		g.showScreen(0)
+		g.gotoScreen(0)
 	}
+}
+
+// changeScreen, skipping disabled screens, and call all available handlers.
+func (g *Gui) changeScreen(num int) {
+	if num != g.curScreen && g.screens[g.curScreen].handler.after != nil {
+		g.screens[g.curScreen].handler.after()
+	}
+	if num < g.curScreen && g.screens[g.curScreen].handler.undo != nil {
+		undoFinished := g.screens[g.curScreen].handler.undo()
+		if !undoFinished {
+			return
+		}
+	}
+	num = g.skipDisabledScreen(num)
+	g.curScreen = num
+	g.setScreenElementDefaults()
+	if g.screens[g.curScreen].handler.before != nil {
+		g.screens[g.curScreen].handler.before()
+	}
+	g.content.SetVisibleChild(g.screens[g.curScreen].widget)
+}
+
+func (g *Gui) skipDisabledScreen(num int) int {
+	if g.screens[num].handler.disabled {
+		if num < g.curScreen && num >= 1 {
+			num -= 1
+		} else if num < (len(g.screens) - 1) {
+			num += 1
+		}
+	}
+	return num
 }
 
 // browseInstallDir opens a GTK file chooser and fills the path edit field with the

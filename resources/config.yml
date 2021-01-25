@@ -10,7 +10,7 @@ variables:
   start_command: ExampleApp.sh
   icon_file: ExampleApp.png
 
-must_accept_license_on_cli: true
+must_accept_license: true
 
 default_install_dir_name: '{{.product | replace " " "" }}{{ index (.version | split ".") 0 }}'
 

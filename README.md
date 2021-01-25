@@ -271,6 +271,7 @@ In `gui/gui.go` inside `screenHandlers()` add a new section for the screen like 
 ```go
     {
         name: "myscreen",
+        disabled: false,
         before: func() {
             // ...
         },
@@ -283,11 +284,12 @@ In `gui/gui.go` inside `screenHandlers()` add a new section for the screen like 
     },
 ```
 
-The "*name*" key is the ID you chose in the layout step. The "*before*", "*after*" and
-"*undo*" keys are documented in the documentation for the ScreenHandler struct a little
-bit earlier in `gui/gui.go`. Refer to that for details.
+The "*name*" key is the ID you chose in the layout step. The "*disabled*", "*before*",
+"*after*" and "*undo*" keys are documented in the comment for the ScreenHandler struct a
+little bit earlier in `gui/gui.go`. See there for details.
 
-If a function for a key is empty, the key can be omitted completely.
+If a function for a key is empty (or if "*disabled*" is `false`), the key can be omitted
+completely.
 
 
 ## Hacking
