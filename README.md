@@ -27,6 +27,7 @@ installers.
 * Commandline or *"silent"* mode
 * Cancel with full rollback during install process
 * Run application after finish
+* Full internationalization for both GUI and CLI
 
 ## Contents
 
