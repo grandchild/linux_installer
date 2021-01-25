@@ -177,6 +177,7 @@ func screenHandlers(g *Gui) (handlers []ScreenHandler) {
 				g.nextButton.SetLabel(g.t("button_exit"))
 				if !g.installer.StartCommandAvailable() {
 					g.runInstalled.SetSensitive(false)
+					g.runInstalled.SetVisible(false)
 				}
 			},
 			after: func() {
