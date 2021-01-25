@@ -277,7 +277,6 @@ func NewGui(
 			},
 		)
 	}
-	gui.gotoScreen(0)
 	return err
 }
 
@@ -285,6 +284,7 @@ func NewGui(
 // is done and should quit.
 func RunGui() {
 	gui.win.ShowAll()
+	gui.gotoScreen(0)
 	getButton(gui.builder, "button-next").GrabFocus()
 	gtk.Main()
 }
