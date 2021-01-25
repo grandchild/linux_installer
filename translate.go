@@ -157,10 +157,10 @@ func (t *Translator) Expand(str string) (expanded string) {
 func (t *Translator) expand(str, language string) (expanded string) {
 	availableLanguage := language
 	if _, ok := t.langStrings[language]; !ok {
+		if _, ok := t.langStrings[DefaultLanguage]; !ok {
+			return ""
+		}
 		availableLanguage = DefaultLanguage
-	}
-	if _, ok := t.langStrings[DefaultLanguage]; !ok {
-		return ""
 	}
 	return ExpandVariables(
 		str, MergeVariables(t.Variables, t.langStrings[availableLanguage]),
