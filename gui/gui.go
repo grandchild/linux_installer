@@ -217,7 +217,6 @@ func NewGui(
 	translator *linux_installer.Translator,
 	config *linux_installer.Config,
 ) error {
-	// glib.InitI18n("installer", filepath.Join(installerTempPath, "strings"))
 	err := gtk.InitCheck(nil)
 	if err != nil {
 		return err
@@ -248,26 +247,15 @@ func NewGui(
 		config:           config,
 		widgetLabelRegex: regexp.MustCompile(`\$[a-zA-Z0-9_]+\$`),
 	}
+	gui.win.SetTitle(gui.t("title"))
+	gui.setLabel("header-text", gui.t("header_text"))
+	gui.loadAndApplyConfigCss()
+
 	gui.builder.ConnectSignals(guiEventHandler(gui))
 	for signal, handler := range internalEventHandler(gui) {
 		glib.SignalNew(signal)
 		gui.win.Connect(signal, handler)
 	}
-
-	gui.win.SetTitle(gui.t("title"))
-	gui.setLabel("header-text", gui.t("header_text"))
-
-	css, err := gtk.CssProviderNew()
-	if err == nil {
-		gtkScreen := gui.win.GetScreen()
-		if gtkScreen != nil {
-			css.LoadFromData(config.GuiCss)
-			gtk.AddProviderForScreen(
-				gtkScreen, css, gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
-			)
-		}
-	}
-
 	for _, handler := range screenHandlers(gui) {
 		gui.screens = append(gui.screens,
 			Screen{
@@ -278,6 +266,22 @@ func NewGui(
 		)
 	}
 	return err
+}
+
+func (g *Gui) loadAndApplyConfigCss() {
+	if g.config.GuiCss == "" {
+		return
+	}
+	css, err := gtk.CssProviderNew()
+	if err == nil {
+		gtkScreen := g.win.GetScreen()
+		if gtkScreen != nil {
+			css.LoadFromData(g.config.GuiCss)
+			gtk.AddProviderForScreen(
+				gtkScreen, css, gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
+			)
+		}
+	}
 }
 
 // Run presents the GUI and starts the main event loop. When Run returns the application
