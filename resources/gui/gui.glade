@@ -380,6 +380,7 @@
                             <property name="receives-default">True</property>
                             <property name="valign">start</property>
                             <property name="image">image-reset</property>
+                            <property name="use-underline">True</property>
                             <signal name="clicked" handler="on_path_reset_clicked" swapped="no"/>
                           </object>
                           <packing>
