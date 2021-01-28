@@ -470,14 +470,14 @@ func (i *Installer) PostInstall(variablesList ...VariableMap) {
 // installation.
 func (i *Installer) StartCommandAvailable() bool {
 	start_command, ok := i.config.Variables["start_command"]
-	return !ok && start_command != ""
+	return ok && start_command != ""
 }
 
 // ExecInstalled changes into the installer target directory, runs the start command set
 // in the config file. This function replaces (or, on Windows, terminates) the installer
 // process and never returns.
 func (i *Installer) ExecInstalled() {
-	if i.StartCommandAvailable() {
+	if !i.StartCommandAvailable() {
 		return
 	}
 	os.Chdir(i.Target)
