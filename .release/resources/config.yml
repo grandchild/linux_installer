@@ -1,0 +1,46 @@
+---
+variables:
+  product: Linux Installer Builder
+  version: 0.1
+  company: ""
+  company_short: ""
+  company_support: https://github.com/grandchild/linux_installer/issues
+  applauncher: "{{.linux_app_launcher}}"
+  uninstaller_name: "{{.uninstaller_name}}"
+
+must_accept_license: false
+
+default_install_dir_name: '{{.product | replace " " "" }}{{ index (.version | split ".") 0 }}'
+
+log_filename: installer.log
+
+gui_css: |
+  @define-color bg-color #272c2e;
+  * {
+    background: @bg-color;
+  }
+  window, dialog, button, entry {
+    border: 1px solid shade(@bg-color, .7);
+    box-shadow: 1px 3px 1px shade(@bg-color, 0.6);
+    color: #ddd;
+  }
+  button:hover,
+  button:hover * {
+    background: lighter(@bg-color);
+  }
+  *:disabled {
+    opacity: 0.5;
+  }
+  headerbar {
+    border: 1px solid shade(@bg-color, .7);
+  }
+  textview {
+    font-size: .7em;
+  }
+  textview text {
+    color: #ddd;
+    background: darker(@bg-color);
+  }
+  entry.faint-text {
+    color: #777;
+  }
