@@ -337,29 +337,29 @@ func (g *Gui) showNamedScreen(name string) {
 	}
 }
 
-func (g *Gui) gotoScreen(num int) {
-	if num >= 0 && num < len(g.screens) {
+func (g *Gui) gotoScreen(targetScreen int) {
+	if targetScreen >= 0 && targetScreen < len(g.screens) {
 		g.screenChangeLock.Lock()
 		defer g.screenChangeLock.Unlock()
-		g.changeScreen(num)
+		g.changeScreen(targetScreen)
 	} else {
 		g.gotoScreen(0)
 	}
 }
 
 // changeScreen, skipping disabled screens, and call all available handlers.
-func (g *Gui) changeScreen(num int) {
-	if num != g.curScreen && g.screens[g.curScreen].handler.after != nil {
+func (g *Gui) changeScreen(targetScreen int) {
+	if targetScreen != g.curScreen && g.screens[g.curScreen].handler.after != nil {
 		g.screens[g.curScreen].handler.after()
 	}
-	if num < g.curScreen && g.screens[g.curScreen].handler.undo != nil {
+	if targetScreen < g.curScreen && g.screens[g.curScreen].handler.undo != nil {
 		undoFinished := g.screens[g.curScreen].handler.undo()
 		if !undoFinished {
 			return
 		}
 	}
-	num = g.skipDisabledScreen(num)
-	g.curScreen = num
+	targetScreen = g.skipDisabledScreen(targetScreen)
+	g.curScreen = targetScreen
 	g.setScreenElementDefaults()
 	if g.screens[g.curScreen].handler.before != nil {
 		g.screens[g.curScreen].handler.before()
@@ -367,15 +367,15 @@ func (g *Gui) changeScreen(num int) {
 	g.content.SetVisibleChild(g.screens[g.curScreen].widget)
 }
 
-func (g *Gui) skipDisabledScreen(num int) int {
-	if g.screens[num].handler.disabled {
-		if num < g.curScreen && num >= 1 {
-			num -= 1
-		} else if num < (len(g.screens) - 1) {
-			num += 1
+func (g *Gui) skipDisabledScreen(targetScreen int) int {
+	if g.screens[targetScreen].handler.disabled {
+		if targetScreen < g.curScreen && targetScreen >= 1 {
+			targetScreen -= 1
+		} else if targetScreen < (len(g.screens) - 1) {
+			targetScreen += 1
 		}
 	}
-	return num
+	return targetScreen
 }
 
 // browseInstallDir opens a GTK file chooser and fills the path edit field with the
