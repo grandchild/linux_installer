@@ -21,6 +21,10 @@ rice-bin/
 .release/resources/uninstaller
 .release/rice.go
 
+# Glade autosave files
+\#*.glade\#
+*.glade~
+
 # goland project files
 .idea/
 
