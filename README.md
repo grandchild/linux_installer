@@ -184,11 +184,11 @@ below as well.
 ### Images
 
 The `splash.bmp` image is shown on the left-hand side of the language-, welcome- and
-success-/failure screens, and needs to be a vertical 164×314 pixels in size. The *right
+success-/failure screens, and should be a vertical 164×314 pixels in size. The *right
 side* of the image should connect well with the `window.background` color (currently
 plain white `#ffffff`).
 
-The `banner.bmp` image is shown on the top of all other screens and needs to be a
+The `banner.bmp` image is shown on the top of all other screens and should be a
 horizontal 497×60 pixels in size. The *bottom* of the image should connect well with the
 `window.background` color like above.
 
@@ -219,7 +219,10 @@ controls some colors in the GUI, and mostly sets the background color to white, 
 changes some font properties so the license text is not too large, and the filenames in
 the installer progress not too prominent.
 
-To change the styling of the installer, simply change the content of that variable.
+To change the styling of the installer, simply change the content of that variable. See
+[the GTK3 CSS docs](https://developer.gnome.org/gtk3/stable/chap-css-overview.html) for
+information and both the [example `config.yml`](resources/config.yml) and the
+[`config.yml` for this repository's installer](.release/resources/config.yml) for hints.
 
 
 ### Hooks
