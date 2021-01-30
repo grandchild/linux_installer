@@ -25,5 +25,5 @@ jobs:
     - name: Upload
       uses: actions/upload-artifact@v2.2.2
       with:
-        name: installer-builder.zip
+        name: installer-builder
         path: .release/linux-installer
