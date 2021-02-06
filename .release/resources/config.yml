@@ -10,7 +10,7 @@ variables:
 
 must_accept_license: false
 
-default_install_dir_name: '{{.product | replace " " "" }}{{ index (.version | split ".") 0 }}'
+default_install_dir_name: '{{.product | replace " " "-" }}'
 
 log_filename: installer.log
 
