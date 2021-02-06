@@ -3,7 +3,7 @@
 chcp 65001 > nul
 cd %0/../
 
-set OUTPUT=Setup_ExampleApp_v1.1
+set OUTPUT=Setup
 set INPUT=linux-installer
 set VERSION=
 :: Emulate the make cmdline for the linux builder on windows, namely parameters:
