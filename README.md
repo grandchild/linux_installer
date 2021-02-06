@@ -32,7 +32,7 @@ installers.
 ## Contents
 
 * [Quickstart: Run the Example-Installer](#quickstart-run-the-example-installer)
-* [Setup & Build a Linux Installer](#setup--build-a-linux-installer)
+* [Dev Setup & Build a Linux Installer](#dev-setup--build-a-linux-installer)
   * [Overview](#overview)
   * [Requirements](#requirements)
   * [Setup](#setup)
@@ -52,25 +52,25 @@ installers.
 
 ## Quickstart: Run the Example-Installer
 
-If you have [all required packages](#requirements) installed, go to the repository
-folder and do the following to run the example installer:
+[Download the latest builder](
+https://nightly.link/grandchild/linux_installer/workflows/installer-builder-installer/main/setup-installer-builder.zip)
+and extract the `setup-installer-builder` executable from it.
 
 ```shell
-# Create source files folder
-mkdir data
+# Run the Setup for the installer-builder (it's a showcase within a showcase 🙂)
+chmod +x setup-installer-builder
+./setup-installer-builder
 
-# Add a file of random 50MiB
-dd if=/dev/urandom of=data/blob.data bs=1M count=50
-# (Use the above, or copy some other files you want to try out. Add a lot of files
-# if you want to look at the progress, the installer is quite fast!)
+# (Add/edit file(s) in the "data" subfolder here, but the example has one already.)
 
-# Create and run the example installer
-make run
+# Create the example installer, and give it a version of 1.0 (optional)
+make VERSION=1.0
 
-# (The GTK Go-wrapper will take a while to build on the first run. Grab a coffee...)
+# Run the default output file
+./Setup
 ```
 
-## Setup & Build a Linux Installer
+## Dev Setup & Build a Linux Installer
 
 ### Overview
 
