@@ -8,6 +8,7 @@ RES_DIR = resources
 DATA_SRC_DIR = data
 DATA_DIST_DIR = data-compressed
 RELEASE_DIST_DIR = .release
+RELEASE_BIN = setup-installer-builder
 BUILDER_DIR = linux-builder
 BUILDER_ARCHIVE = $(BUILDER_DIR).zip
 RICE_BIN_DIR = rice-bin
@@ -59,7 +60,7 @@ $(BUILDER_ARCHIVE): $(BUILDER_DIR)
 	"$(ZIP_EXE)" -r "$(BUILDER_ARCHIVE)" "$(BUILDER_DIR)"
 
 self-installer: clean-builder $(BUILDER_DIR)
-	cp "$(BIN)" "$(RELEASE_DIST_DIR)/"
+	cp "$(BIN)" "$(RELEASE_DIST_DIR)/$(RELEASE_BIN)"
 	mkdir -p "$(RELEASE_DIST_DIR)/$(DATA_DIST_DIR)/"
 	cd "$(BUILDER_DIR)" ; \
 		"$(ZIP_EXE)" -r "../$(RELEASE_DIST_DIR)/$(DATA_DIST_DIR)/$(BUILDER_ARCHIVE)" *
@@ -69,7 +70,7 @@ self-installer: clean-builder $(BUILDER_DIR)
 		"$(RELEASE_DIST_DIR)/$(RES_DIR)/"
 	cp "$(BUILDER_DIR)/rice.go" "$(RELEASE_DIST_DIR)/rice.go"
 	cd "$(RELEASE_DIST_DIR)" ; \
-		"../$(RICE_BIN_DIR)/rice" append --exec "$(BIN)"
+		"../$(RICE_BIN_DIR)/rice" append --exec "$(RELEASE_BIN)"
 
 $(DATA_SRC_DIR):
 	mkdir "$@"
