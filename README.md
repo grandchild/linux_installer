@@ -61,6 +61,9 @@ and extract the `setup-installer-builder` executable from it.
 chmod +x setup-installer-builder
 ./setup-installer-builder
 
+# Go to the installed path
+cd ~/LinuxInstallerBuilder/  # (or the path you selected during installation)
+
 # (Add/edit file(s) in the "data" subfolder here, but the example has one already.)
 
 # Create the example installer, and give it a version of 1.0 (optional)
