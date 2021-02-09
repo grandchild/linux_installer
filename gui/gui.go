@@ -25,7 +25,14 @@ type (
 	// a string key, is emitted from the GTK GUI or manually.
 	EventHandler map[string]interface{}
 	// ScreenHandler is a name, a disabled flag (screen is not shown if disabled) and a
-	// set of functions that corresponds to a specific screen in the installer process.
+	// set of flags and functions that correspond to a specific screen in the installer
+	// process.
+	//
+	// disabled is a flag, that if its value evaluates to true, will skip the screen
+	// when changed to. When moving forward the screen after the disabled one is
+	// selected and if going backward, the one before the disabled screen is selected.
+	// The first and the last screen cannot be disabled. Setting"disabled" to true on
+	// the first or last screen will have no effect.
 	//
 	// before() is called immediately after the screen is presented, and allows
 	// initializing some GUI elements or running other setup code.
@@ -43,7 +50,7 @@ type (
 		disabled bool
 		before   func()
 		after    func()
-		undo     func() bool // if undo returns false, then screen switching is canceled.
+		undo     func() bool // if undo returns false, screen switching is canceled.
 	}
 	// Screen is a single step in the installer, such as the license screen, or
 	// selecting the installation path. It also contains its handler configuration.
@@ -367,11 +374,17 @@ func (g *Gui) changeScreen(targetScreen int) {
 	g.content.SetVisibleChild(g.screens[g.curScreen].widget)
 }
 
+// skipDisabledScreen skips all disabled screens encountered in the direction of change.
+// The first and the last screen cannot be disabled. This is a lazy shortcut, because if
+// one could, then another non-disabled screen would have to be found somehow (in the
+// other direction?) and it's not clear how that would reliably match some expected
+// behaviour.
 func (g *Gui) skipDisabledScreen(targetScreen int) int {
-	if g.screens[targetScreen].handler.disabled {
-		if targetScreen < g.curScreen && targetScreen >= 1 {
+	for targetScreen >= 1 && targetScreen < (len(g.screens)-1) &&
+		g.screens[targetScreen].handler.disabled {
+		if targetScreen < g.curScreen {
 			targetScreen -= 1
-		} else if targetScreen < (len(g.screens) - 1) {
+		} else {
 			targetScreen += 1
 		}
 	}
