@@ -18,7 +18,7 @@ import (
 const (
 	desktopFileUserDir      = ".local/share/applications"
 	desktopFileSystemDir    = "/usr/share/applications"
-	desktopFilenameTemplate = `{{if .company_short}}{{.company_short | lower | replace " " ""}}-{{end}}{{.product | lower | replace " " ""}}.desktop`
+	desktopFilenameTemplate = `{{if .organization_short}}{{.organization_short | lower | replace " " ""}}-{{end}}{{.product | lower | replace " " ""}}.desktop`
 	desktopFileTemplate     = `[Desktop Entry]
 Name={{.product}}
 Version={{.version}}

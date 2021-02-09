@@ -2,9 +2,9 @@
 variables:
   product: Linux Installer Builder
   version: 0.1
-  company: ""
-  company_short: ""
-  company_support: https://github.com/grandchild/linux_installer/issues
+  organization: ""
+  organization_short: ""
+  organization_support: https://github.com/grandchild/linux_installer/issues
   applauncher: "{{.linux_app_launcher}}"
   uninstaller_name: "{{.uninstaller_name}}"
 

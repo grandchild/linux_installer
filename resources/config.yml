@@ -2,9 +2,9 @@
 variables:
   product: Example App
   version: 1.0
-  company: ACME Inc.
-  company_short: ACME
-  company_contact: support@example.com
+  organization: ACME Inc.
+  organization_short: ACME
+  organization_contact: support@example.com
   applauncher: "{{.linux_app_launcher}}"
   uninstaller_name: "{{.uninstaller_name}}"
   start_command: ExampleApp.sh

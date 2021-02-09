@@ -125,6 +125,6 @@ err_gui_startup_failed_nogtk: |
       {{.installerName}} -h
 err_gui_startup_internal_error: |
   An internal error occurred while loading the GUI,
-  please contact {{.company_short}} support, and provide
+  please contact {{.organization_short}} support, and provide
   the installer.log file if you can:
-      {{.company_contact}}
+      {{.organization_contact}}
