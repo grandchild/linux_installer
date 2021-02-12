@@ -1,5 +1,6 @@
 
-SRC = $(wildcard *.go gui/*.go main/*.go)
+SRC = $(wildcard *.go main/*.go)
+SRC_GUI = $(wildcard gui/*.go)
 PKG = github.com/grandchild/linux_installer
 
 BIN = linux-installer
@@ -25,13 +26,14 @@ GOTK3_BUILD_TAGS = $(if $(GTK_VERSION),-tags gtk_$(subst .,_,$(GTK_VERSION)))
 
 
 default: build $(DATA_DIST_DIR)/data.zip
+build: installer $(RES_DIR)/gui/gui.so
 builder: $(BUILDER_ARCHIVE)
 
 
-build: $(SRC)
+installer: $(SRC)
 	go build -v $(GO_MOD_FLAGS) -o "$(BIN)" "$(PKG)/main"
 
-$(RES_DIR)/gui/gui.so: $(SRC)
+$(RES_DIR)/gui/gui.so: $(SRC_GUI)
 	go build -v $(GO_MOD_FLAGS) $(GOTK3_BUILD_TAGS) -buildmode=plugin \
 		-o "$(RES_DIR)/gui/gui.so" "$(PKG)/gui"
 
@@ -40,7 +42,7 @@ $(DATA_DIST_DIR)/data.zip: $(DATA_SRC_DIR)
 	rm -f "$(DATA_DIST_DIR)/data.zip"
 	cd "$(DATA_SRC_DIR)" ; "$(ZIP_EXE)" -r "../$(DATA_DIST_DIR)/data.zip" .
 
-dev: build $(RES_DIR)/gui/gui.so $(DATA_DIST_DIR)/data.zip $(RICE_BIN_DIR)
+dev: build $(DATA_DIST_DIR)/data.zip $(RICE_BIN_DIR)
 	cp "$(BIN)" "$(BIN_DEV)"
 	$(RICE_BIN_DIR)/rice append --exec "$(BIN_DEV)"
 
@@ -50,7 +52,7 @@ run: dev
 runcli: dev
 	./"$(BIN_DEV)" -target ./DevInstallation -accept
 
-$(BUILDER_DIR): build $(RES_DIR)/gui/gui.so $(DATA_SRC_DIR) $(RICE_BIN_DIR)
+$(BUILDER_DIR): build $(DATA_SRC_DIR) $(RICE_BIN_DIR)
 	cp -r "$(DATA_SRC_DIR)" "$(RES_DIR)" "$(BIN)" "$(RICE_BIN_DIR)/$(RICE_EXE)"* \
 		"$(BUILDER_DIR)/"
 	chmod +x "$(BUILDER_DIR)/$(RICE_EXE)"
