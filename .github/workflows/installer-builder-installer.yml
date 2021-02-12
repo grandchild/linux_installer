@@ -11,6 +11,17 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Cache dependencies
+      id: cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/go/pkg/mod
+          ~/.cache/go-build
+        key: ${{ runner.os }}-godeps-${{ hashFiles('**/go.sum', 'Makefile') }}
+        restore-keys: |
+          ${{ runner.os }}-godeps-
+
     - name: Set up Go
       uses: actions/setup-go@v2
       with:
@@ -19,7 +30,11 @@ jobs:
     - name: Install dependencies
       run: sudo apt install golang-go gcc libgtk-3-dev libglib2.0-dev make pkg-config zip
 
-    - name: Build
+    - name: Build Go library dependencies
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: make build
+
+    - name: Build self-installer
       run: make self-installer
 
     - name: Upload
