@@ -4,9 +4,10 @@
 [![License](https://img.shields.io/github/license/grandchild/linux_installer.svg)](
 https://creativecommons.org/publicdomain/zero/1.0/)
 
-Linux GUI installer for audiences that are used to Windows installers. When all you
-would _really_ need is `unzip`, but want a nice user experience nonetheless. Imitates
-the look and feel of [NSIS](https://nsis.sourceforge.io/Screenshots), or rather
+Graphical Linux application installer for audiences that are used to Windows
+installers. When all you would _really_ need is `unzip`, but want a nice user
+experience nonetheless. Imitates the look and feel of
+[NSIS](https://nsis.sourceforge.io/Screenshots), or rather
 [Wizard97](https://docs.microsoft.com/en-us/windows/win32/controls/wizards)-type
 installers.
 
@@ -23,11 +24,17 @@ installers.
 
 * Application menu entry creation (_.desktop_-files)
 * Pre-/post-install script hooks
-* Automatic uninstaller creation
+* Automatic uninstaller script creation
 * Commandline or *"silent"* mode
 * Cancel with full rollback during install process
 * Run application after finish
 * Full internationalization for both GUI and CLI
+
+#### Missing Features
+
+* No partial installation, no installation by "components"
+* No automatic detection of previous installations for updates
+
 
 ## Contents
 
