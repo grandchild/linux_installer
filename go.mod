@@ -12,7 +12,13 @@ require (
 )
 
 require (
+	github.com/GeertJohan/go.incremental v1.0.0 // indirect
+	github.com/akavel/rsrc v0.8.0 // indirect
 	github.com/daaku/go.zipexe v1.0.0 // indirect
+	github.com/jessevdk/go-flags v1.4.0 // indirect
+	github.com/nkovacs/streamquote v1.0.0 // indirect
 	github.com/onsi/ginkgo v1.16.5 // indirect
 	github.com/onsi/gomega v1.20.0 // indirect
+	github.com/valyala/bytebufferpool v1.0.0 // indirect
+	github.com/valyala/fasttemplate v1.0.1 // indirect
 )

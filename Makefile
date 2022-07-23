@@ -104,9 +104,24 @@ clean-self-installer:
 
 $(RICE_BIN_DIR):
 	mkdir -p "$(RICE_BIN_DIR)"
-	go get github.com/GeertJohan/go.rice
 	GOBIN=`readlink -f "$(RICE_BIN_DIR)"` go install github.com/GeertJohan/go.rice/rice
 	# The GOBIN-trick doesn't work for cross-compilation, so that one is created
 	# in GOPATH/bin as usual and then copied.
 	GOOS=windows go install github.com/GeertJohan/go.rice/rice
 	cp "$(GOPATH)/bin/windows_amd64/rice.exe" $(RICE_BIN_DIR)/
+
+# This is the little dance that's required to vendor a binary tool, which usually aren't
+# importable go modules. Enable the `vendor_rice_cmd.go` file which _does_ import
+# go.rice/rice. This is required for `go mod` to include it in the dependencies to
+# vendor when recreating the vendor directory. The file is restored to its ".disabled"
+# name afterwards because "go build" will fail with that import present.
+vendor-refresh:
+	mv vendor_rice_cmd.go{.disabled,}
+	rm -rf \
+		vendor \
+		go.mod \
+		go.sum
+	go mod init $(PKG)
+	go mod tidy
+	go mod vendor
+	mv vendor_rice_cmd.go{,.disabled}

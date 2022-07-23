@@ -1,0 +1,7 @@
+package linux_installer
+
+// See the "vendor-refresh" recipe in the Makefile which uses this file.
+
+import (
+	"github.com/GeertJohan/go.rice/rice"
+)
