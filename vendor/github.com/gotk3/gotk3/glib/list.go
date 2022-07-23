@@ -5,7 +5,6 @@ package glib
 // #include "glib.go.h"
 import "C"
 import (
-	"sync"
 	"unsafe"
 )
 
@@ -125,6 +124,21 @@ func (v *List) Previous() *List {
 	return v.wrapNewHead(v.native().prev)
 }
 
+// First is a wrapper around g_list_first().
+func (v *List) First() *List {
+	return v.wrapNewHead(C.g_list_first(v.native()))
+}
+
+// Last is a wrapper around g_list_last().
+func (v *List) Last() *List {
+	return v.wrapNewHead(C.g_list_last(v.native()))
+}
+
+// Reverse is a wrapper around g_list_reverse().
+func (v *List) Reverse() *List {
+	return v.wrapNewHead(C.g_list_reverse(v.native()))
+}
+
 // dataRaw is a wrapper around the data struct field
 func (v *List) dataRaw() unsafe.Pointer {
 	return unsafe.Pointer(v.native().data)
@@ -158,20 +172,4 @@ func (v *List) FreeFull(fn func(item interface{})) {
 }
 
 // CompareDataFunc is a representation of GCompareDataFunc
-type CompareDataFunc func(a, b interface{}, userData ...interface{}) bool
-
-type compareDataFuncData struct {
-	fn       CompareDataFunc
-	userData []interface{}
-}
-
-var (
-	compareDataFuncRegistry = struct {
-		sync.RWMutex
-		next int
-		m    map[int]compareDataFuncData
-	}{
-		next: 1,
-		m:    make(map[int]compareDataFuncData),
-	}
-)
+type CompareDataFunc func(a, b uintptr) int

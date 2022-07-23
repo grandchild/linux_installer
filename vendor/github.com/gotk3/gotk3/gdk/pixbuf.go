@@ -171,10 +171,54 @@ func PixbufNewFromData(pixbufData []byte, cs Colorspace, hasAlpha bool, bitsPerS
 // PixbufNewFromDataOnly is a convenient alternative to PixbufNewFromData() and also a wrapper around gdk_pixbuf_new_from_data().
 func PixbufNewFromDataOnly(pixbufData []byte) (*Pixbuf, error) {
 	pixbufLoader, err := PixbufLoaderNew()
-	if err == nil {
+	if err != nil {
 		return nil, err
 	}
 	return pixbufLoader.WriteAndReturnPixbuf(pixbufData)
+}
+
+// PixbufNewFromResource is a wrapper around gdk_pixbuf_new_from_resource()
+func PixbufNewFromResource(resourcePath string) (*Pixbuf, error) {
+	var gerr *C.GError
+
+	cstr := C.CString(resourcePath)
+	defer C.free(unsafe.Pointer(cstr))
+
+	c := C.gdk_pixbuf_new_from_resource((*C.gchar)(cstr), &gerr)
+
+	if gerr != nil {
+		defer C.g_error_free(gerr)
+		return nil, errors.New(C.GoString(gerr.message))
+	}
+
+	obj := glib.Take(unsafe.Pointer(c))
+	return &Pixbuf{obj}, nil
+}
+
+// PixbufNewFromResourceAtScale is a wrapper around gdk_pixbuf_new_from_resource_at_scale()
+func PixbufNewFromResourceAtScale(resourcePath string, width, height int, preserveAspectRatio bool) (*Pixbuf, error) {
+	var gerr *C.GError
+
+	cstr := C.CString(resourcePath)
+	defer C.free(unsafe.Pointer(cstr))
+
+	cPreserveAspectRatio := gbool(preserveAspectRatio)
+
+	c := C.gdk_pixbuf_new_from_resource_at_scale(
+		(*C.gchar)(cstr),
+		C.gint(width),
+		C.gint(height),
+		C.gboolean(cPreserveAspectRatio),
+		&gerr,
+	)
+
+	if gerr != nil {
+		defer C.g_error_free(gerr)
+		return nil, errors.New(C.GoString(gerr.message))
+	}
+
+	obj := glib.Take(unsafe.Pointer(c))
+	return &Pixbuf{obj}, nil
 }
 
 // TODO:
@@ -220,9 +264,6 @@ func (v *Pixbuf) GetBitsPerSample() int {
 	c := C.gdk_pixbuf_get_bits_per_sample(v.native())
 	return int(c)
 }
-
-// TODO:
-// gdk_pixbuf_get_pixels().
 
 // GetPixels is a wrapper around gdk_pixbuf_get_pixels_with_length().
 // A Go slice is used to represent the underlying Pixbuf data array, one
@@ -290,19 +331,67 @@ func (v *Pixbuf) ScaleSimple(destWidth, destHeight int, interpType InterpType) (
 	return p, nil
 }
 
+// Scale is a wrapper around gdk_pixbuf_scale().
+func (v *Pixbuf) Scale(dest *Pixbuf, destX, destY, destWidth, destHeight int, offsetX, offsetY, scaleX, scaleY float64, interpType InterpType) {
+	C.gdk_pixbuf_scale(
+		v.native(),
+		dest.native(),
+		C.int(destX),
+		C.int(destY),
+		C.int(destWidth),
+		C.int(destHeight),
+		C.double(offsetX),
+		C.double(offsetY),
+		C.double(scaleX),
+		C.double(scaleY),
+		C.GdkInterpType(interpType),
+	)
+}
+
+// Composite is a wrapper around gdk_pixbuf_composite().
+func (v *Pixbuf) Composite(dest *Pixbuf, destX, destY, destWidth, destHeight int, offsetX, offsetY, scaleX, scaleY float64, interpType InterpType, overallAlpha int) {
+	C.gdk_pixbuf_composite(
+		v.native(),
+		dest.native(),
+		C.int(destX),
+		C.int(destY),
+		C.int(destWidth),
+		C.int(destHeight),
+		C.double(offsetX),
+		C.double(offsetY),
+		C.double(scaleX),
+		C.double(scaleY),
+		C.GdkInterpType(interpType),
+		C.int(overallAlpha),
+	)
+}
+
 // TODO:
-// gdk_pixbuf_scale().
 // gdk_pixbuf_composite_color_simple().
-// gdk_pixbuf_composite().
 // gdk_pixbuf_composite_color().
 
 // Utilities
 
 // TODO:
-// gdk_pixbuf_add_alpha().
 // gdk_pixbuf_copy_area().
 // gdk_pixbuf_saturate_and_pixelate().
-// gdk_pixbuf_fill().
+
+// Fill is a wrapper around gdk_pixbuf_fill(). The given pixel is an RGBA value.
+func (v *Pixbuf) Fill(pixel uint32) {
+	C.gdk_pixbuf_fill(v.native(), C.guint32(pixel))
+}
+
+// AddAlpha is a wrapper around gdk_pixbuf_add_alpha(). If substituteColor is
+// true, then the color specified by r, g and b will be assigned zero opacity.
+func (v *Pixbuf) AddAlpha(substituteColor bool, r, g, b uint8) *Pixbuf {
+	c := C.gdk_pixbuf_add_alpha(v.native(), gbool(substituteColor), C.guchar(r), C.guchar(g), C.guchar(b))
+
+	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
+	p := &Pixbuf{obj}
+	runtime.SetFinalizer(p, func(_ interface{}) { obj.Unref() })
+
+	return p
+}
 
 // File saving
 
@@ -468,12 +557,7 @@ func PixbufLoaderNew() (*PixbufLoader, error) {
 	if c == nil {
 		return nil, nilPtrErr
 	}
-
-	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	p := &PixbufLoader{obj}
-	obj.Ref()
-	runtime.SetFinalizer(p, func(_ interface{}) { obj.Unref() })
-	return p, nil
+	return &PixbufLoader{glib.AssumeOwnership(unsafe.Pointer(c))}, nil
 }
 
 // PixbufLoaderNewWithType() is a wrapper around gdk_pixbuf_loader_new_with_type().
@@ -493,7 +577,7 @@ func PixbufLoaderNewWithType(t string) (*PixbufLoader, error) {
 		return nil, nilPtrErr
 	}
 
-	return &PixbufLoader{glib.Take(unsafe.Pointer(c))}, nil
+	return &PixbufLoader{glib.AssumeOwnership(unsafe.Pointer(c))}, nil
 }
 
 // Write() is a wrapper around gdk_pixbuf_loader_write().  The
@@ -522,33 +606,18 @@ func (v *PixbufLoader) Write(data []byte) (int, error) {
 	return len(data), nil
 }
 
+// Convenient function like above for Pixbuf. Write data, close loader and return Pixbuf.
 func (v *PixbufLoader) WriteAndReturnPixbuf(data []byte) (*Pixbuf, error) {
-
-	if len(data) == 0 {
-		return nil, errors.New("no data")
+	_, err := v.Write(data)
+	if err != nil {
+		return nil, err
 	}
 
-	var err *C.GError
-	c := C.gdk_pixbuf_loader_write(v.native(), (*C.guchar)(unsafe.Pointer(&data[0])), C.gsize(len(data)), &err)
-
-	if !gobool(c) {
-		defer C.g_error_free(err)
-		return nil, errors.New(C.GoString((*C.char)(err.message)))
+	if err := v.Close(); err != nil {
+		return nil, err
 	}
 
-	v.Close()
-
-	c2 := C.gdk_pixbuf_loader_get_pixbuf(v.native())
-	if c2 == nil {
-		return nil, nilPtrErr
-	}
-
-	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c2))}
-	p := &Pixbuf{obj}
-	//obj.Ref() // Don't call Ref here, gdk_pixbuf_loader_get_pixbuf already did that for us.
-	runtime.SetFinalizer(p, func(_ interface{}) { obj.Unref() })
-
-	return p, nil
+	return v.GetPixbuf()
 }
 
 // Close is a wrapper around gdk_pixbuf_loader_close().  An error is
@@ -571,11 +640,7 @@ func (v *PixbufLoader) GetPixbuf() (*Pixbuf, error) {
 		return nil, nilPtrErr
 	}
 
-	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	p := &Pixbuf{obj}
-	//obj.Ref() // Don't call Ref here, gdk_pixbuf_loader_get_pixbuf already did that for us.
-	runtime.SetFinalizer(p, func(_ interface{}) { obj.Unref() })
-	return p, nil
+	return &Pixbuf{glib.Take(unsafe.Pointer(c))}, nil
 }
 
 // GetAnimation is a wrapper around gdk_pixbuf_loader_get_animation().
@@ -585,37 +650,19 @@ func (v *PixbufLoader) GetAnimation() (*PixbufAnimation, error) {
 		return nil, nilPtrErr
 	}
 
-	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c))}
-	p := &PixbufAnimation{obj}
-	runtime.SetFinalizer(p, func(_ interface{}) { obj.Unref() })
-	return p, nil
+	return &PixbufAnimation{glib.Take(unsafe.Pointer(c))}, nil
 }
 
 // Convenient function like above for Pixbuf. Write data, close loader and return PixbufAnimation.
 func (v *PixbufLoader) WriteAndReturnPixbufAnimation(data []byte) (*PixbufAnimation, error) {
-
-	if len(data) == 0 {
-		return nil, errors.New("no data")
+	_, err := v.Write(data)
+	if err != nil {
+		return nil, err
 	}
 
-	var err *C.GError
-	c := C.gdk_pixbuf_loader_write(v.native(), (*C.guchar)(unsafe.Pointer(&data[0])), C.gsize(len(data)), &err)
-
-	if !gobool(c) {
-		defer C.g_error_free(err)
-		return nil, errors.New(C.GoString((*C.char)(err.message)))
+	if err := v.Close(); err != nil {
+		return nil, err
 	}
 
-	v.Close()
-
-	c2 := C.gdk_pixbuf_loader_get_animation(v.native())
-	if c2 == nil {
-		return nil, nilPtrErr
-	}
-
-	obj := &glib.Object{glib.ToGObject(unsafe.Pointer(c2))}
-	p := &PixbufAnimation{obj}
-	runtime.SetFinalizer(p, func(_ interface{}) { obj.Unref() })
-
-	return p, nil
+	return v.GetAnimation()
 }

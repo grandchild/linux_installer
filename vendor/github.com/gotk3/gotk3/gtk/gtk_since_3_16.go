@@ -8,7 +8,6 @@ package gtk
 // #include "gtk_since_3_16.go.h"
 import "C"
 import (
-	"sync"
 	"unsafe"
 
 	"github.com/gotk3/gotk3/gdk"
@@ -114,23 +113,7 @@ func (v *Notebook) DetachTab(child IWidget) {
  */
 
 // ListBoxCreateWidgetFunc is a representation of GtkListBoxCreateWidgetFunc.
-type ListBoxCreateWidgetFunc func(item interface{}, userData ...interface{}) int
-
-type listBoxCreateWidgetFuncData struct {
-	fn       ListBoxCreateWidgetFunc
-	userData []interface{}
-}
-
-var (
-	listBoxCreateWidgetFuncRegistry = struct {
-		sync.RWMutex
-		next int
-		m    map[int]listBoxCreateWidgetFuncData
-	}{
-		next: 1,
-		m:    make(map[int]listBoxCreateWidgetFuncData),
-	}
-)
+type ListBoxCreateWidgetFunc func(item interface{}) int
 
 /*
  * GtkScrolledWindow
@@ -210,6 +193,10 @@ func marshalModelButton(p uintptr) (interface{}, error) {
 }
 
 func wrapModelButton(obj *glib.Object) *ModelButton {
+	if obj == nil {
+		return nil
+	}
+
 	actionable := wrapActionable(obj)
 	return &ModelButton{Button{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}, actionable}}
 }
@@ -247,6 +234,10 @@ func marshalPopoverMenu(p uintptr) (interface{}, error) {
 }
 
 func wrapPopoverMenu(obj *glib.Object) *PopoverMenu {
+	if obj == nil {
+		return nil
+	}
+
 	return &PopoverMenu{Popover{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}}
 }
 
@@ -292,6 +283,10 @@ func marshalStackSidebar(p uintptr) (interface{}, error) {
 }
 
 func wrapStackSidebar(obj *glib.Object) *StackSidebar {
+	if obj == nil {
+		return nil
+	}
+
 	return &StackSidebar{Bin{Container{Widget{glib.InitiallyUnowned{obj}}}}}
 }
 

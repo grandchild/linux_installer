@@ -107,6 +107,10 @@ func marshalAccelGroup(p uintptr) (interface{}, error) {
 }
 
 func wrapAccelGroup(obj *glib.Object) *AccelGroup {
+	if obj == nil {
+		return nil
+	}
+
 	return &AccelGroup{obj}
 }
 
@@ -122,7 +126,7 @@ func AccelGroupNew() (*AccelGroup, error) {
 
 // Connect is a wrapper around gtk_accel_group_connect().
 func (v *AccelGroup) Connect(key uint, mods gdk.ModifierType, flags AccelFlags, f interface{}) {
-	closure, _ := glib.ClosureNew(f)
+	closure := glib.ClosureNew(f)
 	cl := (*C.struct__GClosure)(unsafe.Pointer(closure))
 	C.gtk_accel_group_connect(
 		v.native(),
@@ -134,7 +138,7 @@ func (v *AccelGroup) Connect(key uint, mods gdk.ModifierType, flags AccelFlags, 
 
 // ConnectByPath is a wrapper around gtk_accel_group_connect_by_path().
 func (v *AccelGroup) ConnectByPath(path string, f interface{}) {
-	closure, _ := glib.ClosureNew(f)
+	closure := glib.ClosureNew(f)
 	cl := (*C.struct__GClosure)(unsafe.Pointer(closure))
 
 	cstr := C.CString(path)
@@ -148,7 +152,7 @@ func (v *AccelGroup) ConnectByPath(path string, f interface{}) {
 
 // Disconnect is a wrapper around gtk_accel_group_disconnect().
 func (v *AccelGroup) Disconnect(f interface{}) {
-	closure, _ := glib.ClosureNew(f)
+	closure := glib.ClosureNew(f)
 	cl := (*C.struct__GClosure)(unsafe.Pointer(closure))
 	C.gtk_accel_group_disconnect(v.native(), cl)
 }
@@ -175,7 +179,7 @@ func (v *AccelGroup) IsLocked() bool {
 
 // AccelGroupFromClosure is a wrapper around gtk_accel_group_from_accel_closure().
 func AccelGroupFromClosure(f interface{}) *AccelGroup {
-	closure, _ := glib.ClosureNew(f)
+	closure := glib.ClosureNew(f)
 	cl := (*C.struct__GClosure)(unsafe.Pointer(closure))
 	c := C.gtk_accel_group_from_accel_closure(cl)
 	if c == nil {
@@ -236,6 +240,10 @@ func marshalAccelMap(p uintptr) (interface{}, error) {
 }
 
 func wrapAccelMap(obj *glib.Object) *AccelMap {
+	if obj == nil {
+		return nil
+	}
+
 	return &AccelMap{obj}
 }
 
@@ -247,32 +255,13 @@ func AccelMapAddEntry(path string, key uint, mods gdk.ModifierType) {
 	C.gtk_accel_map_add_entry((*C.gchar)(cstr), C.guint(key), C.GdkModifierType(mods))
 }
 
-type AccelKey struct {
-	key   uint
-	mods  gdk.ModifierType
-	flags uint16
-}
+type AccelKey C.GtkAccelKey
 
-func (v *AccelKey) native() *C.struct__GtkAccelKey {
+func (v *AccelKey) native() *C.GtkAccelKey {
 	if v == nil {
 		return nil
 	}
-
-	var val C.struct__GtkAccelKey
-	val.accel_key = C.guint(v.key)
-	val.accel_mods = C.GdkModifierType(v.mods)
-	val.accel_flags = v.flags
-	return &val
-}
-
-func wrapAccelKey(obj *C.struct__GtkAccelKey) *AccelKey {
-	var v AccelKey
-
-	v.key = uint(obj.accel_key)
-	v.mods = gdk.ModifierType(obj.accel_mods)
-	v.flags = uint16(obj.accel_flags)
-
-	return &v
+	return (*C.GtkAccelKey)(v)
 }
 
 // AccelMapLookupEntry is a wrapper around gtk_accel_map_lookup_entry().
@@ -280,10 +269,10 @@ func AccelMapLookupEntry(path string) *AccelKey {
 	cstr := C.CString(path)
 	defer C.free(unsafe.Pointer(cstr))
 
-	var v *C.struct__GtkAccelKey
+	var v = new(AccelKey)
 
-	C.gtk_accel_map_lookup_entry((*C.gchar)(cstr), v)
-	return wrapAccelKey(v)
+	C.gtk_accel_map_lookup_entry((*C.gchar)(cstr), v.native())
+	return v
 }
 
 // AccelMapChangeEntry is a wrapper around gtk_accel_map_change_entry().
