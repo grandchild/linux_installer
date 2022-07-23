@@ -77,7 +77,7 @@ self-installer: clean-builder $(BUILDER_DIR)
 $(DATA_SRC_DIR):
 	mkdir "$@"
 
-clean: clean-data clean-builder clean-self-installer
+clean: clean-data clean-builder clean-self-installer clean-rice
 	rm -f "$(RES_DIR)/gui/gui.so"
 	rm -f "$(BIN)" "$(BIN_DEV)"
 
@@ -100,6 +100,9 @@ clean-self-installer:
 		"$(RELEASE_DIST_DIR)/$(RES_DIR)/gui/gui.glade" \
 		"$(RELEASE_DIST_DIR)/$(RES_DIR)/languages" \
 		"$(RELEASE_DIST_DIR)/$(RES_DIR)/uninstaller" \
+
+clean-rice:
+	rm -rf "$(RICE_BIN_DIR)"
 
 
 $(RICE_BIN_DIR):
