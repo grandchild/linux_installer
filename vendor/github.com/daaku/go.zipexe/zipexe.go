@@ -125,8 +125,10 @@ func zipExeReaderElf(rda io.ReaderAt, size int64) (*zip.Reader, error) {
 		}
 
 		// Check if this section has a zip file
-		if zfile, err := zip.NewReader(sect, int64(sect.Size)); err == nil {
-			return zfile, nil
+		if sect.ReaderAt != nil {
+			if zfile, err := zip.NewReader(sect, int64(sect.Size)); err == nil {
+				return zfile, nil
+			}
 		}
 
 		// Otherwise move end of file pointer
